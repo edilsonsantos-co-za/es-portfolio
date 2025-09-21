@@ -1,0 +1,36 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Serve files directly if they exist
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Set proper MIME types
+    <IfModule mod_mime.c>
+        AddType text/css .css
+        AddType application/javascript .js
+        AddType image/png .png
+        AddType image/jpeg .jpg .jpeg
+        AddType image/gif .gif
+        AddType image/svg+xml .svg
+        AddType application/font-woff .woff
+        AddType application/font-woff2 .woff2
+        AddType application/vnd.ms-fontobject .eot
+        AddType application/x-font-ttf .ttf
+    </IfModule>
+
+    # Allow Cross-Origin for fonts and other assets
+    <IfModule mod_headers.c>
+        <FilesMatch "\.(ttf|ttc|otf|eot|woff|woff2|font.css|css|js)$">
+            Header set Access-Control-Allow-Origin "*"
+        </FilesMatch>
+    </IfModule>
+</IfModule>

@@ -1,0 +1,27 @@
+services:
+  app:
+    container_name: edfolio-dev
+    image: edfolio:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.dev
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      # Explicit backup volume for easy access
+      - ./storage/app/backups:/var/www/html/storage/app/backups
+    networks:
+      - milkyway
+    environment:
+      # Docker startup behavior for development
+      - SKIP_ASSET_BUILD=false
+      - FORCE_FRESH_DB=true
+      - CREATE_DB_BACKUP=true
+      - RUN_MIGRATIONS=auto
+      - RUN_SEEDING=auto
+
+networks:
+  milkyway:
+    external: true
