@@ -216,6 +216,113 @@
             color: #fff !important;
         }
 
+        /* Ant Design text components - force black text with higher specificity */
+        section .ant-card,
+        section .ant-card *,
+        section .ant-card-body,
+        section .ant-card-body *,
+        section .ant-card-meta,
+        section .ant-card-meta *,
+        section .ant-card-meta-title,
+        section .ant-card-meta-title *,
+        section .ant-card-meta-description,
+        section .ant-card-meta-description *,
+        section .ant-card-head,
+        section .ant-card-head *,
+        section .ant-card-head-title,
+        section .ant-card-head-title *,
+        section .ant-radio-button,
+        section .ant-radio-button *,
+        section .ant-radio-button-wrapper,
+        section .ant-radio-button-wrapper *,
+        section .ant-radio-button-wrapper span,
+        section .ant-radio-group,
+        section .ant-radio-group *,
+        div .ant-card,
+        div .ant-card *,
+        div .ant-card-body,
+        div .ant-card-body *,
+        div .ant-card-meta-title,
+        div .ant-card-meta-title *,
+        div .ant-radio-button,
+        div .ant-radio-button * {
+            color: #333 !important;
+            background-color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        /* Specific card styling */
+        .ant-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Ensure layout components stay transparent */
+        .ant-row,
+        .ant-col {
+            background-color: transparent !important;
+        }
+
+        /* Ant Design drawer components match container background */
+        .ant-drawer,
+        .ant-drawer-content,
+        .ant-drawer-content-wrapper,
+        .ant-drawer-wrapper-body,
+        .ant-drawer-body,
+        .ant-drawer-header,
+        .ant-drawer-footer {
+            background: rgba(0, 0, 0, 0.9) !important;
+            color: #fff !important;
+        }
+
+        /* Drawer header and footer specific styling */
+        .ant-drawer-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .ant-drawer-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Drawer close button */
+        .ant-drawer-close {
+            color: #fff !important;
+        }
+
+        /* Drawer title */
+        .ant-drawer-title {
+            color: #fff !important;
+        }
+
+        /* Drawer buttons styling */
+        .ant-drawer .ant-btn,
+        .ant-drawer .ant-btn-primary,
+        .ant-drawer .ant-btn-default,
+        .ant-drawer button {
+            background: rgba(0, 0, 0, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+        }
+
+        .ant-drawer .ant-btn:hover,
+        .ant-drawer .ant-btn-primary:hover,
+        .ant-drawer .ant-btn-default:hover,
+        .ant-drawer button:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            color: #fff !important;
+        }
+
+        /* Primary buttons in drawer */
+        .ant-drawer .ant-btn-primary {
+            background: {{$accentColor}} !important;
+            border-color: {{$accentColor}} !important;
+        }
+
+        .ant-drawer .ant-btn-primary:hover {
+            background: rgba({{$accentColorRGB}}, 0.8) !important;
+            border-color: rgba({{$accentColorRGB}}, 0.8) !important;
+        }
+
         /* Header text - Portfolio owner name and tagline */
         #header h1,
         #header h1 a,
@@ -251,6 +358,130 @@
         .navbar-mobile a:focus,
         .navbar-mobile a.active {
             color: #fff !important;
+        }
+
+        /* Mobile nav toggle button */
+        .mobile-nav-toggle {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            font-size: 28px !important;
+            cursor: pointer !important;
+            display: none !important;
+            line-height: 0 !important;
+            transition: 0.5s !important;
+            position: fixed !important;
+            right: 25px !important;
+            top: 5px !important;
+            z-index: 9998 !important;
+            padding: 10px 15px !important;
+            border-radius: 50px !important;
+            width: 50px !important;
+            height: 50px !important;
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-nav-toggle {
+                display: flex !important;
+            }
+
+            .navbar ul {
+                display: none !important;
+            }
+
+            .navbar ul.navbar-mobile {
+                position: fixed !important;
+                overflow: hidden !important;
+                top: 0 !important;
+                right: 0 !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                background: rgba(0, 0, 0, 0.9) !important;
+                transition: 0.3s !important;
+                z-index: 999 !important;
+                display: block !important;
+                padding-top: 60px !important;
+            }
+
+            .navbar-mobile ul {
+                display: block !important;
+                position: absolute !important;
+                top: 55px !important;
+                right: 15px !important;
+                bottom: 45px !important;
+                left: 15px !important;
+                padding: 10px 0 !important;
+                overflow-y: auto !important;
+                border: 2px solid rgba(255, 255, 255, 0.2) !important;
+            }
+
+            .navbar-mobile li {
+                padding: 12px 20px !important;
+            }
+        }
+
+        /* Fix responsive layout for service icon boxes */
+        .services .row {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            margin: 0 -15px !important;
+        }
+
+        .services .row > div {
+            flex: 0 0 auto !important;
+            padding: 0 15px !important;
+            margin-bottom: 20px !important;
+        }
+
+        .services .icon-box {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 200px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            padding: 30px 20px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .services .icon-box .icon {
+            margin-bottom: 20px !important;
+        }
+
+        .services .icon-box h4 {
+            margin-bottom: 15px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .services .icon-box p {
+            flex-grow: 1 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Responsive breakpoints for service boxes */
+        @media (max-width: 767px) {
+            .services .row > div {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991px) {
+            .services .row > div {
+                flex: 0 0 50% !important;
+                max-width: 50% !important;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .services .row > div {
+                flex: 0 0 33.333333% !important;
+                max-width: 33.333333% !important;
+            }
         }
     </style>
 </head>
@@ -437,8 +668,8 @@
                 <div class="row">
                     @if (!empty($services))
                         @foreach ($services as $service)
-                            <div class="col-lg-4 col-md-6 d-flex align-items-stretch{{ $loop->index >= 3 ? ' mt-4' : '' }}">
-                                <div class="icon-box">
+                            <div class="col-lg-4 col-md-6 d-flex align-items-stretch mt-4">
+                                <div class="icon-box w-100">
                                     <div class="icon"><i class="{{ $service->icon }}"></i></div>
                                     <h4><a href="">{{ $service->title }}</a></h4>
                                     <p>{{ $service->details }}</p>
