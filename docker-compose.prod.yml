@@ -41,11 +41,6 @@ services:
 
 volumes:
   prod_backups:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind,size=2g
-      device: /tmp/claude/prod_backups
 
 networks:
   milkyway:

@@ -17,7 +17,7 @@
         "rap2hpoutre/laravel-log-viewer": "^2.0",
         "barryvdh/laravel-ide-helper": "^2.12",
         "stevebauman/location": "^6.1",
-        "tymon/jwt-auth": "^1.0"
+        "tymon/jwt-auth": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
@@ -29,7 +29,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2.29"
+        }
     },
     "extra": {
         "laravel": {
