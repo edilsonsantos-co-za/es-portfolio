@@ -1,8 +1,8 @@
 # Multi-stage build for better layer caching
 FROM php:8.2-apache AS base
 
-# Install system dependencies and PHP extensions
-RUN apt-get update && apt-get install -y \
+# Install system dependencies and PHP extensions in single layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     libpng-dev \
@@ -13,16 +13,20 @@ RUN apt-get update && apt-get install -y \
     unzip \
     default-mysql-client \
     gnupg \
-    vim \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install -j$(nproc) pdo_mysql mbstring exif pcntl bcmath gd zip \
     && a2enmod rewrite headers \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Node.js and npm (always available for runtime asset building)
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get update \
-    && apt-get install -y nodejs \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm cache clean --force \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.npm
 
 # Configure Apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
@@ -35,12 +39,16 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/sites-available/000-default.conf
 
-# Configure PHP for production
+# Configure PHP for production with resource limits
 RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/production.ini \
     && echo "display_startup_errors = Off" >> /usr/local/etc/php/conf.d/production.ini \
     && echo "error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT" >> /usr/local/etc/php/conf.d/production.ini \
     && echo "log_errors = On" >> /usr/local/etc/php/conf.d/production.ini \
-    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/production.ini
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/production.ini \
+    && echo "max_execution_time = 30" >> /usr/local/etc/php/conf.d/production.ini \
+    && echo "max_input_time = 30" >> /usr/local/etc/php/conf.d/production.ini \
+    && echo "post_max_size = 32M" >> /usr/local/etc/php/conf.d/production.ini \
+    && echo "upload_max_filesize = 32M" >> /usr/local/etc/php/conf.d/production.ini
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
