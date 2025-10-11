@@ -2,6 +2,8 @@
 
 A modern, full-stack portfolio application built with Laravel and React, designed for developers and creatives to showcase their work professionally.
 
+> **Note:** This project is a fork of [ezfolio](https://github.com/arifszn/ezfolio) by [arifszn](https://github.com/arifszn).
+
 ## Tech Stack
 
 ### Backend
@@ -82,67 +84,6 @@ The development environment automatically:
 - Installs Node dependencies via npm
 - Builds frontend assets
 - Configures Redis for caching
-
-## Production Deployment
-
-### Production Setup
-
-The application can be deployed to production using Docker Compose.
-
-**Deployment URL:** https://edilsonsantos.co.za
-
-### Manual Production Deployment
-
-1. **Set up production environment**
-   ```bash
-   ./bin/create-env.sh prod
-   ```
-
-2. **Build and start production containers**
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d --build
-   ```
-
-3. **Verify deployment**
-   ```bash
-   docker-compose -f docker-compose.prod.yml ps
-   docker logs edfolio-prod
-   ```
-
-### Production Environment Variables
-
-Key variables to configure in `.env.prod`:
-
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://edilsonsantos.co.za
-
-# Database (external or containerized)
-DB_HOST=your-db-host
-DB_DATABASE=edfolio
-DB_USERNAME=edfolio_user
-DB_PASSWORD=strong-password
-
-# Redis (external or containerized)
-REDIS_HOST=your-redis-host
-REDIS_PASSWORD=strong-password
-
-# Mail configuration
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your-email
-MAIL_PASSWORD=your-password
-```
-
-### Production Features
-
-- Optimized asset compilation (minified and compressed)
-- Production-ready PHP configuration
-- Enhanced security settings
-- Automated health checks
-- Database backup management
 
 ## Environment Configuration
 
