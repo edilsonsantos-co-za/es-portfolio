@@ -4,6 +4,10 @@ A modern, full-stack portfolio application built with Laravel and React, designe
 
 > **Note:** This project is a fork of [ezfolio](https://github.com/arifszn/ezfolio) by [arifszn](https://github.com/arifszn).
 
+## About
+
+EdFolio is a comprehensive portfolio management system that combines the power of Laravel's backend with React's dynamic frontend. Whether you're a developer, designer, or creative professional, EdFolio provides all the tools you need to build and manage a professional online presence.
+
 ## Tech Stack
 
 ### Backend
@@ -48,7 +52,7 @@ A modern, full-stack portfolio application built with Laravel and React, designe
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/edilsonsantos/edfolio.git
    cd edfolio
    ```
 
@@ -291,15 +295,20 @@ Additional documentation is available in the following files:
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-Copyright (c) 2024 Edilson Santos
-
 ## Support
 
-For issues, questions, or contributions, please refer to the documentation files above or open an issue in the repository.
+For issues, questions, or contributions:
+- Open an issue in the [GitHub repository](https://github.com/edilsonsantos/edfolio/issues)
+- Check existing documentation in the repository
+- Review the [original ezfolio project](https://github.com/arifszn/ezfolio) for additional resources
 
 ---
 
