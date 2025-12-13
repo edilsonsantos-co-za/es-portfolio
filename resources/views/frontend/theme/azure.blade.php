@@ -267,11 +267,21 @@
             background-color: transparent !important;
         }
 
-        /* Ant Design drawer components match container background */
+        /* Ant Design drawer components - transparent/semi-transparent background */
+        .ant-drawer-mask {
+            background: transparent !important;
+        }
+
         .ant-drawer,
-        .ant-drawer-content,
         .ant-drawer-content-wrapper,
-        .ant-drawer-wrapper-body,
+        .ant-drawer-wrapper-body {
+            background: transparent !important;
+        }
+
+        .ant-drawer-content {
+            background: rgba(0, 0, 0, 0.9) !important;
+        }
+
         .ant-drawer-body,
         .ant-drawer-header,
         .ant-drawer-footer {
@@ -321,11 +331,26 @@
         .ant-drawer .ant-btn-primary {
             background: {{$accentColor}} !important;
             border-color: {{$accentColor}} !important;
+            color: #fff !important;
         }
 
         .ant-drawer .ant-btn-primary:hover {
             background: rgba({{$accentColorRGB}}, 0.8) !important;
             border-color: rgba({{$accentColorRGB}}, 0.8) !important;
+            color: #fff !important;
+        }
+
+        /* Drawer text elements */
+        .ant-drawer-body *,
+        .ant-drawer p,
+        .ant-drawer span,
+        .ant-drawer div,
+        .ant-drawer a {
+            color: #fff !important;
+        }
+
+        .ant-drawer a:hover {
+            color: {{$accentColor}} !important;
         }
 
         /* Header text - Portfolio owner name and tagline */
