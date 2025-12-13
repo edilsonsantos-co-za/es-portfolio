@@ -76,6 +76,11 @@
             background: {{$accentColor}} !important;
         }
 
+        /* Keep social links visible even in header-top mode */
+        #header.header-top .social-links {
+            display: flex !important;
+        }
+
         .navbar a:before {
             background-color: {{$accentColor}} !important;
         }
