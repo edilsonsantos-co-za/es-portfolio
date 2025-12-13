@@ -17,7 +17,7 @@ services:
     environment:
       # Docker startup behavior for production
       - SKIP_ASSET_BUILD=false
-      - FORCE_FRESH_DB=true
+      - FORCE_FRESH_DB=false
       - CREATE_DB_BACKUP=true
     deploy:
       resources:
