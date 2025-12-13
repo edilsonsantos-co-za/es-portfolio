@@ -74,11 +74,35 @@
 
         #header .social-links a:hover {
             background: {{$accentColor}} !important;
+            transform: scale(1.15) !important;
+            box-shadow: 0 0 10px rgba({{$accentColorRGB}}, 0.5) !important;
+            color: #fff !important;
         }
 
-        /* Keep social links visible even in header-top mode */
+        #header .social-links a:hover i {
+            color: #fff !important;
+        }
+
+        #header .social-links a {
+            transition: all 0.3s ease !important;
+        }
+
+        /* Keep social links visible and align them in header-top mode */
         #header.header-top .social-links {
             display: flex !important;
+            margin-top: 0 !important;
+            margin-left: auto !important;
+        }
+
+        #header.header-top .container {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+
+        #header.header-top .navbar {
+            margin-left: auto !important;
+            margin-right: 20px !important;
         }
 
         .navbar a:before {
