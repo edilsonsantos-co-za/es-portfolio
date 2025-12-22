@@ -72,6 +72,15 @@
             border-bottom-color: {{$accentColor}} !important;
         }
 
+        #header .social-links a {
+            transition: all 0.3s ease !important;
+            color: #fff !important;
+        }
+
+        #header .social-links a i {
+            color: #fff !important;
+        }
+
         #header .social-links a:hover {
             background: {{$accentColor}} !important;
             transform: scale(1.15) !important;
@@ -81,10 +90,6 @@
 
         #header .social-links a:hover i {
             color: #fff !important;
-        }
-
-        #header .social-links a {
-            transition: all 0.3s ease !important;
         }
 
         /* Keep social links visible and align them in header-top mode */
@@ -166,6 +171,23 @@
         .contact .php-email-form input:focus,
         .contact .php-email-form textarea:focus {
             border-color: {{$accentColor}} !important;
+        }
+
+        /* Contact section social links - white by default */
+        .contact .social-links a {
+            color: #fff !important;
+        }
+
+        .contact .social-links a i {
+            color: #fff !important;
+        }
+
+        .contact .social-links a:hover {
+            color: {{$accentColor}} !important;
+        }
+
+        .contact .social-links a:hover i {
+            color: {{$accentColor}} !important;
         }
 
         /* React projects styling */
