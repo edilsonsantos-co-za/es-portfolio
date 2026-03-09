@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/compatible';
+import PageHeader from '../PageHeader';
 import { Button, Space, Dropdown, Modal, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';

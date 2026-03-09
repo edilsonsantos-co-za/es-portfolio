@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/compatible';
+import PageHeader from '../PageHeader';
 import {  Form, Spin, Input, Select, Button, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';

@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/compatible';
+import PageHeader from '../PageHeader';
 import React, { useEffect, useState } from 'react';
 import { Spin, List,  Switch } from 'antd';
 import PropTypes from 'prop-types';

@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/compatible';
+import PageHeader from '../PageHeader';
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Radio, Spin, Image,  List, Typography, Switch } from 'antd';
 import Utils from '../../../common/helpers/Utils';
