@@ -6,21 +6,21 @@ This application supports both development and production Docker environments wi
 
 ### Development Environment
 
-Use `docker-compose.yml` for local development:
+Use `docker-compose.dev.yml` for local development:
 
 ```bash
 # Build and start development environment
-docker-compose up --build
+docker-compose -f docker-compose.dev.yml up --build
 
 # Or run in background
-docker-compose up -d --build
+docker-compose -f docker-compose.dev.yml up -d --build
 ```
 
 **Features:**
-- Uses `APP_ENV=local`
-- Compiles assets with `npm run development` (faster, unminified)
+- Uses `.env.dev` for environment configuration
 - Volume mounts for live development
-- Debug mode enabled
+- Auto migrations and seeding on startup (`RUN_MIGRATIONS=auto`, `RUN_SEEDING=auto`)
+- Fresh DB reset support via `FORCE_FRESH_DB=true`
 
 ### Production Environment
 
@@ -97,7 +97,7 @@ To switch from development to production:
 
 1. Stop current containers:
    ```bash
-   docker-compose down
+   docker-compose -f docker-compose.dev.yml down
    ```
 
 2. Build and start with production config:
@@ -108,7 +108,7 @@ To switch from development to production:
 ## File Structure
 
 ```
-├── docker-compose.yml          # Development configuration
+├── docker-compose.dev.yml      # Development configuration
 ├── docker-compose.prod.yml     # Production configuration
 ├── Dockerfile                  # Multi-environment Dockerfile
 ├── bin/start-apache.sh            # Startup script with asset building

@@ -186,8 +186,7 @@ docker exec edfolio-dev ./bin/backup-manager.sh backup
 
 ### Available Compose Files
 
-- `docker-compose.yml` - Base configuration
-- `docker-compose.dev.yml` - Full development stack with all services
+- `docker-compose.dev.yml` - Development stack with all services
 - `docker-compose.prod.yml` - Production configuration
 
 ### Development Services
