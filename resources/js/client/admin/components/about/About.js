@@ -569,7 +569,7 @@ const About = () => {
                                                                     ]
                                                                 }>
                                                                     <Item.Meta description={
-                                                                        <Input placeholder="Enter tag line" value={item} bordered={false} onChange={(e) => taglineEditHandler(e, index)}/>
+                                                                        <Input placeholder="Enter tag line" value={item} variant="borderless" onChange={(e) => taglineEditHandler(e, index)}/>
                                                                     }/>
                                                                 </List.Item>
                                                             </div>

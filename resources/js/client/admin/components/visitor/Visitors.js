@@ -265,7 +265,7 @@ const Visitors = () => {
                     }}
                 >
                     <Card 
-                        bordered={false}
+                        variant="borderless"
                         hoverable
                         style={{cursor: 'default'}}
                         className="z-shadow"
@@ -273,7 +273,7 @@ const Visitors = () => {
                         <Row>
                             <StyledCol md={12} sm={12} xs={24} align={'left'}>
                                 <DatePicker.RangePicker
-                                    bordered={false}
+                                    variant="borderless"
                                     ranges={{
                                         "Today": [moment(), moment()],
                                         "Yesterday": [moment().subtract(1, 'day'), moment().subtract(1, 'day')],
@@ -320,7 +320,7 @@ const Visitors = () => {
                                 style={{cursor: 'default'}}
                                 title={"Count"}
                                 loading={loading}
-                                bordered={false}
+                                variant="borderless"
                                 hoverable
                                 className="z-shadow"
                             >
@@ -366,7 +366,7 @@ const Visitors = () => {
                                 style={{cursor: 'default'}}
                                 title={"Platform"}
                                 loading={loading}
-                                bordered={false}
+                                variant="borderless"
                                 hoverable
                                 className="z-shadow"
                             >
@@ -396,7 +396,7 @@ const Visitors = () => {
                                 style={{cursor: 'default'}}
                                 title={"Browser"}
                                 loading={loading}
-                                bordered={false}
+                                variant="borderless"
                                 hoverable
                                 className="z-shadow"
                             >
@@ -439,7 +439,7 @@ const Visitors = () => {
                                 style={{cursor: 'default'}}
                                 title={"Location"}
                                 loading={loading}
-                                bordered={false}
+                                variant="borderless"
                                 hoverable
                                 className="z-shadow"
                             >
@@ -466,7 +466,7 @@ const Visitors = () => {
                                 style={{cursor: 'default'}}
                                 title={"Device"}
                                 loading={loading}
-                                bordered={false}
+                                variant="borderless"
                                 hoverable
                                 className="z-shadow"
                             >

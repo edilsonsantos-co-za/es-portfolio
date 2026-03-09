@@ -171,7 +171,7 @@ const Basic = (props) => {
                                 marginBottom: 24,
                             }}>
                                 <Card
-                                    bodyStyle={{padding: 8}}
+                                    styles={{ body: {padding: 8} }}
                                     style={element.id === template ? selectedTemplateStyle : {}}
                                     onClick={() => templateOnClickHandler(element.id)}
                                     cover={

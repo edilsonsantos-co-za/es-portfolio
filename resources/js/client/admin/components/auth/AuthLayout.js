@@ -57,10 +57,10 @@ const AuthLayout = ({ children, title }) => {
                             <Wrapper>
                                 <Card
                                     hoverable={true}
-                                    bordered={false}
+                                    variant="borderless"
                                     className="z-shadow"
                                     style={{maxWidth: 380, cursor: 'default'}}
-                                    bodyStyle={{padding: '40px 40px 40px 40px'}}
+                                    styles={{ body: {padding: '40px 40px 40px 40px'} }}
                                 >
                                     <Row>
                                         <Col span={24}>

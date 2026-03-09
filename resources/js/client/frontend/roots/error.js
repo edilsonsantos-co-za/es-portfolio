@@ -2,7 +2,6 @@ import { Result } from 'antd';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
-import 'antd/dist/antd.css';
 
 const Wrapper = styled.section`
     margin-top: 30px;

@@ -6,8 +6,8 @@ const PageWrapper = ({children, className = '', loading = false, noPadding = fal
     return (
         <React.Fragment>
             <Card 
-                bordered={false}
-                bodyStyle={{padding: noPadding ? 0 : null}} 
+                variant="borderless"
+                styles={{ body: {padding: noPadding ? 0 : undefined} }} 
                 hoverable 
                 className={`${className} z-shadow`} 
                 style={{cursor: 'default'}} 

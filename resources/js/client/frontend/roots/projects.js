@@ -133,10 +133,10 @@ function App() {
                                                     setModalVisible(true);
                                                 }}
                                                 loading={loading}
-                                                bodyStyle={{padding: '14px'}}
+                                                styles={{ body: {padding: '14px'} }}
                                                 hoverable
                                                 className={'z-hover z-shadow'}
-                                                bordered={false}
+                                                variant="borderless"
                                                 cover={
                                                     <div style={{opacity: '0.7'}}>
                                                         <Image

@@ -76,3 +76,4 @@ docker-compose.override.yml
 # Build artifacts
 /public/build/
 /public/mix-manifest.json
+/storage

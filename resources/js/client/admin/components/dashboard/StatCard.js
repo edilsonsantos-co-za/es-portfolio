@@ -81,7 +81,7 @@ const StatCard = ({ icon, color, title, number, loading= false, link = false, is
                     loading={loading}
                     hoverable={true}
                     size="default"
-                    bordered={false}
+                    variant="borderless"
                     className="z-shadow"
                     style={!loading ? {padding: '18px 0'} : {}}
                 >

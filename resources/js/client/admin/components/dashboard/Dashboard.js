@@ -345,7 +345,7 @@ const Dashboard = () => {
                         >
                             <Card
                                 hoverable={true}
-                                bordered={false}
+                                variant="borderless"
                                 loading={loading}
                                 className='z-shadow'
                                 style={{cursor: 'default'}}
@@ -379,7 +379,7 @@ const Dashboard = () => {
                                 onClick={() => {
                                     history.push(Routes.web.admin.visitors);
                                 }}
-                                bordered={false}
+                                variant="borderless"
                                 loading={loading}
                                 className='z-shadow'
                             >
@@ -443,7 +443,7 @@ const Dashboard = () => {
                                 onClick={() => {
                                     history.push(Routes.web.admin.messages);
                                 }}
-                                bordered={false}
+                                variant="borderless"
                                 loading={loading}
                                 className='z-shadow'
                             >
@@ -517,7 +517,7 @@ const Dashboard = () => {
                                     history.push(Routes.web.admin.portfolioConfig);
                                 }}
                                 hoverable={true}
-                                bordered={false}
+                                variant="borderless"
                                 size={'small'}
                                 loading={loading}
                                 className='z-shadow'
@@ -561,7 +561,7 @@ const Dashboard = () => {
                                 style={{cursor: 'default'}}
                                 hoverable={true}
                                 size="small"
-                                bordered={false}
+                                variant="borderless"
                                 className='z-shadow'
                                 loading={loading}
                                 cover={

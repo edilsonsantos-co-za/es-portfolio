@@ -2,6 +2,16 @@ import { notification, message as tinyMessage } from 'antd';
 import CoreConstants from './CoreConstants';
 import { changeAntdTheme } from 'mini-dynamic-antd-theme';
 
+// Holds context-aware instances injected by AntdAppBridge (see admin/roots/app.js).
+// Falls back to the static antd API if not yet initialized.
+let _notification = notification;
+let _message = tinyMessage;
+
+const setAntdInstances = (notificationInstance, messageInstance) => {
+    _notification = notificationInstance;
+    _message = messageInstance;
+};
+
 /**
  * Display notification
  * 
@@ -11,7 +21,7 @@ import { changeAntdTheme } from 'mini-dynamic-antd-theme';
  * @param boolean sticky 
  */
 const showNotification = (message = 'Something went wrong', type = 'error', title = null, sticky = false) => {
-    notification[type]({
+    _notification[type]({
         message: title ? title : type[0].toUpperCase() + type.slice(1),
         description: message,
         placement: 'bottomRight',
@@ -26,7 +36,7 @@ const showNotification = (message = 'Something went wrong', type = 'error', titl
  * @param string type 
  */
 const showTinyNotification = (message = 'Something went wrong', type = 'error') => {
-    tinyMessage[type](message);
+    _message[type](message);
 };
 
 /**
@@ -192,6 +202,7 @@ const Utils = {
     handleSuccessResponse,
     changeAccentColor,
     templates,
+    setAntdInstances,
 }
 
 export default Utils;

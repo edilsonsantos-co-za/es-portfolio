@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ConfigProvider } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
 import enUSIntl from 'antd/lib/locale/en_US';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Routes from '../../common/helpers/Routes';
@@ -22,6 +22,18 @@ const NotFound = loadable(() => import('../components/Notfound'));
 const store = ConfigureStore();
 
 /**
+ * Registers context-aware antd notification/message instances into Utils
+ * so they respect the active theme/ConfigProvider context.
+ */
+const AntdAppBridge = () => {
+    const { notification: notif, message: msg } = AntdApp.useApp();
+    React.useEffect(() => {
+        Utils.setAntdInstances(notif, msg);
+    }, [notif, msg]);
+    return null;
+};
+
+/**
  * Remove an element by showing fade out effect
  * 
  * @param Element el 
@@ -33,7 +45,9 @@ const fadeoutAndRemoveElement = (el, speed) => {
 
     el.style.opacity = 0;
     setTimeout(function() {
-        el.parentNode.removeChild(el);
+        if (el.parentNode) {
+            el.parentNode.removeChild(el);
+        }
     }, speed);
 }
 
@@ -110,7 +124,9 @@ const App = () => {
 		<React.Fragment>
             <SuspenseErrorBoundary fallback={<ErrorBoundaryFallbackUI/>}>
                 <ConfigProvider locale={enUSIntl}>
-                    <BrowserRouter>
+                    <AntdApp>
+                        <AntdAppBridge />
+                        <BrowserRouter>
                         <Switch>
                             
                             {/* public routes */}
@@ -137,7 +153,8 @@ const App = () => {
                             </Route>
                             
                         </Switch>
-                    </BrowserRouter>
+                        </BrowserRouter>
+                    </AntdApp>
                 </ConfigProvider>
             </SuspenseErrorBoundary>
         </React.Fragment>
