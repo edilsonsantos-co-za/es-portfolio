@@ -29,7 +29,9 @@
         "react-dom": "^18.3.1"
     },
     "dependencies": {
-        "@ant-design/charts": "^1.4.2",
+        "@ant-design/charts": "^2.6.7",
+        "@ant-design/compatible": "^5.1.4",
+        "@ant-design/plots": "^2.6.8",
         "@ant-design/pro-layout": "^7.17.16",
         "@ant-design/pro-table": "^3.14.5",
         "@loadable/component": "^5.16.4",
@@ -42,7 +44,9 @@
         "less": "^4.1.1",
         "less-loader": "^8.0.0",
         "mini-dynamic-antd-theme": "^0.5.3",
+        "moment": "^2.30.1",
         "nprogress": "^0.2.0",
+        "rc-field-form": "^2.7.1",
         "rc-queue-anim": "^1.8.5",
         "react-color": "^2.19.3",
         "react-countup": "^4.3.3",

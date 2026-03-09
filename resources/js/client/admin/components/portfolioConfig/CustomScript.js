@@ -1,5 +1,6 @@
+import { PageHeader } from '@ant-design/compatible';
 import React, { useEffect, useState } from 'react';
-import { Spin, List, PageHeader } from 'antd';
+import { Spin, List } from 'antd';
 import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';

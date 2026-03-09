@@ -13,7 +13,7 @@ import {
     ExclamationCircleOutlined
 } from '@ant-design/icons';
 import styled from 'styled-components';
-import { Pie, WordCloud } from '@ant-design/charts';
+import { Pie, WordCloud } from '@ant-design/plots';
 
 const { confirm } = Modal;
 

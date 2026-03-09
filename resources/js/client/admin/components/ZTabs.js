@@ -36,8 +36,8 @@ const ZTabs = ({tabs, selectedTab = null}) => {
         }
     }, [selectedTab])
 
-    const getMenu = () => {
-        return tabs.map((tab) => <Menu.Item key={tab.key}>{tab.title}</Menu.Item>);
+    const getMenuItems = () => {
+        return tabs.map((tab) => ({ key: tab.key, label: tab.title }));
     }
 
     const renderContent = () => {
@@ -56,9 +56,7 @@ const ZTabs = ({tabs, selectedTab = null}) => {
         <React.Fragment>
             <Wrapper>
                 <div className={'leftMenu'}>
-                    <Menu mode={'inline'} selectedKeys={[selectKey]} onClick={({ key }) => setSelectKey(key)}>
-                        {getMenu()}
-                    </Menu>
+                    <Menu mode={'inline'} selectedKeys={[selectKey]} onClick={({ key }) => setSelectKey(key)} items={getMenuItems()} />
                 </div>
                 <div className={'right'}>
                     {renderContent()}

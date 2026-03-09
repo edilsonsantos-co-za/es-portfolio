@@ -14,7 +14,7 @@ import { BsBriefcase } from 'react-icons/bs';
 import { GiSecretBook } from 'react-icons/gi';
 import { AiOutlineTeam } from 'react-icons/ai';
 import { RiServiceLine, RiMessage3Line } from 'react-icons/ri';
-import { TinyArea } from '@ant-design/charts';
+import { Tiny } from '@ant-design/plots';
 import RedditImageFetcher from 'reddit-image-fetcher';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -355,11 +355,12 @@ const Dashboard = () => {
                                         <Text type={'secondary'}>Visitor Trend</Text>
                                     </Col>
                                     <Col md={24} sm={24} xs={24} style={{textAlign: 'center'}}>
-                                        <TinyArea
+                                        <Tiny.Area
                                             height={75}
-                                            showTitle={true}
                                             autoFit={true}
-                                            data={visitorData.trend}
+                                            data={visitorData.trend.map((v, i) => ({ index: i, value: v }))}
+                                            xField="index"
+                                            yField="value"
                                             smooth={true}
                                         />
                                     </Col>

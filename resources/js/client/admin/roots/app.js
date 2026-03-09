@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App as AntdApp, ConfigProvider } from 'antd';
-import enUSIntl from 'antd/lib/locale/en_US';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import enUSIntl from 'antd/locale/en_US';import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Routes from '../../common/helpers/Routes';
 import SuspenseErrorBoundary from '../../common/components/SuspenseErrorBoundary';
 import {ErrorBoundaryFallbackUI} from '../../common/components/ErrorBoundaryFallbackUI';
 import '../../common/assets/css/app.css';
 import ReactRoutes from '../../common/helpers/ReactRoutes';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { initializeGlobalState } from '../redux/ActionCreators';
 import ConfigureStore from '../redux/ConfigureStore';
 import PrivateRoute from '../components/PrivateRoute';
@@ -120,10 +119,12 @@ const App = () => {
         setupInterceptors(store);
     }, []);
 
+    const accentColor = useSelector(state => state.globalState.accentColor);
+
 	return (
 		<React.Fragment>
             <SuspenseErrorBoundary fallback={<ErrorBoundaryFallbackUI/>}>
-                <ConfigProvider locale={enUSIntl}>
+                <ConfigProvider locale={enUSIntl} theme={{ token: { colorPrimary: accentColor || '#1890ff' } }}>
                     <AntdApp>
                         <AntdAppBridge />
                         <BrowserRouter>

@@ -1,4 +1,5 @@
-import { PageHeader, Radio, List, Spin } from 'antd';
+import { PageHeader } from '@ant-design/compatible';
+import {  Radio, List, Spin } from 'antd';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { setGlobalState } from '../../redux/ActionCreators';

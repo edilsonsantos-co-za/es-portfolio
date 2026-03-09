@@ -1,4 +1,5 @@
-import { Button, Menu, PageHeader, Space, Dropdown, Modal, Switch, Typography } from 'antd';
+import { PageHeader } from '@ant-design/compatible';
+import { Button, Space, Dropdown, Modal, Switch, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
 import moment from 'moment';
 import PageWrapper from '../layout/PageWrapper';
@@ -114,7 +115,7 @@ const Messages = () => {
             width: 170,
             fixed: 'right',
             render: (text, row) => [
-                <Dropdown key="0" overlay={menu(row)} trigger={['click']}>
+                <Dropdown key="0" menu={getMenuItems(row)} trigger={['click']}>
                     <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                         Option <DownOutlined />
                     </a>
@@ -155,36 +156,33 @@ const Messages = () => {
         });
     }
 
-    const menu = (row) => (
-        <Menu>
-            <Menu.Item 
-                key="0"
-                onClick={() => {
-                    window.open(`mailto:${row.email}`, '_blank')
-                }}
-                icon={<SendOutlined />}
-            >
-                Reply
-            </Menu.Item>
-            <Menu.Item 
-                key="1" 
-                onClick={() => {
+    const getMenuItems = (row) => ({
+        items: [
+            {
+                key: '0',
+                icon: <SendOutlined />,
+                label: 'Reply',
+                onClick: () => {
+                    window.open(`mailto:${row.email}`, '_blank');
+                },
+            },
+            {
+                key: '1',
+                icon: <EyeOutlined />,
+                label: 'View',
+                onClick: () => {
                     setItemToShow(row);
                     setModalVisible(true);
-                }}
-                icon={<EyeOutlined/>}
-            >
-                View
-            </Menu.Item>
-            <Menu.Item 
-                key="2"
-                onClick={() => showConfirm([row])}
-                icon={<DeleteOutlined />}
-            >
-                Delete
-            </Menu.Item>
-        </Menu>
-    );
+                },
+            },
+            {
+                key: '2',
+                icon: <DeleteOutlined />,
+                label: 'Delete',
+                onClick: () => showConfirm([row]),
+            },
+        ],
+    });
 
     return (
         <React.Fragment>

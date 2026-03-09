@@ -1,4 +1,5 @@
-import { PageHeader, Form, Spin, Input, Select, Button, Typography } from 'antd';
+import { PageHeader } from '@ant-design/compatible';
+import {  Form, Spin, Input, Select, Button, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import HTTP from '../../../common/helpers/HTTP';

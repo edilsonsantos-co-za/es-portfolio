@@ -1,6 +1,5 @@
 import { notification, message as tinyMessage } from 'antd';
 import CoreConstants from './CoreConstants';
-import { changeAntdTheme } from 'mini-dynamic-antd-theme';
 
 // Holds context-aware instances injected by AntdAppBridge (see admin/roots/app.js).
 // Falls back to the static antd API if not yet initialized.
@@ -157,7 +156,9 @@ const handleBadRequest = (errorObject) => {
  *  * @param color 
  */
 const changeAccentColor = (color) => {
-    changeAntdTheme(color);
+    if (color) {
+        document.documentElement.style.setProperty('--z-accent-color', color);
+    }
 }
 
 /**

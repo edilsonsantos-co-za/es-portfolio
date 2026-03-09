@@ -1,4 +1,5 @@
-import { List, PageHeader, Typography, Spin } from 'antd';
+import { PageHeader } from '@ant-design/compatible';
+import { List,  Typography, Spin } from 'antd';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import Utils from '../../../common/helpers/Utils';
