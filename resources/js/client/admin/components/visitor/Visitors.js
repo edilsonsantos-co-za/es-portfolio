@@ -25,16 +25,13 @@ const pieConfig = {
     height: 200,
     innerRadius: 0.6,
     label: {
-        type: 'inner',
+        position: 'inside',
         autoRotate: false,
-        offset: '-50%',
-        content: function content(_ref) {
-            let percent = _ref.percent;
-            return ''.concat(parseFloat(percent * 100).toFixed(0), '%');
-        },
+        text: (d) => `${parseFloat(d.percent * 100).toFixed(0)}%`,
         style: {
             textAlign: 'center',
             fontSize: 14,
+            fill: '#fff',
         },
     },
     interactions: [{ type: 'element-selected' }, { type: 'element-active' }],
@@ -67,7 +64,9 @@ const wordCloudConfig = {
     },
 };
 
-const StyledCol = styled(Col)`
+const StyledCol = styled(Col).withConfig({
+    shouldForwardProp: (prop) => !['mobilePaddingTop'].includes(prop),
+})`
 text-align: ${props => props.align ? props.align : 'left'};
 @media (max-width: 768px) {
     text-align: center !important;
@@ -274,15 +273,15 @@ const Visitors = () => {
                             <StyledCol md={12} sm={12} xs={24} align={'left'}>
                                 <DatePicker.RangePicker
                                     variant="borderless"
-                                    ranges={{
-                                        "Today": [moment(), moment()],
-                                        "Yesterday": [moment().subtract(1, 'day'), moment().subtract(1, 'day')],
-                                        "This Week": [moment().startOf('week'), moment().endOf('week')],
-                                        "Last 7 Days": [moment().subtract(7, 'day'), moment()],
-                                        "This Month": [moment().startOf('month'), moment().endOf('month')],
-                                        "Last Month": [moment().subtract(1,'months').startOf('month'), moment().subtract(1,'months').endOf('month')],
-                                        "Last 30 Days": [moment().subtract(30, 'day'), moment()],
-                                    }}
+                                    presets={[
+                                        { label: "Today", value: [moment(), moment()] },
+                                        { label: "Yesterday", value: [moment().subtract(1, 'day'), moment().subtract(1, 'day')] },
+                                        { label: "This Week", value: [moment().startOf('week'), moment().endOf('week')] },
+                                        { label: "Last 7 Days", value: [moment().subtract(7, 'day'), moment()] },
+                                        { label: "This Month", value: [moment().startOf('month'), moment().endOf('month')] },
+                                        { label: "Last Month", value: [moment().subtract(1,'months').startOf('month'), moment().subtract(1,'months').endOf('month')] },
+                                        { label: "Last 30 Days", value: [moment().subtract(30, 'day'), moment()] },
+                                    ]}
                                     onChange={datePickerOnChange}
                                 />
                             </StyledCol>

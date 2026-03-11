@@ -2,6 +2,13 @@ import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App as AntdApp, ConfigProvider } from 'antd';
 import enUSIntl from 'antd/locale/en_US';import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
+// Suppress known antd v5 / rc-resize-observer findDOMNode warning (upstream library issue)
+const _consoleError = console.error;
+console.error = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('findDOMNode')) return;
+    _consoleError(...args);
+};
 import Routes from '../../common/helpers/Routes';
 import SuspenseErrorBoundary from '../../common/components/SuspenseErrorBoundary';
 import {ErrorBoundaryFallbackUI} from '../../common/components/ErrorBoundaryFallbackUI';
@@ -165,10 +172,8 @@ const App = () => {
 if (document.getElementById('react-root')) {
     const root = createRoot(document.getElementById('react-root'));
     root.render(
-        <React.StrictMode>
-            <Provider store={store}>
-                <App/>
-            </Provider>
-        </React.StrictMode>
+        <Provider store={store}>
+            <App/>
+        </Provider>
     );
 }

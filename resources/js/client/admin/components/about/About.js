@@ -111,7 +111,6 @@ const About = () => {
     }, [])
 
     useEffect(() => {
-        console.log(typedElement);
         const options = {
             strings: taglines && taglines.length ? taglines : [''],
             typeSpeed: 70,
