@@ -17,12 +17,17 @@ background-color: @menu-bg;
 }
 .right {
     flex: 1;
+    padding: 0 24px;
+    overflow: auto;
 }
 @media (max-width: 768px) {
     flex-direction: column;
     .leftMenu {
         width: 100%;
         border: none;
+    }
+    .right {
+        padding: 0 16px;
     }
 }
 `;

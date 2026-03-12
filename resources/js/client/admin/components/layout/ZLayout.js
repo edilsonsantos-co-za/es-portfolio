@@ -191,6 +191,7 @@ const ZLayout = ({ children }) => {
                     )}
                     rightContentRender={() => <NavContent/>}
                     breadcrumbRender={() => ('')}
+                    contentStyle={{ padding: '24px' }}
                 >
                     {children}
                     {/* <BackTop /> */}
