@@ -50,7 +50,7 @@ const ProjectPopup = (props) => {
             zIndex={999999999}
             title={props.title}
             onClose={handleClose}
-            visible={visible}
+            open={visible}
             destroyOnClose={true}
             maskClosable={true}
             forceRender={true}

@@ -93,7 +93,7 @@ const Experience = (props) => {
         <StyledDrawer
             title={props.title}
             onClose={handleClose}
-            visible={visible}
+            open={visible}
             destroyOnClose={true}
             maskClosable={false}
             forceRender={true}

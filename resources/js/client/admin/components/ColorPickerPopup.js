@@ -35,7 +35,7 @@ const ColorPickerPopup = (props) => {
     return (
         <React.Fragment>
             <Modal
-                visible={visible}
+                open={visible}
                 closable={false}
                 onOk={handleOk}
                 onCancel={() => {handleCancel(previousColor)}}

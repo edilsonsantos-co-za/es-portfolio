@@ -93,7 +93,7 @@ const LoginCredentialPopup = (props) => {
         <StyledDrawer
             title="Login Credential"
             onClose={handleClose}
-            visible={visible}
+            open={visible}
             destroyOnClose={true}
             maskClosable={false}
             forceRender={true}

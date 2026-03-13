@@ -87,7 +87,7 @@ const SeoPopup = (props) => {
         <StyledDrawer
             title="Search Engine Optimization"
             onClose={handleClose}
-            visible={visible}
+            open={visible}
             destroyOnClose={true}
             maskClosable={false}
             forceRender={true}

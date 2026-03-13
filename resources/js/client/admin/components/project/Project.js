@@ -204,7 +204,7 @@ const Project = (props) => {
         <StyledDrawer
             title={props.title}
             onClose={handleClose}
-            visible={visible}
+            open={visible}
             destroyOnClose={true}
             maskClosable={false}
             forceRender={true}
@@ -255,7 +255,7 @@ const Project = (props) => {
                         ]}
                     >
                         <Select
-                            mode="tags"
+                            mode="multiple"
                             allowClear
                             placeholder="Select Existing or Create New"
                         >
@@ -325,7 +325,7 @@ const Project = (props) => {
                     </Form.Item>
                 </Form>
                 <Modal
-                    visible={previewVisible}
+                    open={previewVisible}
                     title={'Preview'}
                     footer={null}
                     centered
