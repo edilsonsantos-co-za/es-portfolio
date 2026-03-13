@@ -166,6 +166,29 @@ docker images edfolio
 docker run -d --name edfolio-prod-rollback edfolio:PREVIOUS_SHA
 ```
 
+## Persistent Storage for Uploaded Files
+
+Uploaded images and files are stored in `storage/app/public` and served via a symlink at `public/storage`.
+
+### `edfolio_storage` Named Volume
+
+A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/app/public` in the production container. This ensures uploaded files **survive container restarts and redeploys**.
+
+- **First-time setup**: The volume is created automatically by Docker Compose on first `up`. No manual action needed.
+- **The storage symlink** (`public/storage → storage/app/public`) is created on startup only if it doesn't already exist, so container restarts with a populated volume are safe.
+
+### Migrating from an Old Deployment
+
+If you previously stored uploaded files directly in `assets/common/img/` (outside the storage volume), copy them into the named volume before redeploying:
+
+```bash
+# Copy existing files into the running container's storage volume
+docker cp assets/common/img/. edfolio-prod:/var/www/html/storage/app/public/
+
+# Fix ownership
+docker exec edfolio-prod chown -R www-data:www-data /var/www/html/storage/app/public
+```
+
 ## Best Practices
 
 1. **Test changes locally** before pushing to main

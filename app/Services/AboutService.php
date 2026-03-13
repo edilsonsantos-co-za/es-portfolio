@@ -5,6 +5,7 @@ namespace App\Services;
 use CoreConstants;
 use App\Models\About;
 use App\Services\Contracts\AboutInterface;
+use Illuminate\Support\Facades\Storage;
 use Log;
 use Str;
 use Validator;
@@ -186,34 +187,37 @@ class AboutService implements AboutInterface
             $file = $data['file'];
             $extension = $file->extension() ? $file->extension() : 'png';
             $fileName = Str::random(10). '_'. time() .'.'. $extension;
-            $pathName = 'assets/common/img/avatar/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
 
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('avatar', $file, $fileName);
+            if ($stored) {
                 //delete previous avatar
                 $oldAvatarResponse = $this->getAll(['avatar', 'id']);
                 try {
-                    if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldAvatarResponse['payload']->avatar !== 'assets/common/img/avatar/default.png' && file_exists($oldAvatarResponse['payload']->avatar)) {
-                        unlink($oldAvatarResponse['payload']->avatar);
+                    if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
+                        $oldAvatar = $oldAvatarResponse['payload']->avatar;
+                        if ($oldAvatar !== 'assets/common/img/avatar/default.png') {
+                            $oldPath = preg_replace('/^storage\//', '', $oldAvatar);
+                            if (Storage::disk('public')->exists($oldPath)) {
+                                Storage::disk('public')->delete($oldPath);
+                            }
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
                 $result = $oldAvatarResponse['payload'];
+                $newFilePath = 'storage/' . $stored;
 
                 $updateResponse = $result->update([
-                    'avatar' => $pathName.$fileName
+                    'avatar' => $newFilePath
                 ]);
 
                 if ($updateResponse) {
                     return [
                         'message' => 'Avatar is successfully saved',
                         'payload' => [
-                            'file' => $pathName.$fileName
+                            'file' => $newFilePath
                         ],
                         'status' => CoreConstants::STATUS_CODE_SUCCESS
                     ];
@@ -250,7 +254,8 @@ class AboutService implements AboutInterface
     public function processDeleteAvatarRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
+            $storagePath = preg_replace('/^storage\//', '', $file);
+            if (!Storage::disk('public')->exists($storagePath)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -258,7 +263,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (unlink($file)) {
+            if (Storage::disk('public')->delete($storagePath)) {
                 $defaultAvatar = 'assets/common/img/avatar/default.png';
                 $result = $this->getAll();
 
@@ -328,34 +333,37 @@ class AboutService implements AboutInterface
             $file = $data['file'];
             $extension = $file->extension() ? $file->extension() : 'png';
             $fileName = Str::random(10). '_'. time() .'.'. $extension;
-            $pathName = 'assets/common/img/cover/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
 
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('cover', $file, $fileName);
+            if ($stored) {
                 //delete previous cover
                 $oldCoverResponse = $this->getAll(['cover', 'id']);
                 try {
-                    if ($oldCoverResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldCoverResponse['payload']->cover !== 'assets/common/img/cover/default.png' && file_exists($oldCoverResponse['payload']->cover)) {
-                        unlink($oldCoverResponse['payload']->cover);
+                    if ($oldCoverResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
+                        $oldCover = $oldCoverResponse['payload']->cover;
+                        if ($oldCover !== 'assets/common/img/cover/default.png') {
+                            $oldPath = preg_replace('/^storage\//', '', $oldCover);
+                            if (Storage::disk('public')->exists($oldPath)) {
+                                Storage::disk('public')->delete($oldPath);
+                            }
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
                 $result = $oldCoverResponse['payload'];
+                $newFilePath = 'storage/' . $stored;
 
                 $updateResponse = $result->update([
-                    'cover' => $pathName.$fileName
+                    'cover' => $newFilePath
                 ]);
 
                 if ($updateResponse) {
                     return [
                         'message' => 'cover is successfully saved',
                         'payload' => [
-                            'file' => $pathName.$fileName
+                            'file' => $newFilePath
                         ],
                         'status' => CoreConstants::STATUS_CODE_SUCCESS
                     ];
@@ -392,7 +400,8 @@ class AboutService implements AboutInterface
     public function processDeleteCoverRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
+            $storagePath = preg_replace('/^storage\//', '', $file);
+            if (!Storage::disk('public')->exists($storagePath)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -400,7 +409,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (unlink($file)) {
+            if (Storage::disk('public')->delete($storagePath)) {
                 $defaultCover = 'assets/common/img/cover/default.png';
                 $result = $this->getAll();
 
@@ -470,34 +479,34 @@ class AboutService implements AboutInterface
             $file = $data['file'];
             $extension = $file->extension() ? $file->extension() : 'pdf';
             $fileName = Str::random(10). '_'. time() .'.'. $extension;
-            $pathName = 'assets/common/cv/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
 
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('cv', $file, $fileName);
+            if ($stored) {
                 //delete previous cv
                 $oldCVResponse = $this->getAll(['cv', 'id']);
                 try {
-                    if ($oldCVResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldCVResponse['payload']->cv !== 'assets/common/cv/default.pdf' && file_exists($oldCVResponse['payload']->cv)) {
-                        unlink($oldCVResponse['payload']->cv);
+                    if ($oldCVResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldCVResponse['payload']->cv !== null) {
+                        $oldPath = preg_replace('/^storage\//', '', $oldCVResponse['payload']->cv);
+                        if (Storage::disk('public')->exists($oldPath)) {
+                            Storage::disk('public')->delete($oldPath);
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
                 $result = $oldCVResponse['payload'];
+                $newFilePath = 'storage/' . $stored;
 
                 $updateResponse = $result->update([
-                    'cv' => $pathName.$fileName
+                    'cv' => $newFilePath
                 ]);
                 
                 if ($updateResponse) {
                     return [
                         'message' => 'CV is successfully saved',
                         'payload' => [
-                            'file' => $pathName.$fileName
+                            'file' => $newFilePath
                         ],
                         'status' => CoreConstants::STATUS_CODE_SUCCESS
                     ];
@@ -534,7 +543,8 @@ class AboutService implements AboutInterface
     public function processDeleteCVRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
+            $storagePath = preg_replace('/^storage\//', '', $file);
+            if (!Storage::disk('public')->exists($storagePath)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -542,7 +552,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (unlink($file)) {
+            if (Storage::disk('public')->delete($storagePath)) {
                 $result = $this->getAll();
                 if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
                     return $result;

@@ -12,6 +12,8 @@ services:
       - .:/var/www/html
       # Named volume for persistent backups
       - prod_backups:/var/www/html/storage/app/backups
+      # Named volume so uploaded images survive redeploys
+      - edfolio_storage:/var/www/html/storage/app/public
     networks:
       - milkyway
     environment:
@@ -41,6 +43,7 @@ services:
 
 volumes:
   prod_backups:
+  edfolio_storage:
 
 networks:
   milkyway:

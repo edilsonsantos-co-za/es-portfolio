@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Services\Contracts\ProjectInterface;
 use App\Helpers\Utils;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Log;
 use Str;
 use Validator;
@@ -181,8 +182,9 @@ class ProjectService implements ProjectInterface
         if ($project) {
             //delete previous
             try {
-                if (file_exists($project->thumbnail)) {
-                    unlink($project->thumbnail);
+                $oldPath = preg_replace('/^storage\//', '', $project->thumbnail);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
                 }
             } catch (\Throwable $th) {
                 Log::error($th->getMessage());
@@ -191,16 +193,12 @@ class ProjectService implements ProjectInterface
         //new entry
         try {
             $fileName = time().'_'.Str::random(10).'.png';
-            $pathName = 'assets/common/img/projects/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('projects', $file, $fileName);
+            if ($stored) {
                 return [
                     'message' => 'File is successfully saved',
                     'payload' => [
-                        'file' => $pathName.$fileName
+                        'file' => 'storage/' . $stored
                     ],
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
@@ -235,8 +233,9 @@ class ProjectService implements ProjectInterface
             try {
                 $existingImages = Utils::safeJsonDecode($project->images, true);
                 foreach ($existingImages as $key => $existingImage) {
-                    if (file_exists($existingImage)) {
-                        unlink($existingImage);
+                    $oldPath = preg_replace('/^storage\//', '', $existingImage);
+                    if (Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
                     }
                 }
             } catch (\Throwable $th) {
@@ -249,13 +248,9 @@ class ProjectService implements ProjectInterface
             foreach ($fileArray as $key => $file) {
                 try {
                     $fileName = time().'_'.Str::random(10).'.png';
-                    $pathName = 'assets/common/img/projects/';
-                    
-                    if (!file_exists($pathName)) {
-                        mkdir($pathName, 0777, true);
-                    }
-                    if ($file->move($pathName, $fileName)) {
-                        array_push($savedFileArray, $pathName.$fileName);
+                    $stored = Storage::disk('public')->putFileAs('projects', $file, $fileName);
+                    if ($stored) {
+                        array_push($savedFileArray, 'storage/' . $stored);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
@@ -405,8 +400,9 @@ class ProjectService implements ProjectInterface
             foreach ($entries as $key => $entry) {
                 //delete thumbnail
                 try {
-                    if (file_exists($entry->thumbnail)) {
-                        unlink($entry->thumbnail);
+                    $thumbPath = preg_replace('/^storage\//', '', $entry->thumbnail);
+                    if (Storage::disk('public')->exists($thumbPath)) {
+                        Storage::disk('public')->delete($thumbPath);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
@@ -415,8 +411,9 @@ class ProjectService implements ProjectInterface
                 try {
                     $existingImages = Utils::safeJsonDecode($entry->images, true);
                     foreach ($existingImages as $key => $existingImage) {
-                        if (file_exists($existingImage)) {
-                            unlink($existingImage);
+                        $imgPath = preg_replace('/^storage\//', '', $existingImage);
+                        if (Storage::disk('public')->exists($imgPath)) {
+                            Storage::disk('public')->delete($imgPath);
                         }
                     }
                 } catch (\Throwable $th) {

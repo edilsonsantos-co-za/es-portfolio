@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Services\Contracts\AboutInterface;
 use App\Services\Contracts\SettingInterface;
 use Config;
+use Illuminate\Support\Facades\Storage;
 use Log;
 // TODO: Replace DotenvEditor with custom env file management
 // use Jackiedo\DotenvEditor\Facades\DotenvEditor;
@@ -355,33 +356,33 @@ class SettingService implements SettingInterface
             $file = $data['file'];
             $extension = $file->extension() ? $file->extension() : 'png';
             $fileName = Str::random(10). '_'. time() .'.'. $extension;
-            $pathName = 'assets/common/img/logo/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
 
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('logo', $file, $fileName);
+            if ($stored) {
                 //delete previous logo
                 try {
                     $oldLogoResponse = $this->getSettingByKey(CoreConstants::SETTING__LOGO);
-                    if ($oldLogoResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldLogoResponse['payload']->setting_value !== 'assets/common/img/logo/default.png' && file_exists($oldLogoResponse['payload']->setting_value)) {
-                        unlink($oldLogoResponse['payload']->setting_value);
+                    if ($oldLogoResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldLogoResponse['payload']->setting_value !== 'assets/common/img/logo/default.png') {
+                        $oldPath = preg_replace('/^storage\//', '', $oldLogoResponse['payload']->setting_value);
+                        if (Storage::disk('public')->exists($oldPath)) {
+                            Storage::disk('public')->delete($oldPath);
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
+                $newFilePath = 'storage/' . $stored;
                 $result  = $this->setSettingData([
                     'setting_key'  => CoreConstants::SETTING__LOGO,
-                    'setting_value' => $pathName.$fileName,
+                    'setting_value' => $newFilePath,
                 ]);
 
                 if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                     return [
                         'message' => 'File is successfully saved',
                         'payload' => [
-                            'file' => $pathName.$fileName
+                            'file' => $newFilePath
                         ],
                         'status' => CoreConstants::STATUS_CODE_SUCCESS
                     ];
@@ -414,14 +415,15 @@ class SettingService implements SettingInterface
     public function processDeleteLogoRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
+            $storagePath = preg_replace('/^storage\//', '', $file);
+            if (!Storage::disk('public')->exists($storagePath)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
             }
-            if (unlink($file)) {
+            if (Storage::disk('public')->delete($storagePath)) {
                 $defaultLogo = 'assets/common/img/logo/default.png';
 
                 $result  = $this->setSettingData([
@@ -481,33 +483,33 @@ class SettingService implements SettingInterface
             $file = $data['file'];
             $extension = $file->extension() ? $file->extension() : 'png';
             $fileName = Str::random(10). '_'. time() .'.'. $extension;
-            $pathName = 'assets/common/img/favicon/';
-            
-            if (!file_exists($pathName)) {
-                mkdir($pathName, 0777, true);
-            }
 
-            if ($file->move($pathName, $fileName)) {
+            $stored = Storage::disk('public')->putFileAs('favicon', $file, $fileName);
+            if ($stored) {
                 //delete previous favicon
                 try {
                     $oldFaviconResponse = $this->getSettingByKey(CoreConstants::SETTING__FAVICON);
-                    if ($oldFaviconResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldFaviconResponse['payload']->setting_value !== 'assets/common/img/favicon/default.png' && file_exists($oldFaviconResponse['payload']->setting_value)) {
-                        unlink($oldFaviconResponse['payload']->setting_value);
+                    if ($oldFaviconResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldFaviconResponse['payload']->setting_value !== 'assets/common/img/favicon/default.png') {
+                        $oldPath = preg_replace('/^storage\//', '', $oldFaviconResponse['payload']->setting_value);
+                        if (Storage::disk('public')->exists($oldPath)) {
+                            Storage::disk('public')->delete($oldPath);
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
                 }
 
+                $newFilePath = 'storage/' . $stored;
                 $result  = $this->setSettingData([
                     'setting_key' => CoreConstants::SETTING__FAVICON,
-                    'setting_value' => $pathName.$fileName,
+                    'setting_value' => $newFilePath,
                 ]);
 
                 if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                     return [
                         'message' => 'Favicon is successfully saved',
                         'payload' => [
-                            'file' => $pathName.$fileName
+                            'file' => $newFilePath
                         ],
                         'status' => CoreConstants::STATUS_CODE_SUCCESS
                     ];
@@ -540,14 +542,15 @@ class SettingService implements SettingInterface
     public function processDeleteFaviconRequest(string $file)
     {
         try {
-            if (!file_exists($file)) {
+            $storagePath = preg_replace('/^storage\//', '', $file);
+            if (!Storage::disk('public')->exists($storagePath)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
                     'status' => CoreConstants::STATUS_CODE_NOT_FOUND
                 ];
             }
-            if (unlink($file)) {
+            if (Storage::disk('public')->delete($storagePath)) {
                 $defaultFavicon = 'assets/common/img/favicon/default.png';
                 $result  = $this->setSettingData([
                     'setting_key' => CoreConstants::SETTING__FAVICON,

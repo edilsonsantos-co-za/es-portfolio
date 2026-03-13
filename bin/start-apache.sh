@@ -223,7 +223,11 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   echo "[STARTUP] Clearing view cache..."
   php artisan view:clear || echo "[ERROR] View clear failed, but continuing..."
   echo "[STARTUP] Creating storage symlink..."
-  php artisan storage:link || echo "[ERROR] Storage link failed, but continuing..."
+  if [ ! -L /var/www/html/public/storage ]; then
+    php artisan storage:link || echo "[WARN] storage:link failed"
+  else
+    echo "[INFO] Storage symlink already exists"
+  fi
   
   # Only generate key if APP_KEY is empty or missing
   echo "[STARTUP] Checking application key..."

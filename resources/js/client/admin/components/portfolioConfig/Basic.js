@@ -103,6 +103,7 @@ const Basic = (props) => {
         })
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
+                Utils.showNotification(response.data.message, 'success');
                 if (callback) {
                     callback();
                 }
