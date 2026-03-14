@@ -135,7 +135,7 @@ const SeoPopup = (props) => {
                     name="image"
                 >
                     <FileUploaderFormInput
-                        previewFile={props.data && props.data.image && (Utils.backend + '/' + props.data.image)}
+                        previewFile={props.data && props.data.image && Utils.mediaUrl(props.data.image)}
                         onChangeCallback={imageOnChange}
                         acceptedFileTypes={"image/*"}
                         labelIdle={'Drag & Drop your image or <span class="filepond--label-action">Browse</span>'}

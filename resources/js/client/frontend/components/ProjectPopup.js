@@ -75,7 +75,7 @@ const ProjectPopup = (props) => {
                                 JSON.parse(props.project.images).map((image, index) => (
                                     <div key={index}>
                                         <Image
-                                            src={Utils.backend + '/' + image}
+                                            src={Utils.mediaUrl(image)}
                                             preview={false}
                                             width='100%'
                                             placeholder={true}

@@ -65,7 +65,7 @@ const AuthLayout = ({ children, title }) => {
                                     <Row>
                                         <Col span={24}>
                                             <StyledTitle level={3} style={{textAlign: 'center'}}>
-                                                <img src={Utils.backend + '/' + logo} alt='logo'/>
+                                                <img src={Utils.mediaUrl(logo)} alt='logo'/>
                                             </StyledTitle>
                                         </Col>
                                         <Col span={24}><Title>{title}</Title></Col>

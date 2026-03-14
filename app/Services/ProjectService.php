@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use CoreConstants;
+use App\Helpers\MediaStorage;
 use App\Models\Project;
 use App\Services\Contracts\ProjectInterface;
 use App\Helpers\Utils;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Log;
-use Str;
 use Validator;
 
 class ProjectService implements ProjectInterface
@@ -79,6 +78,15 @@ class ProjectService implements ProjectInterface
                     'title' => 'required|string',
                     'categories' => 'required'
                 ]);
+            } elseif (!empty($data['id'])) {
+                $validate = Validator::make($data, [
+                    'title' => 'required|string',
+                    'thumbnail' => 'required_without:existing_thumbnail',
+                    'existing_thumbnail' => 'required_without:thumbnail',
+                    'images' => 'required_without:existing_images',
+                    'existing_images' => 'required_without:images',
+                    'categories' => 'required'
+                ]);
             } else {
                 $validate = Validator::make($data, [
                     'title' => 'required|string',
@@ -114,13 +122,28 @@ class ProjectService implements ProjectInterface
                         $existingData = $result['payload'];
                     }
 
+                    $thumbnailInput = $data['thumbnail'] ?? ($data['existing_thumbnail'] ?? null);
+                    $imageInput = [];
+
+                    if (!empty($data['existing_images'])) {
+                        foreach ((array) $data['existing_images'] as $existingImage) {
+                            $imageInput[] = $existingImage;
+                        }
+                    }
+
+                    if (!empty($data['images'])) {
+                        foreach ((array) $data['images'] as $image) {
+                            $imageInput[] = $image;
+                        }
+                    }
+
                     //process thumbnail
-                    $processThumbnail = $this->processThumbnail($data['thumbnail'], $existingData);
+                    $processThumbnail = $this->processThumbnail($thumbnailInput, $existingData);
                     if ($processThumbnail['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
                         return $processThumbnail;
                     }
                     //process images
-                    $processImages = $this->processImages($data['images'], $existingData);
+                    $processImages = $this->processImages($imageInput, $existingData);
                     if ($processImages['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
                         return $processImages;
                     }
@@ -173,32 +196,48 @@ class ProjectService implements ProjectInterface
     /**
      * Process the thumbnail
      *
-     * @param UploadedFile $file
+     * @param UploadedFile|string $file
      * @param Project|null $project
      * @return array
      */
-    private function processThumbnail(UploadedFile $file, $project = null)
+    private function processThumbnail($file, $project = null)
     {
-        if ($project) {
-            //delete previous
-            try {
-                $oldPath = preg_replace('/^storage\//', '', $project->thumbnail);
-                if (Storage::disk('public')->exists($oldPath)) {
-                    Storage::disk('public')->delete($oldPath);
-                }
-            } catch (\Throwable $th) {
-                Log::error($th->getMessage());
-            }
+        if (is_string($file) && $file !== '') {
+            return [
+                'message' => 'Existing file is reused',
+                'payload' => [
+                    'file' => $file
+                ],
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
         }
+
+        if (!$file instanceof UploadedFile) {
+            return [
+                'message' => 'Invalid thumbnail file',
+                'payload' => null,
+                'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+            ];
+        }
+
         //new entry
         try {
-            $fileName = time().'_'.Str::random(10).'.png';
-            $stored = Storage::disk('public')->putFileAs('projects', $file, $fileName);
+            $stored = MediaStorage::storeUploadedFile($file, 'projects', 'png');
             if ($stored) {
+                if ($project && $project->thumbnail !== $stored) {
+                    try {
+                        if (MediaStorage::exists($project->thumbnail)) {
+                            MediaStorage::delete($project->thumbnail);
+                        }
+                    } catch (\Throwable $th) {
+                        Log::error($th->getMessage());
+                    }
+                }
+
                 return [
                     'message' => 'File is successfully saved',
                     'payload' => [
-                        'file' => 'storage/' . $stored
+                        'file' => $stored
                     ],
                     'status' => CoreConstants::STATUS_CODE_SUCCESS
                 ];
@@ -228,29 +267,21 @@ class ProjectService implements ProjectInterface
      */
     private function processImages(Array $fileArray, $project = null)
     {
-        if ($project) {
-            //delete previous
-            try {
-                $existingImages = Utils::safeJsonDecode($project->images, true);
-                foreach ($existingImages as $key => $existingImage) {
-                    $oldPath = preg_replace('/^storage\//', '', $existingImage);
-                    if (Storage::disk('public')->exists($oldPath)) {
-                        Storage::disk('public')->delete($oldPath);
-                    }
-                }
-            } catch (\Throwable $th) {
-                Log::error($th->getMessage());
-            }
-        }
         //new entry
         try {
             $savedFileArray = [];
             foreach ($fileArray as $key => $file) {
                 try {
-                    $fileName = time().'_'.Str::random(10).'.png';
-                    $stored = Storage::disk('public')->putFileAs('projects', $file, $fileName);
-                    if ($stored) {
-                        array_push($savedFileArray, 'storage/' . $stored);
+                    if (is_string($file) && $file !== '') {
+                        array_push($savedFileArray, $file);
+                        continue;
+                    }
+
+                    if ($file instanceof UploadedFile) {
+                        $stored = MediaStorage::storeUploadedFile($file, 'projects', 'png');
+                        if ($stored) {
+                            array_push($savedFileArray, $stored);
+                        }
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
@@ -258,6 +289,19 @@ class ProjectService implements ProjectInterface
             }
 
             if (count($savedFileArray)) {
+                if ($project) {
+                    try {
+                        $existingImages = Utils::safeJsonDecode($project->images, true);
+                        foreach ($existingImages as $key => $existingImage) {
+                            if (!in_array($existingImage, $savedFileArray, true) && MediaStorage::exists($existingImage)) {
+                                MediaStorage::delete($existingImage);
+                            }
+                        }
+                    } catch (\Throwable $th) {
+                        Log::error($th->getMessage());
+                    }
+                }
+
                 return [
                     'message' => 'Files are successfully saved',
                     'payload' => [
@@ -400,9 +444,8 @@ class ProjectService implements ProjectInterface
             foreach ($entries as $key => $entry) {
                 //delete thumbnail
                 try {
-                    $thumbPath = preg_replace('/^storage\//', '', $entry->thumbnail);
-                    if (Storage::disk('public')->exists($thumbPath)) {
-                        Storage::disk('public')->delete($thumbPath);
+                    if (MediaStorage::exists($entry->thumbnail)) {
+                        MediaStorage::delete($entry->thumbnail);
                     }
                 } catch (\Throwable $th) {
                     Log::error($th->getMessage());
@@ -411,9 +454,8 @@ class ProjectService implements ProjectInterface
                 try {
                     $existingImages = Utils::safeJsonDecode($entry->images, true);
                     foreach ($existingImages as $key => $existingImage) {
-                        $imgPath = preg_replace('/^storage\//', '', $existingImage);
-                        if (Storage::disk('public')->exists($imgPath)) {
-                            Storage::disk('public')->delete($imgPath);
+                        if (MediaStorage::exists($existingImage)) {
+                            MediaStorage::delete($existingImage);
                         }
                     }
                 } catch (\Throwable $th) {

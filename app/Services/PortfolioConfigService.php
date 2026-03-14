@@ -3,11 +3,10 @@
 namespace App\Services;
 
 use CoreConstants;
+use App\Helpers\MediaStorage;
 use App\Models\PortfolioConfig;
 use App\Services\Contracts\PortfolioConfigInterface;
-use Illuminate\Support\Facades\Storage;
 use Log;
-use Str;
 use Validator;
 
 class PortfolioConfigService implements PortfolioConfigInterface
@@ -418,18 +417,14 @@ class PortfolioConfigService implements PortfolioConfigInterface
                 } elseif ($key === 'image') {
                     $file = $data['image'];
                     if ($file) {
-                        $extension = $file->extension() ? $file->extension() : 'png';
-                        $fileName = Str::random(10). '_'. time() .'.'. $extension;
-
-                        $stored = Storage::disk('public')->putFileAs('meta-image', $file, $fileName);
+                        $stored = MediaStorage::storeUploadedFile($file, 'meta-image', 'png');
                         if ($stored) {
                             //delete previous image
                             try {
                                 $oldImageResponse = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_IMAGE);
                                 if ($oldImageResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldImageResponse['payload']->setting_value) {
-                                    $oldPath = preg_replace('/^storage\//', '', $oldImageResponse['payload']->setting_value);
-                                    if (Storage::disk('public')->exists($oldPath)) {
-                                        Storage::disk('public')->delete($oldPath);
+                                    if (MediaStorage::exists($oldImageResponse['payload']->setting_value)) {
+                                        MediaStorage::delete($oldImageResponse['payload']->setting_value);
                                     }
                                 }
                             } catch (\Throwable $th) {
@@ -438,7 +433,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
 
                             $newData = [
                                 'setting_key' => CoreConstants::PORTFOLIO_CONFIG__META_IMAGE,
-                                'setting_value' => 'storage/' . $stored,
+                                'setting_value' => $stored,
                             ];
                             $result = $this->insertOrUpdate($newData);
 
@@ -454,9 +449,8 @@ class PortfolioConfigService implements PortfolioConfigInterface
                         try {
                             $oldImageResponse = $this->getConfigByKey(CoreConstants::PORTFOLIO_CONFIG__META_IMAGE);
                             if ($oldImageResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldImageResponse['payload']->setting_value) {
-                                $oldPath = preg_replace('/^storage\//', '', $oldImageResponse['payload']->setting_value);
-                                if (Storage::disk('public')->exists($oldPath)) {
-                                    Storage::disk('public')->delete($oldPath);
+                                if (MediaStorage::exists($oldImageResponse['payload']->setting_value)) {
+                                    MediaStorage::delete($oldImageResponse['payload']->setting_value);
                                 }
                             }
                         } catch (\Throwable $th) {

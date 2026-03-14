@@ -1,3 +1,5 @@
+name: edfolio
+
 services:
   app:
     container_name: edfolio-prod
@@ -9,10 +11,9 @@ services:
       - .env.prod
     restart: on-failure:3
     volumes:
-      - .:/var/www/html
       # Named volume for persistent backups
       - prod_backups:/var/www/html/storage/app/backups
-      # Named volume so uploaded images survive redeploys
+      # Named volume for local-disk uploads when MEDIA_DISK=public
       - edfolio_storage:/var/www/html/storage/app/public
     networks:
       - milkyway

@@ -21,7 +21,7 @@ class Utils
             $result = $settingService->getSettingByKey(CoreConstants::SETTING__FAVICON, ['setting_value']);
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                return asset($result['payload']->setting_value);
+                return MediaStorage::url($result['payload']->setting_value);
             } else {
                 return asset('assets/common/img/favicon/default.png');
             }
@@ -56,10 +56,10 @@ class Utils
     {
         try {
             $setting = resolve(SettingInterface::class);
-            $result = $setting->getSettingByKey(CoreConstants::SETTING__LOGO, ['value']);
+            $result = $setting->getSettingByKey(CoreConstants::SETTING__LOGO, ['setting_value']);
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                return asset($result['payload']->value);
+                return MediaStorage::url($result['payload']->setting_value);
             } else {
                 return asset('assets/common/img/logo/default.png');
             }
@@ -80,7 +80,7 @@ class Utils
             $result = $about->getAll(['avatar']);
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                return asset($result['payload']->avatar);
+                return MediaStorage::url($result['payload']->avatar);
             }
 
             return asset('assets/common/img/avatar/default.png');
@@ -97,11 +97,11 @@ class Utils
     public static function getCover()
     {
         try {
-            $about = resolve(AboutContract::class);
+            $about = resolve(AboutInterface::class);
             $result = $about->getAll(['cover']);
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                return asset($result['payload']->cover);
+                return MediaStorage::url($result['payload']->cover);
             }
 
             return asset('assets/common/img/cover/default.png');

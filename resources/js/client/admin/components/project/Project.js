@@ -36,7 +36,8 @@ const Project = (props) => {
                     uid: index,
                     name: 'image.png',
                     status: 'done',
-                    url: Utils.backend + '/' + element
+                    url: Utils.mediaUrl(element),
+                    existingPath: element,
                 })
             });
             setImageFileList(newImageArray);
@@ -107,16 +108,18 @@ const Project = (props) => {
             values.categories.forEach(category => {
                 formData.append('categories[]', category);
             });
-            formData.append('thumbnail', values.thumbnail);
+            if (typeof values.thumbnail === 'string') {
+                formData.append('existing_thumbnail', values.thumbnail);
+            } else {
+                formData.append('thumbnail', values.thumbnail);
+            }
             
             for (const file of values.images) {
-                let fileBlob = null;
-                if (!file.url && !file.preview) {
-                    fileBlob = file.originFileObj
-                } else {
-                    fileBlob = await urlToBlob(file.url || file.preview);
+                if (file.originFileObj) {
+                    formData.append('images[]', file.originFileObj);
+                } else if (file.existingPath) {
+                    formData.append('existing_images[]', file.existingPath);
                 }
-                formData.append(`images[]`, fileBlob); 
             }
             
             values.details && formData.append('details', values.details);
@@ -190,14 +193,6 @@ const Project = (props) => {
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
         });
-    }
-
-    const urlToBlob = async (url) => {
-        const response = await fetch(url);
-        // here image is url/location of image
-        const blob = await response.blob();
-        const file = new File([blob], 'image.jpg', {type: blob.type});
-        return file;
     }
 
     return (
@@ -277,7 +272,7 @@ const Project = (props) => {
                         <FileUploaderFormInput
                             onChangeCallback={thumbnailUploadOnChangeCallback}
                             acceptedFileTypes={"image/*"}
-                            previewFile={props.itemToEdit ? Utils.backend + '/' + props.itemToEdit.thumbnail : null}
+                            previewFile={props.itemToEdit ? Utils.mediaUrl(props.itemToEdit.thumbnail) : null}
                         />
                     </Form.Item>
                     <Form.Item

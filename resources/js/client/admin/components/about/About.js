@@ -325,7 +325,7 @@ const About = () => {
                                     <FileUploader
                                         allowRevert={true}
                                         isAvatar={true}
-                                        previewAvatar={avatar && Utils.backend + '/' + avatar}
+                                        previewAvatar={avatar && Utils.mediaUrl(avatar)}
                                         acceptedFileTypes={"image/*"}
                                         allowMultiple={false}
                                         name={'file'}
@@ -429,7 +429,7 @@ const About = () => {
                                 } description={
                                     <FileUploader
                                         allowRevert={false}
-                                        previewFile={cv !== null ? Utils.backend + '/' + cv : null}
+                                        previewFile={cv !== null ? Utils.mediaUrl(cv) : null}
                                         acceptedFileTypes={['text/plain', 'application/pdf', 'application/doc', 'application/rtf']}
                                         allowMultiple={false}
                                         name={'file'}
@@ -448,7 +448,7 @@ const About = () => {
                                 } description={
                                     <FileUploader
                                         allowRevert={false}
-                                        previewFile={cover !== null ? Utils.backend + '/' + cover : null}
+                                        previewFile={cover !== null ? Utils.mediaUrl(cover) : null}
                                         acceptedFileTypes={"image/*"}
                                         allowMultiple={false}
                                         name={'file'}
@@ -637,7 +637,7 @@ const About = () => {
                             >
                                 {
                                     cv ? (
-                                        <a href={Utils.backend + '/' + cv} download target="_blank" rel="noreferrer">
+                                        <a href={Utils.mediaUrl(cv)} download target="_blank" rel="noreferrer">
                                             <Button type="default" icon={<DownloadOutlined />}>
                                                 Download
                                             </Button>

@@ -168,18 +168,38 @@ docker run -d --name edfolio-prod-rollback edfolio:PREVIOUS_SHA
 
 ## Persistent Storage for Uploaded Files
 
-Uploaded images and files are stored in `storage/app/public` and served via a symlink at `public/storage`.
+Uploaded media can be stored either on the local `public` disk (`storage/app/public`) or on S3, depending on `MEDIA_DISK`.
 
 ### `edfolio_storage` Named Volume
 
-A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/app/public` in the production container. This ensures uploaded files **survive container restarts and redeploys**.
+A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/app/public` in the production container. This is used when `MEDIA_DISK=public` so uploaded files survive container restarts and redeploys.
 
 - **First-time setup**: The volume is created automatically by Docker Compose on first `up`. No manual action needed.
 - **The storage symlink** (`public/storage → storage/app/public`) is created on startup only if it doesn't already exist, so container restarts with a populated volume are safe.
+- **Repository uploads are isolated**: production no longer bind-mounts the whole repository into `/var/www/html`, so `repo:upload` rsync operations do not mutate the filesystem of the running container before a rebuild.
+
+### S3 Media Storage
+
+Set `MEDIA_DISK=s3` in `.env.prod` to store uploaded images and files in S3-compatible object storage instead of the local volume.
+
+Required variables:
+
+```bash
+MEDIA_DISK=s3
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=...
+AWS_BUCKET=...
+AWS_URL=
+AWS_ENDPOINT=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
+
+Existing legacy database values like `storage/avatar/...` remain backward compatible. If the local file is gone but the same relative object exists in S3, the application will resolve the S3 URL automatically.
 
 ### Migrating from an Old Deployment
 
-If you previously stored uploaded files directly in `assets/common/img/` (outside the storage volume), copy them into the named volume before redeploying:
+If you previously stored uploaded files directly in `assets/common/img/` (outside the storage volume), copy them into the named volume before redeploying or upload them to S3 using the same relative folder layout:
 
 ```bash
 # Copy existing files into the running container's storage volume

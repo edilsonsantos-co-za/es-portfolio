@@ -30,8 +30,8 @@
     <meta name="description" content="{{$portfolioConfig['seo']['description']}}" />
     <meta property="og:description" content="{{$portfolioConfig['seo']['description']}}"/>
     <meta name="author" content="{{$portfolioConfig['seo']['author']}}" />
-    <meta property="og:image" content="{{asset($portfolioConfig['seo']['image'])}}" />
-    <meta property="og:image:secure_url" content="{{asset($portfolioConfig['seo']['image'])}}" />
+    <meta property="og:image" content="{{ media_url($portfolioConfig['seo']['image']) }}" />
+    <meta property="og:image:secure_url" content="{{ media_url($portfolioConfig['seo']['image']) }}" />
 
     <title>{{$about->name}}</title>
     <link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
@@ -54,7 +54,7 @@
         /* Dynamic background image from cover photo */
         body::before {
             @if($about->cover)
-                background: #040404 url("{{asset($about->cover)}}") top right no-repeat !important;
+                background: #040404 url("{{ media_url($about->cover) }}") top right no-repeat !important;
                 background-size: cover !important;
             @endif
         }
@@ -620,7 +620,7 @@
 
                 <div class="row">
                     <div class="col-lg-4" data-aos="fade-right">
-                        <img src="{{asset($about->avatar)}}" class="img-fluid" alt="{{ $about->name }}">
+                        <img src="{{ media_url($about->avatar) }}" class="img-fluid" alt="{{ $about->name }}">
                     </div>
                     <div class="col-lg-8 pt-4 pt-lg-0 content" data-aos="fade-left">
                         <h3>Professional Profile</h3>
@@ -643,7 +643,7 @@
                             <div class="col-lg-6">
                                 <ul>
                                     @if ($portfolioConfig['visibility']['cv'])
-                                        <li><i class="bx bx-chevron-right"></i> <strong>CV:</strong> <span><a href="{{$about->cv}}" download>Download Resume</a></span></li>
+                                        <li><i class="bx bx-chevron-right"></i> <strong>CV:</strong> <span><a href="{{ media_url($about->cv) }}" download>Download Resume</a></span></li>
                                     @endif
                                     <li><i class="bx bx-chevron-right"></i> <strong>Available:</strong> <span>Yes</span></li>
                                 </ul>

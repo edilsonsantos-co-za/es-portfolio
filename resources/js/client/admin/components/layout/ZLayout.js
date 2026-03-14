@@ -70,7 +70,7 @@ const ZLayout = ({ children }) => {
         onCollapse: (_collapsed) => {
             setCollapsed(_collapsed)
         },
-        logo: `${Utils.backend}/${logo}`,
+        logo: Utils.mediaUrl(logo),
         route: {
             routes: [
                 {

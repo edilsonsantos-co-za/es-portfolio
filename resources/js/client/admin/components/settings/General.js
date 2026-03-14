@@ -90,13 +90,13 @@ const General = (props) => {
                 favicon: file
             });
         }, 2000);
-        document.getElementById("favicon").href = Utils.backend + '/' + file;
+        document.getElementById("favicon").href = Utils.mediaUrl(file);
     }
 
     const changeLogo = (
         <FileUploader
             allowRevert={false}
-            previewFile={Utils.backend + '/' + props.globalState.logo}
+            previewFile={Utils.mediaUrl(props.globalState.logo)}
             acceptedFileTypes={"image/*"}
             allowMultiple={false}
             name={'file'}
@@ -110,7 +110,7 @@ const General = (props) => {
     const changeFavicon = (
         <FileUploader
             allowRevert={false}
-            previewFile={Utils.backend + '/' + props.globalState.favicon}
+            previewFile={Utils.mediaUrl(props.globalState.favicon)}
             acceptedFileTypes={"image/*"}
             allowMultiple={false}
             name={'file'}

@@ -64,6 +64,28 @@ const randomHexColor = () => {
 }
 
 /**
+ * Resolve a media reference into a browser-safe URL.
+ *
+ * @param {string|null} path
+ * @returns {string}
+ */
+const mediaUrl = (path) => {
+    if (!path) {
+        return '';
+    }
+
+    if (
+        /^https?:\/\//i.test(path) ||
+        path.startsWith('data:') ||
+        path.startsWith('blob:')
+    ) {
+        return path;
+    }
+
+    return `${window.location.origin}/${String(path).replace(/^\/+/, '')}`;
+}
+
+/**
  * Handle error exception
  * 
  * @param Error error 
@@ -202,6 +224,7 @@ const Utils = {
     handleBadRequest,
     handleSuccessResponse,
     changeAccentColor,
+    mediaUrl,
     templates,
     setAntdInstances,
 }

@@ -41,7 +41,7 @@ const Projects = () => {
                     <Avatar
                         shape="circle"
                         size="large"
-                        src={Utils.backend + '/' + row.thumbnail}
+                        src={Utils.mediaUrl(row.thumbnail)}
                     />
                 </Space>
                 :

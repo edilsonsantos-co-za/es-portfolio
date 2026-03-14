@@ -27,8 +27,8 @@
     <meta name="description" content="{{$portfolioConfig['seo']['description']}}" />
     <meta property="og:description" content="{{$portfolioConfig['seo']['description']}}"/>
     <meta name="author" content="{{$portfolioConfig['seo']['author']}}" />
-    <meta property="og:image" content="{{asset($portfolioConfig['seo']['image'])}}" />
-    <meta property="og:image:secure_url" content="{{asset($portfolioConfig['seo']['image'])}}" />
+    <meta property="og:image" content="{{ media_url($portfolioConfig['seo']['image']) }}" />
+    <meta property="og:image:secure_url" content="{{ media_url($portfolioConfig['seo']['image']) }}" />
 
     <title>{{$about->name}}</title>
 
@@ -107,13 +107,13 @@
     </header><!-- End Header -->
 
     <!-- ======= hero Section ======= -->
-    <section id="hero" class="d-flex flex-column justify-content-center" style="background-image: url('{{asset($about->cover)}}');">
+    <section id="hero" class="d-flex flex-column justify-content-center" style="background-image: url('{{ media_url($about->cover) }}');">
         <div class="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom">
             <h1>{{ $about->name }}</h1>
             <p><span class="typed"></span></p>
             @if ($portfolioConfig['visibility']['cv'])
                 <div class="my-3">
-                    <a href="{{$about->cv}}" class="btn btn-light btn-sm" download>Download CV</a>
+                    <a href="{{ media_url($about->cv) }}" class="btn btn-light btn-sm" download>Download CV</a>
                 </div>
             @endif
             @if ($about->social_links)
@@ -139,7 +139,7 @@
 
                 <div class="row">
                     <div class="col-lg-4 text-center">
-                        <img data-src="{{asset($about->avatar)}}" src="{{asset('assets/common/img/lazyloader.gif')}}" class="lazy img-fluid rounded-circle img-profile" alt="">
+                        <img data-src="{{ media_url($about->avatar) }}" src="{{asset('assets/common/img/lazyloader.gif')}}" class="lazy img-fluid rounded-circle img-profile" alt="">
                     </div>
                     <div class="col-lg-8 pt-4 pt-lg-0 content my-lg-auto">
                         <div class="row">

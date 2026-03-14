@@ -37,7 +37,8 @@ docker-compose -f docker-compose.prod.yml up -d --build
 **Features:**
 - Uses `APP_ENV=production`
 - Compiles assets with `npm run production` (optimized, minified)
-- No volume mounts (uses files from image)
+- Runs from the built image with no full-repo bind mount
+- Keeps only explicit named volumes for backups and local media storage
 - Debug mode disabled
 
 ## Asset Compilation
@@ -69,6 +70,27 @@ Key environment variables that affect asset compilation:
 - `APP_ENV`: Determines build type (`local`/`development` = dev build, `production` = prod build)
 - `APP_DEBUG`: Debug mode (true/false)
 - `APP_URL`: Application URL
+- `MEDIA_DISK`: Upload target disk (`public` or `s3`)
+
+### Production Media Storage
+
+Production no longer bind-mounts the repository into `/var/www/html`. This prevents `repo:upload` rsync operations from rewriting files inside the running container before a rebuild.
+
+- `MEDIA_DISK=public`: uploads stay on the `edfolio_storage` named volume.
+- `MEDIA_DISK=s3`: uploads are written to S3-compatible object storage instead of the container volume.
+
+For S3 mode, configure:
+
+```bash
+MEDIA_DISK=s3
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=...
+AWS_BUCKET=...
+AWS_URL=
+AWS_ENDPOINT=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+```
 
 ## Troubleshooting
 

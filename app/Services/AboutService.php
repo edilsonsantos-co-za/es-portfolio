@@ -3,11 +3,10 @@
 namespace App\Services;
 
 use CoreConstants;
+use App\Helpers\MediaStorage;
 use App\Models\About;
 use App\Services\Contracts\AboutInterface;
-use Illuminate\Support\Facades\Storage;
 use Log;
-use Str;
 use Validator;
 
 class AboutService implements AboutInterface
@@ -185,21 +184,15 @@ class AboutService implements AboutInterface
             }
 
             $file = $data['file'];
-            $extension = $file->extension() ? $file->extension() : 'png';
-            $fileName = Str::random(10). '_'. time() .'.'. $extension;
-
-            $stored = Storage::disk('public')->putFileAs('avatar', $file, $fileName);
+            $stored = MediaStorage::storeUploadedFile($file, 'avatar', 'png');
             if ($stored) {
                 //delete previous avatar
                 $oldAvatarResponse = $this->getAll(['avatar', 'id']);
                 try {
                     if ($oldAvatarResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                         $oldAvatar = $oldAvatarResponse['payload']->avatar;
-                        if ($oldAvatar !== 'assets/common/img/avatar/default.png') {
-                            $oldPath = preg_replace('/^storage\//', '', $oldAvatar);
-                            if (Storage::disk('public')->exists($oldPath)) {
-                                Storage::disk('public')->delete($oldPath);
-                            }
+                        if ($oldAvatar !== 'assets/common/img/avatar/default.png' && MediaStorage::exists($oldAvatar)) {
+                            MediaStorage::delete($oldAvatar);
                         }
                     }
                 } catch (\Throwable $th) {
@@ -207,7 +200,7 @@ class AboutService implements AboutInterface
                 }
 
                 $result = $oldAvatarResponse['payload'];
-                $newFilePath = 'storage/' . $stored;
+                $newFilePath = $stored;
 
                 $updateResponse = $result->update([
                     'avatar' => $newFilePath
@@ -254,8 +247,7 @@ class AboutService implements AboutInterface
     public function processDeleteAvatarRequest(string $file)
     {
         try {
-            $storagePath = preg_replace('/^storage\//', '', $file);
-            if (!Storage::disk('public')->exists($storagePath)) {
+            if (!MediaStorage::exists($file)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -263,7 +255,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (Storage::disk('public')->delete($storagePath)) {
+            if (MediaStorage::delete($file)) {
                 $defaultAvatar = 'assets/common/img/avatar/default.png';
                 $result = $this->getAll();
 
@@ -331,21 +323,15 @@ class AboutService implements AboutInterface
             }
 
             $file = $data['file'];
-            $extension = $file->extension() ? $file->extension() : 'png';
-            $fileName = Str::random(10). '_'. time() .'.'. $extension;
-
-            $stored = Storage::disk('public')->putFileAs('cover', $file, $fileName);
+            $stored = MediaStorage::storeUploadedFile($file, 'cover', 'png');
             if ($stored) {
                 //delete previous cover
                 $oldCoverResponse = $this->getAll(['cover', 'id']);
                 try {
                     if ($oldCoverResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                         $oldCover = $oldCoverResponse['payload']->cover;
-                        if ($oldCover !== 'assets/common/img/cover/default.png') {
-                            $oldPath = preg_replace('/^storage\//', '', $oldCover);
-                            if (Storage::disk('public')->exists($oldPath)) {
-                                Storage::disk('public')->delete($oldPath);
-                            }
+                        if ($oldCover !== 'assets/common/img/cover/default.png' && MediaStorage::exists($oldCover)) {
+                            MediaStorage::delete($oldCover);
                         }
                     }
                 } catch (\Throwable $th) {
@@ -353,7 +339,7 @@ class AboutService implements AboutInterface
                 }
 
                 $result = $oldCoverResponse['payload'];
-                $newFilePath = 'storage/' . $stored;
+                $newFilePath = $stored;
 
                 $updateResponse = $result->update([
                     'cover' => $newFilePath
@@ -400,8 +386,7 @@ class AboutService implements AboutInterface
     public function processDeleteCoverRequest(string $file)
     {
         try {
-            $storagePath = preg_replace('/^storage\//', '', $file);
-            if (!Storage::disk('public')->exists($storagePath)) {
+            if (!MediaStorage::exists($file)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -409,7 +394,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (Storage::disk('public')->delete($storagePath)) {
+            if (MediaStorage::delete($file)) {
                 $defaultCover = 'assets/common/img/cover/default.png';
                 $result = $this->getAll();
 
@@ -477,18 +462,14 @@ class AboutService implements AboutInterface
             }
           
             $file = $data['file'];
-            $extension = $file->extension() ? $file->extension() : 'pdf';
-            $fileName = Str::random(10). '_'. time() .'.'. $extension;
-
-            $stored = Storage::disk('public')->putFileAs('cv', $file, $fileName);
+            $stored = MediaStorage::storeUploadedFile($file, 'cv', 'pdf');
             if ($stored) {
                 //delete previous cv
                 $oldCVResponse = $this->getAll(['cv', 'id']);
                 try {
                     if ($oldCVResponse['status'] === CoreConstants::STATUS_CODE_SUCCESS && $oldCVResponse['payload']->cv !== null) {
-                        $oldPath = preg_replace('/^storage\//', '', $oldCVResponse['payload']->cv);
-                        if (Storage::disk('public')->exists($oldPath)) {
-                            Storage::disk('public')->delete($oldPath);
+                        if (MediaStorage::exists($oldCVResponse['payload']->cv)) {
+                            MediaStorage::delete($oldCVResponse['payload']->cv);
                         }
                     }
                 } catch (\Throwable $th) {
@@ -496,7 +477,7 @@ class AboutService implements AboutInterface
                 }
 
                 $result = $oldCVResponse['payload'];
-                $newFilePath = 'storage/' . $stored;
+                $newFilePath = $stored;
 
                 $updateResponse = $result->update([
                     'cv' => $newFilePath
@@ -543,8 +524,7 @@ class AboutService implements AboutInterface
     public function processDeleteCVRequest(string $file)
     {
         try {
-            $storagePath = preg_replace('/^storage\//', '', $file);
-            if (!Storage::disk('public')->exists($storagePath)) {
+            if (!MediaStorage::exists($file)) {
                 return [
                     'message' => 'The file can\'t be found',
                     'payload' => $file,
@@ -552,7 +532,7 @@ class AboutService implements AboutInterface
                 ];
             }
 
-            if (Storage::disk('public')->delete($storagePath)) {
+            if (MediaStorage::delete($file)) {
                 $result = $this->getAll();
                 if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
                     return $result;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\MediaStorage;
 use App\Helpers\Utils;
 
 if (!function_exists('safe_json_decode')) {
@@ -14,5 +15,18 @@ if (!function_exists('safe_json_decode')) {
     function safe_json_decode($data, bool $assoc = false)
     {
         return Utils::safeJsonDecode($data, $assoc);
+    }
+}
+
+if (!function_exists('media_url')) {
+    /**
+     * Resolve a stored media reference to a renderable URL.
+     *
+     * @param string|null $path
+     * @return string
+     */
+    function media_url($path)
+    {
+        return MediaStorage::url($path);
     }
 }
