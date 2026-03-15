@@ -6,6 +6,29 @@ SCRIPT_DIR="${SCRIPT_PATH%/*}"
 ROOT_DIR="$(cd "${SCRIPT_DIR:-.}/.." && pwd)"
 cd "$ROOT_DIR"
 
+append_path_if_dir() {
+  local dir="$1"
+  if [[ -d "$dir" && ":$PATH:" != *":$dir:"* ]]; then
+    PATH="$dir:$PATH"
+  fi
+}
+
+bootstrap_path() {
+  local node_bin
+
+  append_path_if_dir /opt/homebrew/bin
+  append_path_if_dir /opt/homebrew/sbin
+  append_path_if_dir /usr/local/bin
+  append_path_if_dir /usr/local/sbin
+  append_path_if_dir /Applications/Docker.app/Contents/Resources/bin
+
+  for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
+    append_path_if_dir "$node_bin"
+  done
+
+  export PATH
+}
+
 COMPOSE_AVAILABLE=0
 COMPOSE_WARNING_SHOWN=0
 COMPOSE_CMD=()
@@ -52,6 +75,7 @@ require_file() {
   fi
 }
 
+bootstrap_path
 init_compose_command
 
 printf '[validate] Checking Docker Compose config...\n'
