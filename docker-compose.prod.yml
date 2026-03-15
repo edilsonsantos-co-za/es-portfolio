@@ -3,7 +3,7 @@ name: edfolio
 services:
   app:
     container_name: edfolio-prod
-    image: ${APP_IMAGE:-library/edfolio}:${APP_IMAGE_TAG:-latest}
+    image: ${APP_IMAGE:-datasparklab/edfolio}:${APP_IMAGE_TAG:-latest}
     pull_policy: always
     env_file:
       - .env.prod

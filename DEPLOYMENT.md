@@ -191,10 +191,10 @@ Production frontend assets are now baked into the Docker image during CI. The VP
 
 Production deployments now follow this order:
 
-1. `Validate` runs on GitHub for pushes and pull requests.
-2. `Build and Deploy` waits for `Validate` to succeed on `main`.
-3. GitHub builds the production image and publishes it to Docker Hub.
-4. The deploy job SSHes to the VPS, pulls the new image, and restarts the production service.
+1. The single `Validate and Deploy` workflow starts on push, pull request, or manual dispatch.
+2. The `validate` job runs first.
+3. On `main`, the `build-and-publish` job waits for validation, then publishes the Docker image to Docker Hub.
+4. The `deploy-production` job waits for the image push, then SSHes to the VPS, pulls the new image, and restarts the production service.
 
 ### Required GitHub Secrets
 
@@ -247,7 +247,7 @@ To roll this pattern out across many repositories, loop over `gh repo list` outp
 `docker-compose.prod.yml` now reads the application image from environment variables:
 
 ```bash
-APP_IMAGE=your-docker-hub-username/edfolio
+APP_IMAGE=datasparklab/edfolio
 APP_IMAGE_TAG=latest
 ```
 
