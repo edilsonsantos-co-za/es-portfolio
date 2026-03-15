@@ -2,10 +2,13 @@
 node_modules/
 vendor/
 
-# Build outputs generated during docker build
+# Build outputs generated before docker build
 public/js/
 public/css/
 public/mix-manifest.json
+!public/js/
+!public/js/**
+!public/mix-manifest.json
 
 # Development files
 .git/

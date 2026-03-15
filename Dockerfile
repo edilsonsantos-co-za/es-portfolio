@@ -1,15 +1,3 @@
-# Multi-stage build for better layer caching
-FROM node:18-bullseye-slim AS assets
-
-WORKDIR /app
-
-COPY package.json package-lock.json webpack.mix.js ./
-COPY public ./public
-COPY resources ./resources
-
-RUN npm ci --legacy-peer-deps --no-audit --no-fund \
-    && NODE_OPTIONS="--max-old-space-size=768" npm run build
-
 FROM php:8.2-apache AS base
 
 # Install system dependencies and PHP extensions in single layer
@@ -74,10 +62,8 @@ RUN chmod +x /usr/local/bin/start-apache.sh
 # Copy application code (invalidates cache when code changes)
 COPY . .
 
-# Copy prebuilt frontend assets into the runtime image so production deployments
-# can pull a tested image instead of rebuilding assets on the VPS.
-COPY --from=assets /app/public/js /var/www/html/public/js
-COPY --from=assets /app/public/mix-manifest.json /var/www/html/public/mix-manifest.json
+# Frontend assets are built in CI before the Docker build and copied in from
+# the workspace so the image build stays within GitHub Actions memory limits.
 
 # Recreate Laravel runtime directories excluded from the Docker build context
 RUN mkdir -p \

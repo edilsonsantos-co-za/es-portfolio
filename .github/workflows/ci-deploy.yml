@@ -79,6 +79,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+
+      - name: Build frontend assets
+        run: |
+          npm ci --legacy-peer-deps --no-audit --no-fund
+          NODE_OPTIONS="--max-old-space-size=768" npm run build
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
