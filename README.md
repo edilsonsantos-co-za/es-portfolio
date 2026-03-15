@@ -160,6 +160,8 @@ If Docker Compose is not on `PATH`, the script warns and skips the Compose confi
 
 Production deployments are image-based: GitHub Actions validates the repo, builds and publishes a Docker Hub image, and then the VPS pulls the tagged image via `docker-compose.prod.yml`.
 
+Repository-wide Docker Hub credentials can be set with `gh secret set`, while production VPS values are best stored as `production` environment secrets. See `DEPLOYMENT.md` and `./bin/setup-github-secrets.sh` for the exact bootstrap flow.
+
 ### Working with the Application
 
 ```bash

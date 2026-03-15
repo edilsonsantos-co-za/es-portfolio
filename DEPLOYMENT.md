@@ -198,16 +198,49 @@ Production deployments now follow this order:
 
 ### Required GitHub Secrets
 
-Configure these repository secrets before enabling the deploy workflow:
+Configure these secrets before enabling the deploy workflow:
+
+```bash
+DOCKERHUB_USERNAME=your-docker-hub-username
+DOCKERHUB_TOKEN=your-docker-hub-access-token
+```
+
+Recommended split:
+
+- **Repository or organization secrets**
+  - `DOCKERHUB_USERNAME`
+  - `DOCKERHUB_TOKEN`
+- **`production` environment secrets**
+  - `DEPLOY_HOST`
+  - `DEPLOY_USER`
+  - `DEPLOY_PATH`
+  - `DEPLOY_SSH_PRIVATE_KEY`
+
+Example environment secret values:
 
 ```bash
 DEPLOY_HOST=your-vps-hostname-or-ip
 DEPLOY_USER=your-ssh-user
-DEPLOY_SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
 DEPLOY_PATH=/workspace/edilsonsantos-co-za/edfolio
-DOCKERHUB_USERNAME=your-docker-hub-username
-DOCKERHUB_TOKEN=your-docker-hub-access-token
+DEPLOY_SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
 ```
+
+### Bootstrap Secrets with GitHub CLI
+
+You can set the required secrets for this repository with:
+
+```bash
+./bin/setup-github-secrets.sh edilsonsantos-co-za/edfolio \
+  --dockerhub-username YOUR_DOCKERHUB_USERNAME \
+  --dockerhub-token YOUR_DOCKERHUB_TOKEN \
+  --deploy-host YOUR_VPS_HOST \
+  --deploy-user YOUR_VPS_USER \
+  --deploy-path /workspace/edilsonsantos-co-za/edfolio \
+  --deploy-key-file ~/.ssh/your_deploy_key \
+  --environment production
+```
+
+To roll this pattern out across many repositories, loop over `gh repo list` output and call the same script per repository, or promote shared values like Docker Hub credentials to organization secrets.
 
 ### Production Compose Image Settings
 
