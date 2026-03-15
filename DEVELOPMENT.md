@@ -81,10 +81,12 @@ Run the standard local validation suite:
 ```
 
 The validation script currently checks:
-- `docker compose -f docker-compose.dev.yml config`
-- `docker compose -f docker-compose.prod.yml config`
+- `docker compose -f docker-compose.dev.yml config` or `docker-compose -f docker-compose.dev.yml config`
+- `docker compose -f docker-compose.prod.yml config` or `docker-compose -f docker-compose.prod.yml config`
 - `./vendor/bin/phpunit`
 - `npm run build`
+
+If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to require Compose explicitly.
 
 ### 🐳 **Docker Operations**
 ```bash
