@@ -2,6 +2,19 @@
 
 use Illuminate\Support\Str;
 
+$mysqlOptions = [];
+
+if (extension_loaded('pdo_mysql')) {
+    $pdoMysqlClass = class_exists(\Pdo\Mysql::class)
+        ? \Pdo\Mysql::class
+        : \PDO::class;
+
+    $mysqlOptions = array_filter([
+        constant($pdoMysqlClass.'::ATTR_SSL_CA') => env('MYSQL_ATTR_SSL_CA'),
+        constant($pdoMysqlClass.'::ATTR_SSL_VERIFY_SERVER_CERT') => false,
+    ], static fn ($value) => $value !== null);
+}
+
 return [
 
     /*
@@ -58,10 +71,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ]) : [],
+            'options' => $mysqlOptions,
         ],
 
         'pgsql' => [

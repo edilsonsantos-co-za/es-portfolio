@@ -13,7 +13,7 @@
         "build:prod": "npm run production",
         "security-check": "npm audit fix",
         "security-check-force": "npm audit fix --force",
-        "update-browser-db": "npx browserslist@latest --update-db"
+        "update-browser-db": "npm_config_legacy_peer_deps=true npx update-browserslist-db@latest"
     },
     "devDependencies": {
         "@babel/preset-react": "^7.28.5",
