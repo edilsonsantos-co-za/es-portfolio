@@ -1,12 +1,34 @@
 name: edfolio
 
 services:
+  assets:
+    container_name: edfolio-assets
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: assets
+    restart: "no"
+    working_dir: /app
+    command: >
+      sh -lc "rm -rf /output/js /output/mix-manifest.json /output/.ready &&
+      NODE_OPTIONS='--max-old-space-size=768' npm run build &&
+      mkdir -p /output &&
+      cp -R public/js /output/js &&
+      cp public/mix-manifest.json /output/mix-manifest.json &&
+      touch /output/.ready"
+    volumes:
+      - edfolio_frontend_assets:/output
+    mem_limit: 2g
+
   app:
     container_name: edfolio-prod
     image: edfolio:latest
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      assets:
+        condition: service_completed_successfully
     env_file:
       - .env.prod
     restart: on-failure:3
@@ -15,11 +37,13 @@ services:
       - prod_backups:/var/www/html/storage/app/backups
       # Named volume for local-disk uploads when MEDIA_DISK=public
       - edfolio_storage:/var/www/html/storage/app/public
+      # Named volume populated by the one-shot assets builder service
+      - edfolio_frontend_assets:/var/www/html/.frontend-assets
     networks:
       - milkyway
     environment:
       # Docker startup behavior for production
-      - SKIP_ASSET_BUILD=false
+      - SKIP_ASSET_BUILD=true
       - FORCE_FRESH_DB=false
       - CREATE_DB_BACKUP=true
     deploy:
@@ -45,6 +69,7 @@ services:
 volumes:
   prod_backups:
   edfolio_storage:
+  edfolio_frontend_assets:
 
 networks:
   milkyway:

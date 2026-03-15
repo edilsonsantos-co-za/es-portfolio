@@ -136,6 +136,26 @@ SKIP_ASSET_BUILD=false              # Skip frontend asset building
 
 ## Common Development Tasks
 
+### Validation and local safeguards
+
+Enable the repository git hooks once per clone:
+
+```bash
+./bin/setup-git-hooks.sh
+```
+
+Run the standard local validation suite before pushing or deploy planning:
+
+```bash
+./bin/validate.sh
+```
+
+What it currently checks:
+- `docker compose -f docker-compose.dev.yml config`
+- `docker compose -f docker-compose.prod.yml config`
+- `./vendor/bin/phpunit`
+- `npm run build`
+
 ### Working with the Application
 
 ```bash

@@ -84,7 +84,7 @@ export RUN_SEEDING=auto       # auto|true|false
 export FORCE_FRESH_DB=false   # true to wipe and recreate database
 
 # Build control
-export SKIP_ASSET_BUILD=false # true to skip frontend asset building
+export SKIP_ASSET_BUILD=true  # production assets are compiled during docker build
 export CREATE_DB_BACKUP=true  # true to backup database before changes
 ```
 
@@ -177,6 +177,15 @@ A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/a
 - **First-time setup**: The volume is created automatically by Docker Compose on first `up`. No manual action needed.
 - **The storage symlink** (`public/storage → storage/app/public`) is created on startup only if it doesn't already exist, so container restarts with a populated volume are safe.
 - **Repository uploads are isolated**: production no longer bind-mounts the whole repository into `/var/www/html`, so `repo:upload` rsync operations do not mutate the filesystem of the running container before a rebuild.
+
+### Frontend Assets in Production
+
+Production now uses a dedicated one-shot `assets` service to compile frontend bundles before the app container starts. The generated files are written into a named volume and then copied into `public/` during app startup.
+
+- Keep `SKIP_ASSET_BUILD=true` in production so the app container expects prebuilt assets from the shared volume instead of trying to compile them itself.
+- `docker compose -f docker-compose.prod.yml up -d --build` now rebuilds the one-shot `assets` service image and reruns `npm run build` on every deployment.
+- The `assets` service has its own higher memory ceiling, so Mix/Webpack no longer has to compile inside the tighter app container limits.
+- If the asset build fails, the app service will not start successfully, which is safer than booting with broken 404s for `app.js` / `projects.js`.
 
 ### S3 Media Storage
 

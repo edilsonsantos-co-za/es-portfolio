@@ -68,6 +68,18 @@ fi
 # Update Composer dependencies if needed (runtime flexibility)
 echo "[STARTUP] Updating Composer dependencies if needed..."
 cd /var/www/html
+
+# Recreate required Laravel runtime directories in case they were excluded from the image
+# build context or shadowed by mounted volumes.
+mkdir -p \
+  /var/www/html/bootstrap/cache \
+  /var/www/html/storage/app/public \
+  /var/www/html/storage/app/backups \
+  /var/www/html/storage/framework/cache \
+  /var/www/html/storage/framework/sessions \
+  /var/www/html/storage/framework/views \
+  /var/www/html/storage/logs
+
 composer install --no-dev --optimize-autoloader --no-interaction || echo "[WARNING] Composer update failed, but continuing..."
 
 # Set file permissions
@@ -76,7 +88,7 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 find /var/www/html/public -type d -exec chmod 755 {} \;
 find /var/www/html/public -type f -exec chmod 644 {} \;
 
-# Build frontend assets if not skipped and package.json exists
+# Build frontend assets only when explicitly enabled and package.json exists.
 if [ "$SKIP_ASSET_BUILD" != "true" ] && [ -f /var/www/html/package.json ]; then
   echo "[STARTUP] Building frontend assets for environment: ${APP_ENV:-production}..."
   cd /var/www/html
@@ -88,21 +100,37 @@ if [ "$SKIP_ASSET_BUILD" != "true" ] && [ -f /var/www/html/package.json ]; then
   # Install npm dependencies with memory-efficient options
   if [ ! -d /var/www/html/node_modules ]; then
     echo "[STARTUP] Installing npm dependencies with memory limits..."
-    NODE_OPTIONS="--max-old-space-size=1024" npm ci --production=false --no-audit --no-fund || echo "[ERROR] npm install failed, but continuing..."
+    NODE_OPTIONS="--max-old-space-size=1024" npm ci --legacy-peer-deps --production=false --no-audit --no-fund || echo "[ERROR] npm install failed, but continuing..."
   fi
   
-  # Build assets with memory limits and error handling
+  # Build assets with memory limits and explicit failure handling
   echo "[STARTUP] Building assets with memory optimization..."
-  NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee /tmp/npm-build.log || {
+  BUILD_EXIT=0
+  NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee /tmp/npm-build.log || BUILD_EXIT=$?
+  if [ "$BUILD_EXIT" -ne 0 ]; then
     echo "[ERROR] npm run build failed. Log output:"
     if [ -f /tmp/npm-build.log ]; then
       tail -20 /tmp/npm-build.log
     fi
-    echo "[WARNING] Continuing without frontend assets..."
-  }
+    exit "$BUILD_EXIT"
+  fi
   echo "[SUCCESS] Frontend asset building completed."
 elif [ "$SKIP_ASSET_BUILD" = "true" ]; then
-  echo "[STARTUP] Skipping asset build (SKIP_ASSET_BUILD=true)"
+  FRONTEND_ASSET_DIR="/var/www/html/.frontend-assets"
+  if [ -f "$FRONTEND_ASSET_DIR/.ready" ] && [ -f "$FRONTEND_ASSET_DIR/js/client/admin/roots/app.js" ] && [ -f "$FRONTEND_ASSET_DIR/js/client/frontend/roots/projects.js" ] && [ -f "$FRONTEND_ASSET_DIR/mix-manifest.json" ]; then
+    echo "[STARTUP] Hydrating prebuilt frontend assets from shared volume..."
+    rm -rf /var/www/html/public/js
+    mkdir -p /var/www/html/public
+    cp -R "$FRONTEND_ASSET_DIR/js" /var/www/html/public/js
+    cp "$FRONTEND_ASSET_DIR/mix-manifest.json" /var/www/html/public/mix-manifest.json
+    chown -R www-data:www-data /var/www/html/public/js /var/www/html/public/mix-manifest.json
+    echo "[STARTUP] Skipping asset build (SKIP_ASSET_BUILD=true, precompiled assets detected)"
+  elif [ -f /var/www/html/public/js/client/admin/roots/app.js ] && [ -f /var/www/html/public/js/client/frontend/roots/projects.js ] && [ -f /var/www/html/public/mix-manifest.json ]; then
+    echo "[STARTUP] Skipping asset build (SKIP_ASSET_BUILD=true, image assets detected)"
+  else
+    echo "[ERROR] SKIP_ASSET_BUILD=true but precompiled frontend assets are missing."
+    exit 1
+  fi
 else
   echo "[STARTUP] Skipping asset build - package.json missing"
 fi

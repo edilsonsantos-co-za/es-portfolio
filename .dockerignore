@@ -2,7 +2,7 @@
 node_modules/
 vendor/
 
-# Build outputs that will be regenerated
+# Build outputs generated during docker build
 public/js/
 public/css/
 public/mix-manifest.json

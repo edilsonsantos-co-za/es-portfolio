@@ -100,17 +100,33 @@ If admin JS files return 404 errors:
 
 1. Check if assets were compiled:
    ```bash
-   docker exec edfolio ls -la /var/www/html/public/js/client/admin/roots/
+   docker exec edfolio-prod ls -la /var/www/html/public/js/client/admin/roots/
    ```
 
-2. Manually rebuild assets:
+2. Check the one-shot asset builder logs:
    ```bash
-   docker exec edfolio npm run build
+   docker logs edfolio-assets --tail=200
    ```
 
-3. Check build logs:
+3. Inspect the shared asset volume inside the app container:
    ```bash
-   docker logs edfolio | grep -A5 -B5 "frontend assets"
+   docker exec edfolio-prod ls -la /var/www/html/.frontend-assets/js/client/admin/roots/
+   docker exec edfolio-prod ls -la /var/www/html/.frontend-assets/mix-manifest.json
+   ```
+
+4. If the asset builder fails, rebuild locally to compare behavior:
+   ```bash
+   npm run build
+   ```
+
+5. Rebuild production containers:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --build
+   ```
+
+6. Check app container logs:
+   ```bash
+   docker logs edfolio-prod --tail=200
    ```
 
 ### Switching Environments

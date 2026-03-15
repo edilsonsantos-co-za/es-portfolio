@@ -1,4 +1,14 @@
 # Multi-stage build for better layer caching
+FROM node:18-bullseye-slim AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json webpack.mix.js ./
+COPY public ./public
+COPY resources ./resources
+
+RUN npm ci --legacy-peer-deps --no-audit --no-fund
+
 FROM php:8.2-apache AS base
 
 # Install system dependencies and PHP extensions in single layer
@@ -62,6 +72,16 @@ RUN chmod +x /usr/local/bin/start-apache.sh
 
 # Copy application code (invalidates cache when code changes)
 COPY . .
+
+# Recreate Laravel runtime directories excluded from the Docker build context
+RUN mkdir -p \
+    /var/www/html/bootstrap/cache \
+    /var/www/html/storage/app/public \
+    /var/www/html/storage/app/backups \
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/storage/logs
 
 # Set proper ownership and permissions for web server
 RUN chown -R www-data:www-data /var/www/html \

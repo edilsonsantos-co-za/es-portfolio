@@ -66,6 +66,26 @@ Complete Docker-based development setup with all required services.
 
 ## Common Commands
 
+### Quality gates
+
+Enable the repository git hooks once per clone:
+
+```bash
+./bin/setup-git-hooks.sh
+```
+
+Run the standard local validation suite:
+
+```bash
+./bin/validate.sh
+```
+
+The validation script currently checks:
+- `docker compose -f docker-compose.dev.yml config`
+- `docker compose -f docker-compose.prod.yml config`
+- `./vendor/bin/phpunit`
+- `npm run build`
+
 ### 🐳 **Docker Operations**
 ```bash
 # Start all services

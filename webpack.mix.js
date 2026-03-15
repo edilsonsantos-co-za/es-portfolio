@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 /*
  |--------------------------------------------------------------------------
@@ -49,5 +50,17 @@ mix.js('resources/js/client/admin/roots/app.js', 'public/js/client/admin/roots')
     .react();
 
 if (mix.inProduction()) {
+    mix.webpackConfig({
+        parallelism: 1,
+        optimization: {
+            minimizer: [
+                new TerserPlugin({
+                    parallel: false,
+                    extractComments: false,
+                })
+            ],
+        },
+    });
+
     mix.version();
 }
