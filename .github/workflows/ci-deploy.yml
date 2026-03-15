@@ -1,4 +1,4 @@
-name: Validate and Deploy
+name: CI and Deploy
 
 on:
   push:
