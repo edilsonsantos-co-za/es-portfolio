@@ -49,10 +49,29 @@ jobs:
       tag: ${{ steps.image.outputs.tag }}
 
     steps:
+      - name: Validate Docker Hub publish configuration
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          missing=()
+
+          [[ -n "${DOCKERHUB_USERNAME}" ]] || missing+=("DOCKERHUB_USERNAME")
+          [[ -n "${DOCKERHUB_TOKEN}" ]] || missing+=("DOCKERHUB_TOKEN")
+
+          if [[ "${#missing[@]}" -gt 0 ]]; then
+            printf 'Missing required repository or organization secret(s): %s\n' "${missing[*]}" >&2
+            printf 'The build-and-publish job is not environment-scoped, so DOCKERHUB_* must be configured as repository or organization secrets.\n' >&2
+            printf 'Bootstrap them with ./bin/setup-github-secrets.sh or gh secret set before re-running this workflow.\n' >&2
+            exit 1
+          fi
+
       - name: Derive image metadata
         id: image
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/${GITHUB_REPOSITORY#*/}"
+          IMAGE_NAME="${DOCKERHUB_USERNAME}/${GITHUB_REPOSITORY#*/}"
           IMAGE_TAG="${GITHUB_SHA::12}"
           echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
           echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
@@ -87,6 +106,30 @@ jobs:
     environment: production
 
     steps:
+      - name: Validate production deploy configuration
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          missing=()
+
+          [[ -n "${DOCKERHUB_USERNAME}" ]] || missing+=("DOCKERHUB_USERNAME")
+          [[ -n "${DOCKERHUB_TOKEN}" ]] || missing+=("DOCKERHUB_TOKEN")
+          [[ -n "${DEPLOY_HOST}" ]] || missing+=("DEPLOY_HOST")
+          [[ -n "${DEPLOY_USER}" ]] || missing+=("DEPLOY_USER")
+          [[ -n "${DEPLOY_PATH}" ]] || missing+=("DEPLOY_PATH")
+          [[ -n "${DEPLOY_SSH_PRIVATE_KEY}" ]] || missing+=("DEPLOY_SSH_PRIVATE_KEY")
+
+          if [[ "${#missing[@]}" -gt 0 ]]; then
+            printf 'Missing required deploy secret(s): %s\n' "${missing[*]}" >&2
+            printf 'Create the production environment and configure its deploy secrets before re-running this workflow.\n' >&2
+            exit 1
+          fi
+
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
         env:

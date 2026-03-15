@@ -78,6 +78,8 @@ require_file() {
 bootstrap_path
 init_compose_command
 
+PHPUNIT_APP_KEY_FALLBACK='base64:4d6rBKspCmgDurgcdnb5KJ0QUgTefTgaEsqURDZpH0M='
+
 printf '[validate] Checking Docker Compose config...\n'
 compose_config_check docker-compose.dev.yml
 compose_config_check docker-compose.prod.yml
@@ -86,7 +88,7 @@ require_file "vendor/bin/phpunit" "Run: composer install --no-interaction"
 require_file "node_modules" "Run: npm ci --legacy-peer-deps --no-audit --no-fund"
 
 printf '[validate] Running PHPUnit...\n'
-./vendor/bin/phpunit
+APP_ENV=testing APP_KEY="${APP_KEY:-$PHPUNIT_APP_KEY_FALLBACK}" ./vendor/bin/phpunit
 
 printf '[validate] Building frontend assets...\n'
 npm run build

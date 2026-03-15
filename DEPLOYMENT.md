@@ -216,6 +216,11 @@ Recommended split:
   - `DEPLOY_PATH`
   - `DEPLOY_SSH_PRIVATE_KEY`
 
+Important:
+
+- `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are required by the `build-and-publish` job before the workflow reaches the `production` environment, so they must be configured as repository or organization secrets.
+- The `production` environment must exist before you add `DEPLOY_*` environment secrets. If it is missing, create it first in GitHub and then load the deploy secrets.
+
 Example environment secret values:
 
 ```bash
