@@ -5,14 +5,27 @@ use Illuminate\Support\Str;
 $mysqlOptions = [];
 
 if (extension_loaded('pdo_mysql')) {
-    $pdoMysqlClass = class_exists(\Pdo\Mysql::class)
-        ? \Pdo\Mysql::class
-        : \PDO::class;
+    $sslCaConstant = defined(\Pdo\Mysql::class.'::ATTR_SSL_CA')
+        ? constant(\Pdo\Mysql::class.'::ATTR_SSL_CA')
+        : (defined(\PDO::class.'::MYSQL_ATTR_SSL_CA')
+            ? constant(\PDO::class.'::MYSQL_ATTR_SSL_CA')
+            : null);
 
-    $mysqlOptions = array_filter([
-        constant($pdoMysqlClass.'::ATTR_SSL_CA') => env('MYSQL_ATTR_SSL_CA'),
-        constant($pdoMysqlClass.'::ATTR_SSL_VERIFY_SERVER_CERT') => false,
-    ], static fn ($value) => $value !== null);
+    $verifyServerCertConstant = defined(\Pdo\Mysql::class.'::ATTR_SSL_VERIFY_SERVER_CERT')
+        ? constant(\Pdo\Mysql::class.'::ATTR_SSL_VERIFY_SERVER_CERT')
+        : (defined(\PDO::class.'::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')
+            ? constant(\PDO::class.'::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')
+            : null);
+
+    if ($sslCaConstant !== null) {
+        $mysqlOptions[$sslCaConstant] = env('MYSQL_ATTR_SSL_CA');
+    }
+
+    if ($verifyServerCertConstant !== null) {
+        $mysqlOptions[$verifyServerCertConstant] = false;
+    }
+
+    $mysqlOptions = array_filter($mysqlOptions, static fn ($value) => $value !== null);
 }
 
 return [
