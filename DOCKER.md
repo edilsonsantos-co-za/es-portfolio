@@ -27,16 +27,18 @@ docker-compose -f docker-compose.dev.yml up -d --build
 Use `docker-compose.prod.yml` for production:
 
 ```bash
-# Build and start production environment
-docker-compose -f docker-compose.prod.yml up --build
+# Pull the published image and start production
+docker-compose -f docker-compose.prod.yml pull
+docker-compose -f docker-compose.prod.yml up
 
 # Or run in background
-docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose -f docker-compose.prod.yml pull
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
 **Features:**
 - Uses `APP_ENV=production`
-- Compiles assets with `npm run production` (optimized, minified)
+- Uses the published Docker image with precompiled assets
 - Runs from the built image with no full-repo bind mount
 - Keeps only explicit named volumes for backups and local media storage
 - Debug mode disabled
@@ -103,28 +105,23 @@ If admin JS files return 404 errors:
    docker exec edfolio-prod ls -la /var/www/html/public/js/client/admin/roots/
    ```
 
-2. Check the one-shot asset builder logs:
+2. Confirm the image already contains built assets:
    ```bash
-   docker logs edfolio-assets --tail=200
+   docker exec edfolio-prod ls -la /var/www/html/public/mix-manifest.json
    ```
 
-3. Inspect the shared asset volume inside the app container:
-   ```bash
-   docker exec edfolio-prod ls -la /var/www/html/.frontend-assets/js/client/admin/roots/
-   docker exec edfolio-prod ls -la /var/www/html/.frontend-assets/mix-manifest.json
-   ```
-
-4. If the asset builder fails, rebuild locally to compare behavior:
+3. If the image is missing assets, rebuild locally to compare behavior:
    ```bash
    npm run build
    ```
 
-5. Rebuild production containers:
+4. Pull and restart production containers:
    ```bash
-   docker compose -f docker-compose.prod.yml up -d --build
+   docker compose -f docker-compose.prod.yml pull
+   docker compose -f docker-compose.prod.yml up -d
    ```
 
-6. Check app container logs:
+5. Check app container logs:
    ```bash
    docker logs edfolio-prod --tail=200
    ```

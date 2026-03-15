@@ -180,12 +180,45 @@ A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/a
 
 ### Frontend Assets in Production
 
-Production now uses a dedicated one-shot `assets` service to compile frontend bundles before the app container starts. The generated files are written into a named volume and then copied into `public/` during app startup.
+Production frontend assets are now baked into the Docker image during CI. The VPS no longer compiles JavaScript during deployment.
 
-- Keep `SKIP_ASSET_BUILD=true` in production so the app container expects prebuilt assets from the shared volume instead of trying to compile them itself.
-- `docker compose -f docker-compose.prod.yml up -d --build` now rebuilds the one-shot `assets` service image and reruns `npm run build` on every deployment.
-- The `assets` service has its own higher memory ceiling, so Mix/Webpack no longer has to compile inside the tighter app container limits.
-- If the asset build fails, the app service will not start successfully, which is safer than booting with broken 404s for `app.js` / `projects.js`.
+- Keep `SKIP_ASSET_BUILD=true` in production so the app container expects precompiled assets from the image.
+- The Docker Hub image (`<dockerhub-user>/edfolio:<tag>`) already contains `public/js/*` and `public/mix-manifest.json`.
+- Deployments only need `docker compose pull` and `docker compose up -d`, which avoids the previous VPS memory pressure during asset compilation.
+- If the image build fails in GitHub Actions, deployment stops before the VPS is touched.
+
+## GitHub Actions Deployment Pipeline
+
+Production deployments now follow this order:
+
+1. `Validate` runs on GitHub for pushes and pull requests.
+2. `Build and Deploy` waits for `Validate` to succeed on `main`.
+3. GitHub builds the production image and publishes it to Docker Hub.
+4. The deploy job SSHes to the VPS, pulls the new image, and restarts the production service.
+
+### Required GitHub Secrets
+
+Configure these repository secrets before enabling the deploy workflow:
+
+```bash
+DEPLOY_HOST=your-vps-hostname-or-ip
+DEPLOY_USER=your-ssh-user
+DEPLOY_SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
+DEPLOY_PATH=/workspace/edilsonsantos-co-za/edfolio
+DOCKERHUB_USERNAME=your-docker-hub-username
+DOCKERHUB_TOKEN=your-docker-hub-access-token
+```
+
+### Production Compose Image Settings
+
+`docker-compose.prod.yml` now reads the application image from environment variables:
+
+```bash
+APP_IMAGE=your-docker-hub-username/edfolio
+APP_IMAGE_TAG=latest
+```
+
+The deploy workflow sets these automatically on the VPS for each release so the server always starts the exact image GitHub just published.
 
 ### S3 Media Storage
 

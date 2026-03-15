@@ -7,7 +7,8 @@ COPY package.json package-lock.json webpack.mix.js ./
 COPY public ./public
 COPY resources ./resources
 
-RUN npm ci --legacy-peer-deps --no-audit --no-fund
+RUN npm ci --legacy-peer-deps --no-audit --no-fund \
+    && NODE_OPTIONS="--max-old-space-size=768" npm run build
 
 FROM php:8.2-apache AS base
 
@@ -72,6 +73,11 @@ RUN chmod +x /usr/local/bin/start-apache.sh
 
 # Copy application code (invalidates cache when code changes)
 COPY . .
+
+# Copy prebuilt frontend assets into the runtime image so production deployments
+# can pull a tested image instead of rebuilding assets on the VPS.
+COPY --from=assets /app/public/js /var/www/html/public/js
+COPY --from=assets /app/public/mix-manifest.json /var/www/html/public/mix-manifest.json
 
 # Recreate Laravel runtime directories excluded from the Docker build context
 RUN mkdir -p \

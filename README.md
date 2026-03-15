@@ -158,6 +158,8 @@ What it currently checks:
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to make missing Compose a hard failure.
 
+Production deployments are image-based: GitHub Actions validates the repo, builds and publishes a Docker Hub image, and then the VPS pulls the tagged image via `docker-compose.prod.yml`.
+
 ### Working with the Application
 
 ```bash
