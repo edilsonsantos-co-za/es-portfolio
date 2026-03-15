@@ -183,7 +183,7 @@ A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/a
 Production frontend assets are now baked into the Docker image during CI. The VPS no longer compiles JavaScript during deployment.
 
 - Keep `SKIP_ASSET_BUILD=true` in production so the app container expects precompiled assets from the image.
-- The Docker Hub image (`<dockerhub-user>/edfolio:<tag>`) already contains `public/js/*` and `public/mix-manifest.json`.
+- The Docker Hub image (`datasparklab/edfolio:<tag>`) already contains `public/js/*` and `public/mix-manifest.json`.
 - Deployments only need `docker compose pull` and `docker compose up -d`, which avoids the previous VPS memory pressure during asset compilation.
 - If the image build fails in GitHub Actions, deployment stops before the VPS is touched.
 
@@ -201,7 +201,7 @@ Production deployments now follow this order:
 Configure these secrets before enabling the deploy workflow:
 
 ```bash
-DOCKERHUB_USERNAME=your-docker-hub-username
+DOCKERHUB_USERNAME=your-docker-hub-login-username
 DOCKERHUB_TOKEN=your-docker-hub-access-token
 ```
 
@@ -219,6 +219,7 @@ Recommended split:
 Important:
 
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are required by the `build-and-publish` job before the workflow reaches the `production` environment, so they must be configured as repository or organization secrets.
+- `DOCKERHUB_USERNAME` is used to authenticate to Docker Hub. The workflow publishes images to the fixed `datasparklab` organization namespace, so the login account must have permission to push to `datasparklab/edfolio`.
 - The `production` environment must exist before you add `DEPLOY_*` environment secrets. If it is missing, create it first in GitHub and then load the deploy secrets.
 
 Example environment secret values:
@@ -257,6 +258,8 @@ APP_IMAGE_TAG=latest
 ```
 
 The deploy workflow sets these automatically on the VPS for each release so the server always starts the exact image GitHub just published.
+
+The image name is derived in the deploy job from the fixed `datasparklab` namespace and the repository name instead of being passed as a job output, because GitHub Actions suppresses secret-like outputs between jobs.
 
 ### S3 Media Storage
 

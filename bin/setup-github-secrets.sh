@@ -14,6 +14,8 @@ Usage:
     [--environment production]
 
 This script configures the secrets required by the Docker Hub deployment workflow.
+The Docker Hub username is used for authentication only; images are published to the
+fixed `datasparklab` organization namespace, so the account must have push access there.
 
 Repository secrets:
   - DOCKERHUB_USERNAME

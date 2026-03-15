@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  DOCKERHUB_NAMESPACE: datasparklab
+
 permissions:
   contents: read
 
@@ -45,7 +48,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.image.outputs.name }}
       tag: ${{ steps.image.outputs.tag }}
 
     steps:
@@ -68,10 +70,8 @@ jobs:
 
       - name: Derive image metadata
         id: image
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          IMAGE_NAME="${DOCKERHUB_USERNAME}/${GITHUB_REPOSITORY#*/}"
+          IMAGE_NAME="${DOCKERHUB_NAMESPACE}/${GITHUB_REPOSITORY#*/}"
           IMAGE_TAG="${GITHUB_SHA::12}"
           echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
           echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
@@ -119,6 +119,8 @@ jobs:
     steps:
       - name: Validate production deploy configuration
         env:
+          APP_IMAGE: ${{ format('{0}/{1}', env.DOCKERHUB_NAMESPACE, github.event.repository.name) }}
+          APP_IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
@@ -128,6 +130,8 @@ jobs:
         run: |
           missing=()
 
+          [[ -n "${APP_IMAGE}" ]] || missing+=("APP_IMAGE")
+          [[ -n "${APP_IMAGE_TAG}" ]] || missing+=("APP_IMAGE_TAG")
           [[ -n "${DOCKERHUB_USERNAME}" ]] || missing+=("DOCKERHUB_USERNAME")
           [[ -n "${DOCKERHUB_TOKEN}" ]] || missing+=("DOCKERHUB_TOKEN")
           [[ -n "${DEPLOY_HOST}" ]] || missing+=("DEPLOY_HOST")
@@ -144,7 +148,7 @@ jobs:
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
         env:
-          APP_IMAGE: ${{ needs.build-and-publish.outputs.image }}
+          APP_IMAGE: ${{ format('{0}/{1}', env.DOCKERHUB_NAMESPACE, github.event.repository.name) }}
           APP_IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
