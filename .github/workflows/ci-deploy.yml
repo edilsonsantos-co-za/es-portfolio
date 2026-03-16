@@ -167,11 +167,7 @@ jobs:
             }
             trap cleanup EXIT
 
-            cat > "$override_file" <<EOF
-            services:
-              app:
-                image: ${APP_IMAGE}:${APP_IMAGE_TAG}
-            EOF
+            printf 'services:\n  app:\n    image: "%s:%s"\n' "$APP_IMAGE" "$APP_IMAGE_TAG" > "$override_file"
 
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             cd "$DEPLOY_PATH"
