@@ -161,8 +161,7 @@ jobs:
           envs: APP_IMAGE,APP_IMAGE_TAG,DEPLOY_PATH,DOCKERHUB_TOKEN,DOCKERHUB_USERNAME
           script: |
             set -euo pipefail
-            cd "$DEPLOY_PATH"
-            override_file=".github-actions.deploy.override.yml"
+            override_file="$(mktemp /tmp/edfolio-deploy-override.XXXXXX.yml)"
             cleanup() {
               rm -f "$override_file"
             }
@@ -175,6 +174,7 @@ jobs:
             EOF
 
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            cd "$DEPLOY_PATH"
             docker compose -f docker-compose.prod.yml -f "$override_file" pull app
             docker compose -f docker-compose.prod.yml -f "$override_file" up -d app
             docker image prune -f

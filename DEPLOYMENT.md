@@ -261,7 +261,7 @@ The deploy workflow sets these automatically on the VPS for each release so the 
 
 The image name is derived in the deploy job from the fixed `datasparklab` namespace and the repository name instead of being passed as a job output, because GitHub Actions suppresses secret-like outputs between jobs.
 
-During deployment, GitHub Actions writes a temporary Compose override on the VPS that pins the `app` service to the exact `${APP_IMAGE}:${APP_IMAGE_TAG}` being released. This avoids stale server-side `.env` or Compose defaults accidentally pulling an old image name such as `edfolio`.
+During deployment, GitHub Actions writes a temporary Compose override under `/tmp` on the VPS that pins the `app` service to the exact `${APP_IMAGE}:${APP_IMAGE_TAG}` being released. This avoids stale server-side `.env` or Compose defaults accidentally pulling an old image name such as `edfolio`, and it does not require the deploy user to have write access inside `DEPLOY_PATH`.
 
 ### S3 Media Storage
 
