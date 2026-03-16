@@ -162,7 +162,19 @@ jobs:
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"
+            override_file=".github-actions.deploy.override.yml"
+            cleanup() {
+              rm -f "$override_file"
+            }
+            trap cleanup EXIT
+
+            cat > "$override_file" <<EOF
+            services:
+              app:
+                image: ${APP_IMAGE}:${APP_IMAGE_TAG}
+            EOF
+
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            APP_IMAGE="$APP_IMAGE" APP_IMAGE_TAG="$APP_IMAGE_TAG" docker compose -f docker-compose.prod.yml pull
-            APP_IMAGE="$APP_IMAGE" APP_IMAGE_TAG="$APP_IMAGE_TAG" docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml -f "$override_file" pull app
+            docker compose -f docker-compose.prod.yml -f "$override_file" up -d app
             docker image prune -f
