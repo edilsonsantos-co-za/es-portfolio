@@ -32,7 +32,6 @@ use App\Helpers\Utils;
 use Config;
 use Illuminate\Support\ServiceProvider;
 use Schema;
-use Str;
 use URL;
 
 class AppServiceProvider extends ServiceProvider
@@ -72,9 +71,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Force HTTPS for production environment
-        if (Config::get('app.env') === 'production' || Str::contains(Config::get('app.url'), 'https://')) {
+        if (Config::get('app.force_https')) {
             URL::forceScheme('https');
+        } else {
+            URL::forceScheme(null);
         }
 
         Schema::defaultStringLength(191);

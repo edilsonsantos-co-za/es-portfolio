@@ -123,6 +123,7 @@ Key configuration options:
 APP_ENV=local|production
 APP_DEBUG=true|false
 APP_URL=http://localhost:8080
+FORCE_HTTPS=false
 
 # Database behavior
 RUN_MIGRATIONS=auto|true|false      # Control migration execution
@@ -133,6 +134,8 @@ CREATE_DB_BACKUP=true               # Backup before migrations
 # Build behavior
 SKIP_ASSET_BUILD=false              # Skip frontend asset building
 ```
+
+Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated with a valid HTTPS certificate and your proxy forwards the usual `X-Forwarded-*` headers. Leaving it `false` prevents Laravel from rewriting every asset URL to `https://` on hosts that are still serving plain HTTP or have incomplete TLS setup.
 
 ## Common Development Tasks
 

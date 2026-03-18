@@ -243,6 +243,17 @@ DEPLOY_PATH=/workspace/edilsonsantos-co-za/edfolio
 DEPLOY_SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
 ```
 
+Example production application settings in `.env.prod`:
+
+```bash
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://edilsonsantos.co.za
+FORCE_HTTPS=false
+```
+
+Only switch `APP_URL` to `https://...` and set `FORCE_HTTPS=true` after the public hostname is backed by a valid certificate at the reverse proxy/load balancer. Until then, leaving `FORCE_HTTPS=false` prevents Laravel from rewriting asset URLs to a broken HTTPS origin.
+
 ### Bootstrap Secrets with GitHub CLI
 
 You can set the required secrets for this repository with:
