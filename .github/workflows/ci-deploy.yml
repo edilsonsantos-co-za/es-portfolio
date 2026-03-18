@@ -212,3 +212,121 @@ jobs:
             docker compose -f "$compose_file" pull app
             docker compose -f "$compose_file" up -d --remove-orphans app
             docker image prune -f
+
+  notify-google-chat:
+    needs:
+      - validate
+      - build-and-publish
+      - deploy-production
+    if: always() && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build Google Chat notification payload
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          BUILD_RESULT: ${{ needs.build-and-publish.result }}
+          DEPLOY_RESULT: ${{ needs.deploy-production.result }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          owner_repo = os.environ["GITHUB_REPOSITORY"]
+          owner, repo = owner_repo.split("/", 1)
+          sha = os.environ["GITHUB_SHA"]
+          short_sha = sha[:12]
+          branch = os.environ["GITHUB_REF"].removeprefix("refs/heads/")
+          run_url = f"{os.environ['GITHUB_SERVER_URL']}/{owner_repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+
+          validate_result = os.environ["VALIDATE_RESULT"]
+          build_result = os.environ["BUILD_RESULT"]
+          deploy_result = os.environ["DEPLOY_RESULT"]
+
+          overall_status = "SUCCESS" if all(
+              result == "success" for result in (validate_result, build_result, deploy_result)
+          ) else "FAILURE"
+
+          headers = {
+              "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "edfolio-google-chat-notifier",
+          }
+
+          def github_api(path: str) -> dict:
+              request = urllib.request.Request(
+                  f"https://api.github.com{path}",
+                  headers=headers,
+              )
+              with urllib.request.urlopen(request) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          commit_data = github_api(f"/repos/{owner_repo}/commits/{sha}")
+
+          files = []
+          before_sha = os.environ.get("BEFORE_SHA", "")
+          if before_sha and set(before_sha) != {"0"}:
+              try:
+                  compare_data = github_api(f"/repos/{owner_repo}/compare/{before_sha}...{sha}")
+                  files = compare_data.get("files", [])
+              except Exception:
+                  files = []
+
+          if not files:
+              files = commit_data.get("files", [])
+
+          formatted_files = [
+              f"- {file_info.get('status', 'modified')}: {file_info['filename']}"
+              for file_info in files[:15]
+          ]
+
+          if len(files) > 15:
+              formatted_files.append(f"- ...and {len(files) - 15} more")
+
+          commit_message = commit_data["commit"]["message"].splitlines()[0]
+          author_name = commit_data["commit"]["author"]["name"]
+          triggered_by = os.environ["GITHUB_ACTOR"]
+
+          lines = [
+              f"Deployment {overall_status}",
+              f"Repository: {owner_repo}",
+              f"Branch: {branch}",
+              f"Commit: {short_sha}",
+              f"Author: {author_name}",
+              f"Triggered by: {triggered_by}",
+              f"Message: {commit_message}",
+              f"Validate: {validate_result}",
+              f"Build and publish: {build_result}",
+              f"Deploy production: {deploy_result}",
+              f"Run: {run_url}",
+              "Files changed:",
+          ]
+
+          if formatted_files:
+              lines.extend(formatted_files)
+          else:
+              lines.append("- No file list available")
+
+          with open("google-chat-payload.json", "w", encoding="utf-8") as payload_file:
+              json.dump({"text": "\n".join(lines)}, payload_file)
+          PY
+
+      - name: Send Google Chat notification
+        if: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL != '' }}
+        continue-on-error: true
+        env:
+          GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
+        run: |
+          curl --fail --silent --show-error \
+            -X POST \
+            -H 'Content-Type: application/json; charset=UTF-8' \
+            --data @google-chat-payload.json \
+            "$GOOGLE_CHAT_WEBHOOK_URL"
+
+      - name: Skip Google Chat notification
+        if: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL == '' }}
+        run: echo 'Skipping Google Chat notification because GOOGLE_CHAT_WEBHOOK_URL is not configured.'

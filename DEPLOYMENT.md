@@ -195,6 +195,7 @@ Production deployments now follow this order:
 2. The `validate` job runs first.
 3. On `main`, the `build-and-publish` job waits for validation, then publishes the Docker image to Docker Hub.
 4. The `deploy-production` job waits for the image push, then SSHes to the VPS, pulls the new image, and restarts the production service.
+5. A final `notify-google-chat` job reports the deployment result to Google Chat when a webhook secret is configured.
 
 ### Required GitHub Secrets
 
@@ -203,6 +204,7 @@ Configure these secrets before enabling the deploy workflow:
 ```bash
 DOCKERHUB_USERNAME=your-docker-hub-login-username
 DOCKERHUB_TOKEN=your-docker-hub-access-token
+GOOGLE_CHAT_WEBHOOK_URL=https://chat.googleapis.com/...
 ```
 
 Recommended split:
@@ -210,6 +212,7 @@ Recommended split:
 - **Repository or organization secrets**
   - `DOCKERHUB_USERNAME`
   - `DOCKERHUB_TOKEN`
+  - `GOOGLE_CHAT_WEBHOOK_URL` (optional)
 - **`production` environment secrets**
   - `DEPLOY_HOST`
   - `DEPLOY_USER`
@@ -220,6 +223,7 @@ Important:
 
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are required by the `build-and-publish` job before the workflow reaches the `production` environment, so they must be configured as repository or organization secrets.
 - `DOCKERHUB_USERNAME` is used to authenticate to Docker Hub. The workflow publishes images to the fixed `datasparklab` organization namespace, so the login account must have permission to push to `datasparklab/edfolio`.
+- `GOOGLE_CHAT_WEBHOOK_URL` is optional. When set as a repository or organization secret, the final workflow job posts a Google Chat message with the deployment status, repository, branch, author, commit, workflow run link, and a summary of changed files.
 - The `production` environment must exist before you add `DEPLOY_*` environment secrets. If it is missing, create it first in GitHub and then load the deploy secrets.
 
 Example environment secret values:
@@ -239,6 +243,7 @@ You can set the required secrets for this repository with:
 ./bin/setup-github-secrets.sh edilsonsantos-co-za/edfolio \
   --dockerhub-username YOUR_DOCKERHUB_USERNAME \
   --dockerhub-token YOUR_DOCKERHUB_TOKEN \
+  --google-chat-webhook-url YOUR_GOOGLE_CHAT_WEBHOOK_URL \
   --deploy-host YOUR_VPS_HOST \
   --deploy-user YOUR_VPS_USER \
   --deploy-path /workspace/edilsonsantos-co-za/edfolio \
@@ -262,6 +267,8 @@ The deploy workflow sets these automatically on the VPS for each release so the 
 The image name is derived in the deploy job from the fixed `datasparklab` namespace and the repository name instead of being passed as a job output, because GitHub Actions suppresses secret-like outputs between jobs.
 
 During deployment, GitHub Actions writes a temporary Compose file under `/tmp` on the VPS using the current production service definition plus the exact `${APP_IMAGE}:${APP_IMAGE_TAG}` being released. This avoids stale server-side Compose files or defaults accidentally pulling an old image name or obsolete services such as the former `assets` container, and it does not require the deploy user to have write access inside `DEPLOY_PATH`.
+
+When `GOOGLE_CHAT_WEBHOOK_URL` is configured, the workflow posts a non-blocking notification after the deploy attempt. Notification delivery issues do not fail the deployment pipeline.
 
 ### S3 Media Storage
 

@@ -7,6 +7,7 @@ Usage:
   ./bin/setup-github-secrets.sh OWNER/REPO \
     --dockerhub-username USERNAME \
     --dockerhub-token TOKEN \
+    [--google-chat-webhook-url URL] \
     --deploy-host HOST \
     --deploy-user USER \
     --deploy-path PATH \
@@ -20,6 +21,7 @@ fixed `datasparklab` organization namespace, so the account must have push acces
 Repository secrets:
   - DOCKERHUB_USERNAME
   - DOCKERHUB_TOKEN
+  - GOOGLE_CHAT_WEBHOOK_URL (optional)
 
 Environment secrets (default environment: production):
   - DEPLOY_HOST
@@ -44,6 +46,7 @@ shift
 ENVIRONMENT="production"
 DOCKERHUB_USERNAME=""
 DOCKERHUB_TOKEN=""
+GOOGLE_CHAT_WEBHOOK_URL=""
 DEPLOY_HOST=""
 DEPLOY_USER=""
 DEPLOY_PATH=""
@@ -61,6 +64,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --deploy-host)
       DEPLOY_HOST="$2"
+      shift 2
+      ;;
+    --google-chat-webhook-url)
+      GOOGLE_CHAT_WEBHOOK_URL="$2"
       shift 2
       ;;
     --deploy-user)
@@ -121,6 +128,9 @@ fi
 printf 'Configuring repository secrets for %s...\n' "$REPO"
 gh secret set DOCKERHUB_USERNAME --repo "$REPO" --body "$DOCKERHUB_USERNAME"
 gh secret set DOCKERHUB_TOKEN --repo "$REPO" --body "$DOCKERHUB_TOKEN"
+if [[ -n "$GOOGLE_CHAT_WEBHOOK_URL" ]]; then
+  gh secret set GOOGLE_CHAT_WEBHOOK_URL --repo "$REPO" --body "$GOOGLE_CHAT_WEBHOOK_URL"
+fi
 
 printf 'Configuring %s environment secrets for %s...\n' "$ENVIRONMENT" "$REPO"
 gh secret set DEPLOY_HOST --repo "$REPO" --env "$ENVIRONMENT" --body "$DEPLOY_HOST"
