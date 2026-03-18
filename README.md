@@ -162,6 +162,8 @@ Production deployments are image-based: the single `Validate and Deploy` GitHub 
 
 Repository-wide Docker Hub credentials can be set with `gh secret set`, while production VPS values are best stored as `production` environment secrets. The `build-and-publish` job is not environment-scoped, so `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and the optional `GOOGLE_CHAT_WEBHOOK_URL` notification secret must exist as repository or organization secrets rather than only as environment secrets. `DOCKERHUB_USERNAME` is only used for Docker Hub login; published images are pushed to the `datasparklab` organization namespace. See `DEPLOYMENT.md` and `./bin/setup-github-secrets.sh` for the exact bootstrap flow.
 
+Application and image versioning now come from the root `VERSION` file. The Laravel app exposes both the raw version (for example `0.0.9`) and the release tag (`v0.0.9`) to views, and the deployment workflow publishes Docker images tagged as both `<version>` and `<release-tag>` alongside `latest`.
+
 ### Working with the Application
 
 ```bash

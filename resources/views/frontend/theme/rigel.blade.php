@@ -376,6 +376,9 @@
                 ©{{ now()->year }} All rights reserved.
             </div>
             <div class="credits">
+                <small>Release {{ $appReleaseTag }}</small>
+            </div>
+            <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
                 <!-- You can delete the links only if you purchased the pro version. -->
                 <!-- Licensing information: [license-url] -->
@@ -388,6 +391,9 @@
     <!-- ======= Footer ======= -->
     <footer id="footer" class="py-1">
         <div class="container">
+            <div class="credits">
+                <small>Release {{ $appReleaseTag }}</small>
+            </div>
             <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
                 <!-- You can delete the links only if you purchased the pro version. -->

@@ -91,8 +91,8 @@ export CREATE_DB_BACKUP=true  # true to backup database before changes
 ## Container Management
 
 ### Image Tagging
-- Images are tagged with commit SHA: `edfolio:a1b2c3d4`
-- Latest image is always tagged as `edfolio:latest`
+- Images are tagged from the root `VERSION` file as both `datasparklab/edfolio:0.0.9` and `datasparklab/edfolio:v0.0.9`
+- Latest image is also tagged as `datasparklab/edfolio:latest`
 - Old images are kept (last 3) for rollback capability
 
 ### Container Names
@@ -197,6 +197,15 @@ Production deployments now follow this order:
 4. The `deploy-production` job waits for the image push, then SSHes to the VPS, pulls the new image, and restarts the production service.
 5. A final `notify-google-chat` job reports the deployment result to Google Chat when a webhook secret is configured.
 
+### Version Source of Truth
+
+The root `VERSION` file is the single source of truth for application and image versioning.
+
+- `VERSION` stores the raw semantic version, for example `0.0.9`
+- The application exposes both `0.0.9` and `v0.0.9` to Blade views
+- The deploy workflow uses the release tag form (`v0.0.9`) for production image pulls
+- The build workflow also publishes the raw semantic version tag (`0.0.9`) for compatibility
+
 ### Required GitHub Secrets
 
 Configure these secrets before enabling the deploy workflow:
@@ -259,7 +268,7 @@ To roll this pattern out across many repositories, loop over `gh repo list` outp
 
 ```bash
 APP_IMAGE=datasparklab/edfolio
-APP_IMAGE_TAG=latest
+APP_IMAGE_TAG=v0.0.9
 ```
 
 The deploy workflow sets these automatically on the VPS for each release so the server always starts the exact image GitHub just published.
@@ -269,6 +278,18 @@ The image name is derived in the deploy job from the fixed `datasparklab` namesp
 During deployment, GitHub Actions writes a temporary Compose file under `/tmp` on the VPS using the current production service definition plus the exact `${APP_IMAGE}:${APP_IMAGE_TAG}` being released. This avoids stale server-side Compose files or defaults accidentally pulling an old image name or obsolete services such as the former `assets` container, and it does not require the deploy user to have write access inside `DEPLOY_PATH`.
 
 When `GOOGLE_CHAT_WEBHOOK_URL` is configured, the workflow posts a non-blocking notification after the deploy attempt. Notification delivery issues do not fail the deployment pipeline.
+
+### Release Flow
+
+Use the following release flow to keep Docker image tags, application UI versioning, and Git tags aligned:
+
+1. Update `VERSION` to the next semantic version.
+2. Commit the release with `chore(release): vX.Y.Z`.
+3. Create an annotated Git tag with `git tag -a vX.Y.Z -m "vX.Y.Z"`.
+4. Push the commit and tag.
+5. The `Release Validation` workflow runs on `v*.*.*` tags and fails if `VERSION` does not match the pushed tag exactly.
+
+Using Git tags for releases is preferred over bare version-only commit subjects because tags create an auditable release marker without losing meaningful commit history between releases.
 
 ### S3 Media Storage
 

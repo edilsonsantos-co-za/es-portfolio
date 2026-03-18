@@ -48,6 +48,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
+      version: ${{ steps.image.outputs.version }}
       tag: ${{ steps.image.outputs.tag }}
 
     steps:
@@ -68,16 +69,24 @@ jobs:
             exit 1
           fi
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Derive image metadata
         id: image
         run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          RELEASE_TAG="v${VERSION}"
           IMAGE_NAME="${DOCKERHUB_NAMESPACE}/${GITHUB_REPOSITORY#*/}"
-          IMAGE_TAG="${GITHUB_SHA::12}"
-          echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
-          echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout
-        uses: actions/checkout@v4
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            printf 'VERSION must use semantic version format X.Y.Z. Found: %s\n' "$VERSION" >&2
+            exit 1
+          fi
+
+          echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -105,6 +114,7 @@ jobs:
           context: .
           push: true
           tags: |
+            ${{ steps.image.outputs.name }}:${{ steps.image.outputs.version }}
             ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
             ${{ steps.image.outputs.name }}:latest
           cache-from: type=gha
@@ -230,6 +240,7 @@ jobs:
           BUILD_RESULT: ${{ needs.build-and-publish.result }}
           DEPLOY_RESULT: ${{ needs.deploy-production.result }}
           GITHUB_TOKEN: ${{ github.token }}
+          IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
           VALIDATE_RESULT: ${{ needs.validate.result }}
         run: |
           python3 - <<'PY'
@@ -301,6 +312,7 @@ jobs:
               f"Author: {author_name}",
               f"Triggered by: {triggered_by}",
               f"Message: {commit_message}",
+              f"Release tag: {os.environ.get('IMAGE_TAG', 'n/a')}",
               f"Validate: {validate_result}",
               f"Build and publish: {build_result}",
               f"Deploy production: {deploy_result}",

@@ -361,6 +361,7 @@
             <footer class="footer">
                 <div class="h4 title text-center text-muted">{{$about->name}}</div>
                 <div class="text-center text-muted"><p>©{{ now()->year }} All rights reserved.</p></div>
+                <div class="text-center text-muted"><p><small>Release {{ $appReleaseTag }}</small></p></div>
             </footer>
         @endif
     </div>

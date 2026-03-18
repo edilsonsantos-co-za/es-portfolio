@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Experience;
 use App\Services\AboutService;
 use App\Services\AdminService;
+use App\Services\ApplicationVersion;
 use App\Services\Contracts\AboutInterface;
 use App\Services\Contracts\AdminInterface;
 use App\Services\Contracts\EducationInterface;
@@ -59,6 +60,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FrontendInterface::class, FrontendService::class);
         $this->app->bind(VisitorInterface::class, VisitorService::class);
         $this->app->bind(MessageInterface::class, MessageService::class);
+        $this->app->singleton(ApplicationVersion::class, function () {
+            return new ApplicationVersion(base_path('VERSION'));
+        });
     }
 
     /**
@@ -72,8 +76,16 @@ class AppServiceProvider extends ServiceProvider
         if (Config::get('app.env') === 'production' || Str::contains(Config::get('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
-        
+
         Schema::defaultStringLength(191);
+
+        $applicationVersion = $this->app->make(ApplicationVersion::class);
+
+        Config::set('app.version', $applicationVersion->version());
+        Config::set('app.release_tag', $applicationVersion->releaseTag());
+
+        view()->share('appVersion', $applicationVersion->version());
+        view()->share('appReleaseTag', $applicationVersion->releaseTag());
 
     }
 }
