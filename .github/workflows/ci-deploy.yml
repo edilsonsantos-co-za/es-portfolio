@@ -220,6 +220,8 @@ jobs:
       - deploy-production
     if: always() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
 
     steps:
       - name: Build Google Chat notification payload
@@ -316,10 +318,8 @@ jobs:
           PY
 
       - name: Send Google Chat notification
-        if: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL != '' }}
+        if: ${{ env.GOOGLE_CHAT_WEBHOOK_URL != '' }}
         continue-on-error: true
-        env:
-          GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
         run: |
           curl --fail --silent --show-error \
             -X POST \
@@ -328,5 +328,5 @@ jobs:
             "$GOOGLE_CHAT_WEBHOOK_URL"
 
       - name: Skip Google Chat notification
-        if: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL == '' }}
+        if: ${{ env.GOOGLE_CHAT_WEBHOOK_URL == '' }}
         run: echo 'Skipping Google Chat notification because GOOGLE_CHAT_WEBHOOK_URL is not configured.'
