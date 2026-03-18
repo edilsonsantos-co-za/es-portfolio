@@ -48,7 +48,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.image.outputs.version }}
       tag: ${{ steps.image.outputs.tag }}
 
     steps:
@@ -85,7 +84,6 @@ jobs:
           fi
 
           echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
@@ -114,7 +112,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.image.outputs.name }}:${{ steps.image.outputs.version }}
             ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
             ${{ steps.image.outputs.name }}:latest
           cache-from: type=gha
@@ -221,6 +218,15 @@ jobs:
             cd "$DEPLOY_PATH"
             docker compose -f "$compose_file" pull app
             docker compose -f "$compose_file" up -d --remove-orphans app
+            docker ps --filter "name=^/edfolio-prod$" --format '{{.Names}} {{.Status}}'
+
+            if ! docker ps --filter "name=^/edfolio-prod$" --format '{{.Names}}' | grep -qx 'edfolio-prod'; then
+              printf 'Expected container edfolio-prod is not running after deployment.\n' >&2
+              docker compose -f "$compose_file" ps >&2 || true
+              docker logs edfolio-prod --tail 50 >&2 || true
+              exit 1
+            fi
+
             docker image prune -f
 
   notify-google-chat:

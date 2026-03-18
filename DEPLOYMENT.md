@@ -91,7 +91,7 @@ export CREATE_DB_BACKUP=true  # true to backup database before changes
 ## Container Management
 
 ### Image Tagging
-- Images are tagged from the root `VERSION` file as both `datasparklab/edfolio:0.0.9` and `datasparklab/edfolio:v0.0.9`
+- Images are tagged from the root `VERSION` file as `datasparklab/edfolio:v0.0.9`
 - Latest image is also tagged as `datasparklab/edfolio:latest`
 - Old images are kept (last 3) for rollback capability
 
@@ -203,8 +203,7 @@ The root `VERSION` file is the single source of truth for application and image 
 
 - `VERSION` stores the raw semantic version, for example `0.0.9`
 - The application exposes both `0.0.9` and `v0.0.9` to Blade views
-- The deploy workflow uses the release tag form (`v0.0.9`) for production image pulls
-- The build workflow also publishes the raw semantic version tag (`0.0.9`) for compatibility
+- The build and deploy workflow uses the release tag form (`v0.0.9`) for Docker image publishing and production pulls
 
 ### Required GitHub Secrets
 
@@ -276,6 +275,8 @@ The deploy workflow sets these automatically on the VPS for each release so the 
 The image name is derived in the deploy job from the fixed `datasparklab` namespace and the repository name instead of being passed as a job output, because GitHub Actions suppresses secret-like outputs between jobs.
 
 During deployment, GitHub Actions writes a temporary Compose file under `/tmp` on the VPS using the current production service definition plus the exact `${APP_IMAGE}:${APP_IMAGE_TAG}` being released. This avoids stale server-side Compose files or defaults accidentally pulling an old image name or obsolete services such as the former `assets` container, and it does not require the deploy user to have write access inside `DEPLOY_PATH`.
+
+After `docker compose up -d`, the workflow verifies that the expected `edfolio-prod` container is running. If the container is missing, the deploy job now fails with container status and recent logs.
 
 When `GOOGLE_CHAT_WEBHOOK_URL` is configured, the workflow posts a non-blocking notification after the deploy attempt. Notification delivery issues do not fail the deployment pipeline.
 
