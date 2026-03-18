@@ -161,16 +161,54 @@ jobs:
           envs: APP_IMAGE,APP_IMAGE_TAG,DEPLOY_PATH,DOCKERHUB_TOKEN,DOCKERHUB_USERNAME
           script: |
             set -euo pipefail
-            override_file="$(mktemp /tmp/edfolio-deploy-override.XXXXXX.yml)"
+            compose_file="$(mktemp /tmp/edfolio-deploy-compose.XXXXXX.yml)"
             cleanup() {
-              rm -f "$override_file"
+              rm -f "$compose_file"
             }
             trap cleanup EXIT
 
-            printf 'services:\n  app:\n    image: "%s:%s"\n' "$APP_IMAGE" "$APP_IMAGE_TAG" > "$override_file"
+            printf '%s\n' \
+              'name: edfolio' \
+              'services:' \
+              '  app:' \
+              '    container_name: edfolio-prod' \
+              "    image: ${APP_IMAGE}:${APP_IMAGE_TAG}" \
+              '    pull_policy: always' \
+              '    env_file:' \
+              "      - ${DEPLOY_PATH}/.env.prod" \
+              '    restart: on-failure:3' \
+              '    volumes:' \
+              '      - prod_backups:/var/www/html/storage/app/backups' \
+              '      - edfolio_storage:/var/www/html/storage/app/public' \
+              '    networks:' \
+              '      - milkyway' \
+              '    environment:' \
+              '      - SKIP_ASSET_BUILD=true' \
+              '      - FORCE_FRESH_DB=false' \
+              '      - CREATE_DB_BACKUP=true' \
+              '    logging:' \
+              '      driver: "json-file"' \
+              '      options:' \
+              '        max-size: "10m"' \
+              '        max-file: "3"' \
+              '    healthcheck:' \
+              '      test: ["CMD", "curl", "-f", "http://localhost"]' \
+              '      interval: 30s' \
+              '      timeout: 10s' \
+              '      retries: 3' \
+              '      start_period: 60s' \
+              '' \
+              'volumes:' \
+              '  prod_backups:' \
+              '  edfolio_storage:' \
+              '' \
+              'networks:' \
+              '  milkyway:' \
+              '    external: true' \
+              > "$compose_file"
 
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             cd "$DEPLOY_PATH"
-            docker compose -f docker-compose.prod.yml -f "$override_file" pull app
-            docker compose -f docker-compose.prod.yml -f "$override_file" up -d app
+            docker compose -f "$compose_file" pull app
+            docker compose -f "$compose_file" up -d --remove-orphans app
             docker image prune -f
