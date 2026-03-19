@@ -153,6 +153,8 @@ Run the standard local validation suite before pushing or deploy planning:
 ./bin/validate.sh
 ```
 
+That validation path is also what the repository pre-push hook runs once you enable hooks with `./bin/setup-git-hooks.sh`. It currently covers Docker Compose config checks, PHPUnit, ESLint for `resources/js`, and the frontend production build.
+
 What it currently checks:
 - `docker compose -f docker-compose.dev.yml config` or `docker-compose -f docker-compose.dev.yml config`
 - `docker compose -f docker-compose.prod.yml config` or `docker-compose -f docker-compose.prod.yml config`

@@ -90,6 +90,9 @@ require_file "node_modules" "Run: npm ci --legacy-peer-deps --no-audit --no-fund
 printf '[validate] Running PHPUnit...\n'
 APP_ENV=testing APP_KEY="${APP_KEY:-$PHPUNIT_APP_KEY_FALLBACK}" ./vendor/bin/phpunit
 
+printf '[validate] Running ESLint...\n'
+npm run lint
+
 printf '[validate] Building frontend assets...\n'
 npm run build
 

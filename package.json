@@ -8,6 +8,7 @@
         "hot": "mix watch --hot",
         "prod": "npm run production",
         "production": "mix --production",
+        "lint": "eslint resources/js --ext .js,.jsx --no-error-on-unmatched-pattern",
         "build": "npm run production",
         "build:dev": "npm run development",
         "build:prod": "npm run production",
