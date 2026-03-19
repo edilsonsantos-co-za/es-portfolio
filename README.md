@@ -159,6 +159,7 @@ What it currently checks:
 - `docker compose -f docker-compose.dev.yml config` or `docker-compose -f docker-compose.dev.yml config`
 - `docker compose -f docker-compose.prod.yml config` or `docker-compose -f docker-compose.prod.yml config`
 - `./vendor/bin/phpunit`
+- `npm run lint`
 - `npm run build`
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to make missing Compose a hard failure.
@@ -168,6 +169,25 @@ Production deployments are image-based: the single `Validate and Deploy` GitHub 
 Repository-wide Docker Hub credentials can be set with `gh secret set`, while production VPS values are best stored as `production` environment secrets. The `build-and-publish` job is not environment-scoped, so `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and the optional `GOOGLE_CHAT_WEBHOOK_URL` notification secret must exist as repository or organization secrets rather than only as environment secrets. `DOCKERHUB_USERNAME` is only used for Docker Hub login; published images are pushed to the `datasparklab` organization namespace. See `DEPLOYMENT.md` and `./bin/setup-github-secrets.sh` for the exact bootstrap flow.
 
 Application and image versioning now come from the root `VERSION` file. The Laravel app exposes both the raw version (for example `0.0.9`) and the release tag (`v0.0.9`) to views, and the deployment workflow publishes Docker images tagged as the release tag plus `latest`.
+
+## Modernization Snapshot
+
+Current baseline:
+
+- Laravel `9.52.x`
+- PHP target/platform pin `8.2.29`
+- PHPUnit `9.6.x`
+- React `18`
+- Laravel Mix `6`
+- GitHub Actions now updated to Node 24-compatible action majors
+
+Recommended upgrade path:
+
+1. Keep docs and validation scripts accurate
+2. Add PHP-side formatting and static analysis tooling
+3. Upgrade Laravel in supported steps (`9 -> 10 -> 11 -> 12/13`)
+4. Replace Laravel Mix with Vite
+5. Split CI into reusable `validate`, `build-image`, and `deploy` workflows for cross-project reuse
 
 ### Working with the Application
 

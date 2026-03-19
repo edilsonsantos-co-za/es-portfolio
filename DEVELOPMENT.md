@@ -84,6 +84,7 @@ The validation script currently checks:
 - `docker compose -f docker-compose.dev.yml config` or `docker-compose -f docker-compose.dev.yml config`
 - `docker compose -f docker-compose.prod.yml config` or `docker-compose -f docker-compose.prod.yml config`
 - `./vendor/bin/phpunit`
+- `npm run lint`
 - `npm run build`
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to require Compose explicitly.
@@ -260,6 +261,23 @@ The development environment differs from production:
 | Assets | Auto-build | Pre-built |
 | Debug | Enabled | Disabled |
 | Volumes | Multiple | Single bind mount |
+
+## Modernization Status
+
+Current project baseline:
+
+- Laravel `9.52.x`
+- PHP platform pin `8.2.29`
+- PHPUnit `9.6.x`
+- React `18`
+- Laravel Mix `6`
+
+Recommended next engineering phases:
+
+1. Add PHP static analysis and formatting tooling
+2. Upgrade Laravel in supported majors rather than one jump
+3. Replace Mix with Vite once the Laravel upgrade path is underway
+4. Extract reusable CI workflows for validation, image build, and deploy
 
 ## Next Steps
 
