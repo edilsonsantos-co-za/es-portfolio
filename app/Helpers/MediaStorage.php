@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -28,10 +29,22 @@ class MediaStorage
      */
     public static function storeUploadedFile(UploadedFile $file, string $directory, string $defaultExtension = 'png')
     {
+        $disk = Storage::disk(self::diskName());
+
+        if (!$disk->exists($directory)) {
+            $disk->makeDirectory($directory);
+        }
+
         $extension = $file->extension() ?: $defaultExtension;
         $fileName = Str::random(10).'_'.time().'.'.$extension;
 
-        return Storage::disk(self::diskName())->putFileAs($directory, $file, $fileName);
+        $result = $disk->putFileAs($directory, $file, $fileName);
+
+        if ($result === false) {
+            Log::error("MediaStorage: failed to store file in '{$directory}/{$fileName}'");
+        }
+
+        return $result;
     }
 
     /**

@@ -68,7 +68,13 @@ COPY . .
 # Recreate Laravel runtime directories excluded from the Docker build context
 RUN mkdir -p \
     /var/www/html/bootstrap/cache \
-    /var/www/html/storage/app/public \
+    /var/www/html/storage/app/public/projects \
+    /var/www/html/storage/app/public/avatar \
+    /var/www/html/storage/app/public/cover \
+    /var/www/html/storage/app/public/cv \
+    /var/www/html/storage/app/public/logo \
+    /var/www/html/storage/app/public/favicon \
+    /var/www/html/storage/app/public/meta-image \
     /var/www/html/storage/app/backups \
     /var/www/html/storage/framework/cache \
     /var/www/html/storage/framework/sessions \

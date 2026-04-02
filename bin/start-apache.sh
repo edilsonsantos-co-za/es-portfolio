@@ -70,10 +70,17 @@ echo "[STARTUP] Updating Composer dependencies if needed..."
 cd /var/www/html
 
 # Recreate required Laravel runtime directories in case they were excluded from the image
-# build context or shadowed by mounted volumes.
+# build context or shadowed by mounted volumes.  The media upload subdirectories must be
+# created explicitly because named Docker volumes mount over the image filesystem.
 mkdir -p \
   /var/www/html/bootstrap/cache \
-  /var/www/html/storage/app/public \
+  /var/www/html/storage/app/public/projects \
+  /var/www/html/storage/app/public/avatar \
+  /var/www/html/storage/app/public/cover \
+  /var/www/html/storage/app/public/cv \
+  /var/www/html/storage/app/public/logo \
+  /var/www/html/storage/app/public/favicon \
+  /var/www/html/storage/app/public/meta-image \
   /var/www/html/storage/app/backups \
   /var/www/html/storage/framework/cache \
   /var/www/html/storage/framework/sessions \
