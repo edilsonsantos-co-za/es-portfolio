@@ -82,7 +82,20 @@ const mediaUrl = (path) => {
         return path;
     }
 
-    return `${window.location.origin}/${String(path).replace(/^\/+/, '')}`;
+    const clean = String(path).replace(/^\/+/, '');
+
+    // Asset paths serve directly from the public directory
+    if (clean.startsWith('assets/')) {
+        return `${window.location.origin}/${clean}`;
+    }
+
+    // Paths already prefixed with storage/
+    if (clean.startsWith('storage/')) {
+        return `${window.location.origin}/${clean}`;
+    }
+
+    // Uploaded media paths need the /storage/ prefix (symlink to storage/app/public)
+    return `${window.location.origin}/storage/${clean}`;
 }
 
 /**
