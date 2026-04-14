@@ -53,6 +53,7 @@ The current production container expects:
 SKIP_ASSET_BUILD=true
 FORCE_FRESH_DB=false
 CREATE_DB_BACKUP=true
+REQUIRE_DB_ON_BOOT=true
 ```
 
 The application can force HTTPS URL generation, but only when the public hostname is actually backed by a valid certificate at the reverse proxy.
@@ -68,6 +69,10 @@ ASSET_URL=
 SESSION_SECURE_COOKIE=true
 TRUSTED_PROXIES=*
 ```
+
+Production database settings must also point to a hostname that resolves from inside the app container on the `milkyway` network. If the shared MySQL service name changes or the container is not attached to that network, Laravel will serve partial pages and log `php_network_getaddresses` / `getaddrinfo` failures until the runtime configuration is corrected.
+
+The runtime bootstrap now treats database reachability as a hard production requirement by default. If the app cannot connect to `DB_HOST` during startup, the container exits instead of serving a partially broken admin UI.
 
 If the public host does not yet have a valid certificate, temporarily use:
 

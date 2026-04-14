@@ -189,11 +189,12 @@ jobs:
               '      - edfolio_storage:/var/www/html/storage/app/public' \
               '    networks:' \
               '      - milkyway' \
-              '    environment:' \
-              '      - SKIP_ASSET_BUILD=true' \
-              '      - FORCE_FRESH_DB=false' \
-              '      - CREATE_DB_BACKUP=true' \
-              '    logging:' \
+               '    environment:' \
+               '      - SKIP_ASSET_BUILD=true' \
+               '      - FORCE_FRESH_DB=false' \
+               '      - CREATE_DB_BACKUP=true' \
+               '      - REQUIRE_DB_ON_BOOT=true' \
+               '    logging:' \
               '      driver: "json-file"' \
               '      options:' \
               '        max-size: "10m"' \

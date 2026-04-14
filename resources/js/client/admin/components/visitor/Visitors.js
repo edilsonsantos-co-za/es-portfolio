@@ -27,7 +27,11 @@ const pieConfig = {
     label: {
         position: 'inside',
         autoRotate: false,
-        text: (d) => `${parseFloat(d.percent * 100).toFixed(0)}%`,
+        text: (d) => {
+            const percent = Number(d && d.percent);
+
+            return `${Number.isFinite(percent) ? (percent * 100).toFixed(0) : '0'}%`;
+        },
         style: {
             textAlign: 'center',
             fontSize: 14,
@@ -64,6 +68,48 @@ const wordCloudConfig = {
     },
 };
 
+const emptyVisitorsPayload = {
+    visitors: {
+        total: 0,
+        new: 0,
+        old: 0,
+    },
+    location: [],
+    device: {
+        desktop: 0,
+        mobile: 0,
+    },
+    browser: [],
+    platform: [],
+};
+
+const toSafeInteger = (value) => {
+    const parsed = Number.parseInt(value, 10);
+
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeBreakdownData = (items = [], nameKey) => {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+
+    return items.reduce((data, item = {}) => {
+        const value = toSafeInteger(item.total);
+
+        if (value <= 0) {
+            return data;
+        }
+
+        data.push({
+            name: item[nameKey] || 'Unknown',
+            value,
+        });
+
+        return data;
+    }, []);
+};
+
 const StyledCol = styled(Col).withConfig({
     shouldForwardProp: (prop) => !['mobilePaddingTop'].includes(prop),
 })`
@@ -84,11 +130,11 @@ const Visitors = () => {
         endDate: null,
     });
 
-    const [visitorsData, setVisitorsData] = useState([{
+    const [visitorsData, setVisitorsData] = useState({
         total: 0,
         new: 0,
         old: 0,
-    }]);
+    });
 
     const [locationData, setLocationData] = useState([]);
     const [deviceData, setDeviceData] = useState([]);
@@ -105,6 +151,14 @@ const Visitors = () => {
         }
     }, [date]);
 
+    const resetStatsState = () => {
+        setVisitorsData(emptyVisitorsPayload.visitors);
+        setLocationData([]);
+        setDeviceData([]);
+        setBrowserData([]);
+        setPlatformData([]);
+    };
+
     const loadData = (_loading = true) => {
         setLoading(_loading);
 
@@ -116,68 +170,41 @@ const Visitors = () => {
         })
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
-                const result = response.data.payload;
+                const result = response.data.payload || emptyVisitorsPayload;
+                const nextVisitors = result.visitors || emptyVisitorsPayload.visitors;
+                const nextDevice = result.device || emptyVisitorsPayload.device;
+                const nextDeviceData = [];
+                const desktopVisitors = toSafeInteger(nextDevice.desktop);
+                const mobileVisitors = toSafeInteger(nextDevice.mobile);
 
-                if (result) {
-                    //visitors
-                    setVisitorsData({
-                        total: parseInt(result.visitors.total),
-                        new: parseInt(result.visitors.new),
-                        old: parseInt(result.visitors.old)
+                setVisitorsData({
+                    total: toSafeInteger(nextVisitors.total),
+                    new: toSafeInteger(nextVisitors.new),
+                    old: toSafeInteger(nextVisitors.old),
+                });
+
+                if (desktopVisitors > 0) {
+                    nextDeviceData.push({
+                        name: 'Desktop',
+                        value: desktopVisitors,
                     });
-
-                    //location
-                    let locationArray = [];
-                    result.location.forEach(element => {
-                        locationArray.push({
-                            name: element.location,
-                            value: parseInt(element.total)
-                        })
-                    });
-                    setLocationData(locationArray);
-
-                    //device
-                    let deviceArray = [];
-
-                    if (parseInt(result.device.desktop)) {
-                        deviceArray.push({
-                            name: "Desktop",
-                            value: parseInt(result.device.desktop)
-                        })
-                    }
-                    
-                    if (parseInt(result.device.mobile)) {
-                        deviceArray.push({
-                            name: "Mobile",
-                            value: parseInt(result.device.mobile)
-                        })
-                    }
-
-                    setDeviceData(deviceArray);
-
-                    //browser
-                    let browserArray = [];
-                    result.browser.forEach(element => {
-                        browserArray.push({
-                            name: element.browser,
-                            value: parseInt(element.total)
-                        })
-                    });
-                    setBrowserData(browserArray);
-
-                    //platform
-                    let platformArray = [];
-                    result.platform.forEach(element => {
-                        platformArray.push({
-                            name: element.platform,
-                            value: parseInt(element.total)
-                        })
-                    });
-                    setPlatformData(platformArray);
                 }
-            });
+                
+                if (mobileVisitors > 0) {
+                    nextDeviceData.push({
+                        name: 'Mobile',
+                        value: mobileVisitors,
+                    });
+                }
+
+                setLocationData(normalizeBreakdownData(result.location, 'location'));
+                setDeviceData(nextDeviceData);
+                setBrowserData(normalizeBreakdownData(result.browser, 'browser'));
+                setPlatformData(normalizeBreakdownData(result.platform, 'platform'));
+            }, resetStatsState);
         })
         .catch(error => {
+            resetStatsState();
             Utils.handleException(error);
         }).finally(() => {
             setLoading(false);
@@ -219,23 +246,7 @@ const Visitors = () => {
                     .then(response => {
                         Utils.handleSuccessResponse(response, () => {
                             //visitors
-                            setVisitorsData({
-                                total: 0,
-                                new: 0,
-                                old: 0
-                            });
-
-                            //location
-                            setLocationData([]);
-
-                            //device
-                            setDeviceData([]);
-
-                            //browser
-                            setBrowserData([]);
-
-                            //platform
-                            setPlatformData([]);
+                            resetStatsState();
 
                             Utils.showNotification(response.data.message, 'success', false);
                         });

@@ -11,6 +11,16 @@ FORCE_FRESH_DB=${FORCE_FRESH_DB:-false}
 CREATE_DB_BACKUP=${CREATE_DB_BACKUP:-false}
 RUN_MIGRATIONS=${RUN_MIGRATIONS:-auto}
 RUN_SEEDING=${RUN_SEEDING:-auto}
+APP_ENV_ACTUAL=${APP_ENV:-production}
+REQUIRE_DB_ON_BOOT=${REQUIRE_DB_ON_BOOT:-}
+
+if [ -z "$REQUIRE_DB_ON_BOOT" ]; then
+  if [ "$APP_ENV_ACTUAL" = "development" ]; then
+    REQUIRE_DB_ON_BOOT=false
+  else
+    REQUIRE_DB_ON_BOOT=true
+  fi
+fi
 
 # Debug environment variables
 echo "[DEBUG] Environment variables:"
@@ -19,10 +29,10 @@ echo "[DEBUG] FORCE_FRESH_DB='$FORCE_FRESH_DB'"
 echo "[DEBUG] CREATE_DB_BACKUP='$CREATE_DB_BACKUP'"
 echo "[DEBUG] RUN_MIGRATIONS='$RUN_MIGRATIONS'"
 echo "[DEBUG] RUN_SEEDING='$RUN_SEEDING'"
-echo "[DEBUG] APP_ENV='${APP_ENV:-production}'"
+echo "[DEBUG] REQUIRE_DB_ON_BOOT='$REQUIRE_DB_ON_BOOT'"
+echo "[DEBUG] APP_ENV='$APP_ENV_ACTUAL'"
 
 # Set up environment using new system
-APP_ENV_ACTUAL=${APP_ENV:-production}
 if [ "$APP_ENV_ACTUAL" = "development" ]; then
   SOURCE_ENV="dev"
 else
@@ -319,6 +329,12 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   echo "[SUCCESS] Laravel setup completed successfully!"
 else
   echo "[ERROR] Could not connect to MySQL database at $DB_HOST after 30 attempts. Will not run database migrations and seeding."
+
+  if [ "$REQUIRE_DB_ON_BOOT" = "true" ]; then
+    echo "[FATAL] REQUIRE_DB_ON_BOOT=true, refusing to start Apache without a working database connection."
+    echo "[FATAL] Verify DB_HOST resolves from the container and that the app is attached to the expected Docker network."
+    exit 1
+  fi
 fi
 
 # Start Apache

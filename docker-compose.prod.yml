@@ -20,6 +20,7 @@ services:
       - SKIP_ASSET_BUILD=true
       - FORCE_FRESH_DB=false
       - CREATE_DB_BACKUP=true
+      - REQUIRE_DB_ON_BOOT=true
     deploy:
       resources:
         limits:
