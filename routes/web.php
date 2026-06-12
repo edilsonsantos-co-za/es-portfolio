@@ -1,29 +1,25 @@
 <?php
 
-use App\Helpers\CoreConstants;
+use App\Services\ApplicationVersion;
 use Illuminate\Support\Facades\Route;
 
-if (env('APP_ENV') !== 'production') {
-    Route::get('command/{cmd}', function ($cmd) {
-        try {
-            Artisan::call($cmd);
-
-            return response()->json([
-                'message' => 'Command successfully executed',
-                'payload' => null,
-                'status'  => CoreConstants::STATUS_CODE_SUCCESS
-            ]);
-        } catch (\Throwable $th) {
-            dd($th->getMessage());
-        }
-    });
-}
-
 //log viewer
-Route::get('/admin/system-logs', ['\Rap2hpoutre\LaravelLogViewer\LogViewerController', 'index']);
+Route::middleware('operational.web')->group(function () {
+    Route::get('/admin/system-logs', ['\Rap2hpoutre\LaravelLogViewer\LogViewerController', 'index'])
+        ->name('admin.system-logs');
 
+    Route::get('/optimize', ['App\Http\Controllers\Admin\AdminController', 'optimize'])->name('optimize');
+});
 
-Route::get('/optimize', ['App\Http\Controllers\Admin\AdminController', 'optimize'])->name('optimize');
+Route::get('/health', function (ApplicationVersion $applicationVersion) {
+    return response()->json([
+        'status' => 'ok',
+        'version' => $applicationVersion->version(),
+        'release_tag' => $applicationVersion->releaseTag(),
+        'environment' => app()->environment(),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+})->name('health');
 
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/{path?}', ['App\Http\Controllers\Admin\AdminController', 'app'])->where('path', '.*')->name('admin.app');

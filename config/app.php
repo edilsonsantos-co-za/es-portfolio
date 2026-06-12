@@ -58,6 +58,8 @@ return [
 
     'force_https' => env('FORCE_HTTPS', false),
 
+    'operational_web_routes' => (bool) env('ENABLE_OPERATIONAL_WEB_ROUTES', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
