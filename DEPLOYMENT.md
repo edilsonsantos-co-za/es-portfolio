@@ -29,6 +29,8 @@ This replaces the older "smart code injection / fast code update" approach. The 
 - Frontend assets are built in CI and baked into the image
 - Deployments verify that `edfolio-prod` is actually running after `docker compose up -d`
 
+For framework, frontend, or database upgrades, also follow the production safety rules in [`UPGRADE_PATH.md`](UPGRADE_PATH.md): use additive migrations, pre-deploy backups, smoke tests, image-tag rollback, and avoid destructive schema changes until a later cleanup release.
+
 ## Manual Deploy Trigger
 
 The `CI and Deploy` workflow supports `workflow_dispatch`, so you can re-run a deploy manually from GitHub Actions without pushing a new commit. The workflow file is `.github/workflows/ci-deploy.yml`.

@@ -183,11 +183,17 @@ Current baseline:
 
 Recommended upgrade path:
 
+See [`UPGRADE_PATH.md`](UPGRADE_PATH.md) for the phased production-safe upgrade plan covering Laravel `9 -> 10 -> 11 -> 12`, frontend modernization, database migrations, deployment safety, validation, rollback, and post-upgrade feature ideas.
+
+High-level sequence:
+
 1. Keep docs and validation scripts accurate
-2. Add PHP-side formatting and static analysis tooling
-3. Upgrade Laravel in supported steps (`9 -> 10 -> 11 -> 12/13`)
-4. Replace Laravel Mix with Vite
-5. Split CI into reusable `validate`, `build-image`, and `deploy` workflows for cross-project reuse
+2. Add missing security, health-check, and deployment safeguards
+3. Upgrade Laravel in supported steps (`9 -> 10 -> 11 -> 12`)
+4. Standardize Node LTS and replace Laravel Mix with Vite
+5. Modernize React Router, Redux, styled-components, Ant Design, then React
+6. Apply database improvements with zero-downtime expand/contract migrations
+7. Split CI into reusable `validate`, `build-image`, and `deploy` workflows for cross-project reuse
 
 ### Working with the Application
 

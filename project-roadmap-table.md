@@ -1,9 +1,10 @@
 # EdFolio Project Roadmap & Development Tracker
 
 ## Current Project Overview
-- **Tech Stack**: Laravel 8 + React 17 + Ant Design + Docker
+- **Tech Stack**: Laravel 9.52.x + React 18 + Ant Design 5 + Docker
 - **Purpose**: Modern portfolio management system with admin panel
 - **Current Features**: Projects, Skills, Education, Experience, Services, Messages, Visitor tracking, Template system
+- **Upgrade Strategy**: See `UPGRADE_PATH.md` for the phased Laravel 12, frontend, database, deployment, validation, and rollback plan.
 
 ---
 
@@ -11,10 +12,13 @@
 
 | Category | Item | Description | Priority | Estimated Effort | Development Status | Notes |
 |----------|------|-------------|----------|------------------|-------------------|-------|
-| **Framework Updates** | Laravel 8 → 9 | Upgraded for security & performance | High | 2-3 days | ✅ Completed | Successfully upgraded to 9.52.20 |
+| **Framework Updates** | Laravel 8 → 9 | Upgraded for security & performance | High | 2-3 days | ✅ Completed | Successfully upgraded to 9.52.x |
 | **Framework Updates** | React 17 → 18 | Concurrent features, automatic batching | High | 1-2 days | ✅ Completed | Successfully upgraded to 18.3.1 |
-| **Framework Updates** | Ant Design 4 → 5 | Better theming, performance | Medium | 2-3 days | ❌ Not Started | Theme customization may break |
-| **Framework Updates** | PHP 7.3/8.0 → 8.2/8.3 | Performance & modern features | Medium | 1 day | ❌ Not Started | Check composer dependencies |
+| **Framework Updates** | Laravel 9 → 10 → 11 → 12 | Incremental backend modernization with safe deploy boundaries | High | 2-4 weeks | 📋 Planning | Follow `UPGRADE_PATH.md`; do not combine major framework jumps |
+| **Frontend Tooling** | Laravel Mix → Vite | Replace Webpack/Mix after standardizing Node LTS | High | 3-5 days | 📋 Planning | Keep production image asset build green before removing Mix |
+| **Framework Updates** | Ant Design 4 → 5 | Better theming, performance | Medium | 2-3 days | ✅ Completed | Current package baseline is Ant Design 5 |
+| **Framework Updates** | Ant Design 5 → 6 | Future component-library modernization | Medium | 2-3 days | 📋 Planning | Do after Vite, router, Redux, and styled-components upgrades |
+| **Framework Updates** | PHP 8.2 platform alignment → later PHP minor | Performance & modern features | Medium | 1 day | 📋 Planning | Composer platform and Docker currently target PHP 8.2 |
 | **Code Quality** | Add TypeScript | Type safety and developer experience | High | 5-7 days | ❌ Not Started | Major refactoring required |
 | **Code Quality** | Laravel API Resources | Consistent API responses | Medium | 2-3 days | ❌ Not Started | Replace manual array returns |
 | **Code Quality** | Request Validation Classes | Proper validation implementation | High | 3-4 days | ❌ Not Started | Currently missing validation |
