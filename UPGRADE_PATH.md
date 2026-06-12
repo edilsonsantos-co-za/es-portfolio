@@ -38,7 +38,7 @@ Complete this before changing framework or frontend dependencies.
   - `/optimize` should be converted to a protected operational command or removed from public routing.
   - `/admin/system-logs` must require strong admin authorization and should not expose raw sensitive log data.
 - Replace or strongly gate `rap2hpoutre/laravel-log-viewer`; prefer a private observability channel or authenticated, audited admin-only log access.
-- Remove abandoned `fruitcake/laravel-cors` and use Laravel's built-in CORS support for the target framework.
+- Keep Laravel's built-in CORS middleware enabled and preserve `config/cors.php` behavior.
 - Review JWT authentication:
   - keep `tymon/jwt-auth` only if stateless token behavior is still required;
   - prefer Laravel Sanctum for first-party admin authentication unless OAuth or third-party token clients are required.
