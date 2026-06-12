@@ -24,6 +24,18 @@ Run the standard validation suite before pushing:
 
 That path mirrors the repository pre-push hook and currently covers PHPUnit, ESLint for `resources/js`, frontend build validation, and Docker Compose config checks.
 
+Run audit-only dependency checks when reviewing dependency changes or triaging advisories:
+
+```bash
+npm run audit:npm
+npm run audit:npm:production
+npm run audit:composer
+```
+
+Do not use `security-check` or `security-check-force` unless you intentionally want `npm audit fix` to update dependency manifests or lockfiles.
+
+`npm run audit:composer` requires Composer 2.4 or newer.
+
 ## Credit
 
 If you are adding a 3rd party template for frontend, be sure to add any required credit or copyright notice where it is applicable.

@@ -16,6 +16,9 @@
         "build": "npm run production",
         "build:dev": "npm run development",
         "build:prod": "npm run production",
+        "audit:npm": "npm audit --legacy-peer-deps",
+        "audit:npm:production": "npm audit --omit=dev --legacy-peer-deps",
+        "audit:composer": "composer audit --no-interaction",
         "security-check": "npm audit fix",
         "security-check-force": "npm audit fix --force",
         "update-browser-db": "npm_config_legacy_peer_deps=true npx update-browserslist-db@latest"

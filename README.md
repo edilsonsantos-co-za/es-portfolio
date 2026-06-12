@@ -173,6 +173,18 @@ What it currently checks:
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to make missing Compose a hard failure.
 
+Dependency audits are intentionally audit-only and are not part of the blocking validation path while current advisories are being triaged:
+
+```bash
+npm run audit:npm
+npm run audit:npm:production
+npm run audit:composer
+```
+
+The older `security-check` and `security-check-force` npm scripts run `npm audit fix`; use the `audit:*` scripts above when you only want to report dependency advisories without mutating manifests or lockfiles.
+
+`npm run audit:composer` requires Composer 2.4 or newer.
+
 Production deployments are image-based: the single `Validate and Deploy` GitHub Actions workflow validates the repo, publishes a Docker Hub image, and then the VPS pulls the tagged image via `docker-compose.prod.yml`.
 
 Repository-wide Docker Hub credentials can be set with `gh secret set`, while production VPS values are best stored as `production` environment secrets. The `build-and-publish` job is not environment-scoped, so `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and the optional `GOOGLE_CHAT_WEBHOOK_URL` notification secret must exist as repository or organization secrets rather than only as environment secrets. `DOCKERHUB_USERNAME` is only used for Docker Hub login; published images are pushed to the `datasparklab` organization namespace. See `DEPLOYMENT.md` and `./bin/setup-github-secrets.sh` for the exact bootstrap flow.

@@ -98,6 +98,18 @@ The validation script currently checks:
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to require Compose explicitly.
 
+Audit dependencies without mutating manifests or lockfiles:
+
+```bash
+npm run audit:npm
+npm run audit:npm:production
+npm run audit:composer
+```
+
+These checks are documented rather than enforced in CI while existing npm advisories and Composer audit availability are being triaged. The legacy `security-check` scripts still run `npm audit fix`.
+
+`npm run audit:composer` requires Composer 2.4 or newer.
+
 ### 🐳 **Docker Operations**
 ```bash
 # Start all services
