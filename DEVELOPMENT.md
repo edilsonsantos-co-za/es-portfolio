@@ -68,6 +68,15 @@ Complete Docker-based development setup with all required services.
 
 ### Quality gates
 
+Use the Node 18 LTS baseline before running local npm commands or validation.
+The pinned `.nvmrc` matches CI/Docker and keeps the current Laravel Mix/Webpack
+build away from newer Node-major ESM/CommonJS incompatibilities:
+
+```bash
+nvm install
+nvm use
+```
+
 Enable the repository git hooks once per clone:
 
 ```bash

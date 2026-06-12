@@ -141,6 +141,15 @@ Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated wi
 
 ### Validation and local safeguards
 
+Use the Node 18 LTS baseline before running npm-based validation. This matches
+CI/Docker and avoids Laravel Mix/Webpack runtime incompatibilities seen on newer
+Node majors:
+
+```bash
+nvm install
+nvm use
+```
+
 Enable the repository git hooks once per clone:
 
 ```bash
@@ -177,6 +186,7 @@ Current baseline:
 - Laravel `9.52.x`
 - PHP target/platform pin `8.2.29`
 - PHPUnit `9.6.x`
+- Node `18.20.x` LTS for Laravel Mix/Webpack asset builds
 - React `18`
 - Laravel Mix `6`
 - GitHub Actions now updated to Node 24-compatible action majors
