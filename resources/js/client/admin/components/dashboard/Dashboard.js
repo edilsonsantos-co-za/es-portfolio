@@ -42,6 +42,8 @@ const Dashboard = () => {
     let history = useHistory();
 
     const [wallpaper, setWallpaper] = useState(null);
+    const [wallpaperLoading, setWallpaperLoading] = useState(false);
+    const [wallpaperError, setWallpaperError] = useState(null);
     const { demoMode } = useSelector(state => state.globalState);
 
     const todayStartDateUtc = moment.utc(moment().startOf('day')).format('YYYY-MM-DD HH:mm:ss');
@@ -103,9 +105,7 @@ const Dashboard = () => {
             visitor: Utils.randomHexColor(),
             message: Utils.randomHexColor(),
         })
-
         loadData();
-        getWallpaper();
 
         if (demoMode) {
             notification.open({
@@ -131,6 +131,8 @@ const Dashboard = () => {
     }, []);
 
     const getWallpaper = () => {
+        setWallpaperLoading(true);
+        setWallpaperError(null);
         setWallpaper(null);
 
         RedditImageFetcher
@@ -138,7 +140,15 @@ const Dashboard = () => {
         .then(result => {
             if (result.length) {
                 setWallpaper(result[0]);
+            } else {
+                setWallpaperError('No wallpaper found');
             }
+        })
+        .catch(() => {
+            setWallpaperError('Wallpaper unavailable');
+        })
+        .finally(() => {
+            setWallpaperLoading(false);
         });
     }
 
@@ -581,8 +591,14 @@ const Dashboard = () => {
                                                 />
                                             }
                                         />
-                                    ) : (
+                                    ) : wallpaperLoading ? (
                                         <Spin><WallpaperLoading/></Spin>
+                                    ) : (
+                                        <WallpaperLoading>
+                                            <div style={{fontSize: '12px', color: '#999', textAlign: 'center'}}>
+                                                {wallpaperError || 'Load a wallpaper'}
+                                            </div>
+                                        </WallpaperLoading>
                                     )
                                     
                                 }
@@ -592,7 +608,7 @@ const Dashboard = () => {
                                         <a href="https://github.com/arifszn/reddit-image-fetcher" target="_blank" rel="noreferrer"><InfoCircleOutlined style={{paddingLeft: '2px', color: 'rgba(0, 0, 0, 0.45)'}}/></a>
                                     )}</small></React.Fragment>}
                                     description={
-                                        <div onClick={getWallpaper} style={{cursor: 'pointer'}}><small>Get Another</small></div>
+                                        <div onClick={getWallpaper} style={{cursor: 'pointer'}}><small>{wallpaper ? 'Get Another' : 'Load Wallpaper'}</small></div>
                                     }
                                 />
                             </Card>
