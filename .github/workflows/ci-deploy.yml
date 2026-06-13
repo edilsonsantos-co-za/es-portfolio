@@ -31,7 +31,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '20'
           cache: npm
 
       - name: Install PHP dependencies
@@ -89,7 +89,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '20'
           cache: npm
 
       - name: Build frontend assets

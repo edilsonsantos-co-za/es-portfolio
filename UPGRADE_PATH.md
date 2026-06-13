@@ -9,7 +9,7 @@ The production database is active, so every phase must be reversible, observable
 - Backend: Laravel `12.x`
 - PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
 - Frontend: React `18`, Vite `5`, Laravel Vite entrypoints in `vite.config.js`
-- Node: Docker and CI currently use Node `18`; use `.nvmrc` locally for reproducible frontend builds
+- Node: Docker, CI, and local `.nvmrc` use Node `20` for reproducible frontend builds
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
 - Deployment: image-based production deploys using Docker Hub release tags generated from the root `VERSION` file
 
@@ -94,7 +94,7 @@ Laravel 10 did not include frontend modernization beyond fixes required to keep 
 
 Goal: modernize Laravel application structure carefully while preserving runtime behavior.
 
-Status: completed. Composer targeted Laravel `^11.0`, PHP `^8.2`, PHPUnit 10-compatible test tooling, Collision `^8`, Ignition `^2.9`, ide-helper `^3.7`, and stevebauman/location `^7.6`. The existing Laravel 10-style app structure was intentionally preserved to reduce upgrade risk. Full validation passed under the Node 18 baseline; on local PHP 8.5, PHPUnit may report vendor deprecations from Laravel's default database config while still exiting successfully.
+Status: completed. Composer targeted Laravel `^11.0`, PHP `^8.2`, PHPUnit 10-compatible test tooling, Collision `^8`, Ignition `^2.9`, ide-helper `^3.7`, and stevebauman/location `^7.6`. The existing Laravel 10-style app structure was intentionally preserved to reduce upgrade risk. At the time of this historical phase, full validation passed under the then-current Node 18 baseline; the current Vite frontend runtime baseline is Node 20. On local PHP 8.5, PHPUnit may report vendor deprecations from Laravel's default database config while still exiting successfully.
 
 Special care areas:
 

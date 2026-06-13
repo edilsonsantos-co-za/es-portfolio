@@ -68,7 +68,7 @@ Complete Docker-based development setup with all required services.
 
 ### Quality gates
 
-Use the Node 18 LTS baseline before running local npm commands or validation.
+Use the Node 20 LTS baseline before running local npm commands or validation.
 The pinned `.nvmrc` matches CI/Docker and keeps Vite builds reproducible:
 
 ```bash

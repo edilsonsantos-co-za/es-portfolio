@@ -15,7 +15,7 @@
 | **Framework Updates** | Laravel 8 → 9 | Upgraded for security & performance | High | 2-3 days | ✅ Completed | Completed before Laravel 10 baseline |
 | **Framework Updates** | React 17 → 18 | Concurrent features, automatic batching | High | 1-2 days | ✅ Completed | Successfully upgraded to 18.3.1 |
 | **Framework Updates** | Laravel 9 → 10 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 10 upgrade completed; full validation passed |
-| **Framework Updates** | Laravel 10 → 11 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 11 upgrade completed; existing app structure preserved; full validation passed under Node 18 |
+| **Framework Updates** | Laravel 10 → 11 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 11 upgrade completed; existing app structure preserved; historical validation passed under then-current Node 18; current Vite baseline is Node 20 |
 | **Framework Updates** | Laravel 11 → 12 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 12 upgrade completed; behavior preserved; backend validation passed |
 | **Frontend Tooling** | Legacy Laravel Mix → Vite | Completed replacement of the old Webpack/Mix pipeline after standardizing Node LTS | High | Completed | ✅ Completed | Production build now uses Vite with equivalent React entrypoints |
 | **Framework Updates** | Ant Design 4 → 5 | Better theming, performance | Medium | 2-3 days | ✅ Completed | Current package baseline is Ant Design 5 |
