@@ -1,7 +1,7 @@
 # EdFolio Project Analysis & Recommendations
 
 ## **Current Project Overview**
-- **Tech Stack**: Laravel 11 + React 18 + Ant Design 5 + Docker
+- **Tech Stack**: Laravel 12 + React 18 + Ant Design 5 + Docker
 - **Purpose**: Modern portfolio management system with admin panel
 - **Current Features**: Projects, Skills, Education, Experience, Services, Messages, Visitor tracking, Template system
 - **Upgrade Strategy**: See `UPGRADE_PATH.md` for the phased Laravel 12, Vite, database, deployment, validation, and rollback plan.
@@ -11,7 +11,7 @@
 ## **🔧 Technical Improvements**
 
 ### **1. Framework & Dependencies Updates**
-- **Continue Laravel 11 → 12** incrementally for supportability, security, and lower production risk
+- **Keep Laravel 12 backend validation green** while planning frontend tooling modernization separately
 - **Standardize Node LTS, migrate Laravel Mix/Webpack → Vite, then upgrade React ecosystem packages**
 - **Upgrade Ant Design 5 → 6 after router, state, and build-tool migrations are stable**
 - **Keep PHP 8.2 aligned across Composer, Docker, CI, and production before considering a later PHP minor upgrade**
@@ -122,7 +122,7 @@
 ## **📊 Implementation Priority Suggestions**
 
 ### **Phase 1: Foundation (Immediate)**
-1. Framework updates (Laravel, React, PHP)
+1. Remaining framework/runtime updates after the completed Laravel 12 backend upgrade (frontend libraries and later PHP runtime alignment)
 2. TypeScript implementation
 3. Security enhancements
 4. Test coverage improvements

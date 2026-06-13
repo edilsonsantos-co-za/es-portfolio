@@ -1,12 +1,12 @@
 # EdFolio Upgrade Path
 
-This document defines the phased upgrade path for EdFolio from the current Laravel 11 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
+This document defines the phased upgrade path for EdFolio from the current Laravel 12 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
 
 The production database is active, so every phase must be reversible, observable, and safe for zero-downtime or near-zero-downtime deployment.
 
 ## Current Baseline
 
-- Backend: Laravel `11.x`
+- Backend: Laravel `12.x`
 - PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
 - Frontend: React `18`, Laravel Mix `6`, Webpack entrypoints in `webpack.mix.js`
 - Node: Docker and CI currently use Node `18`; local Node `26` is not compatible with the current Laravel Mix/Webpack production build
@@ -15,7 +15,7 @@ The production database is active, so every phase must be reversible, observable
 
 ## Non-Negotiable Production Safety Rules
 
-1. **No big-bang upgrades**: Laravel `9 -> 10 -> 11` is complete; continue incrementally (`11 -> 12`) and deploy each major version separately.
+1. **No big-bang upgrades**: Laravel `9 -> 10 -> 11 -> 12` is complete; deploy each future major version separately.
 2. **No destructive migrations in upgrade releases**: avoid dropping or renaming columns, tables, indexes, routes, or config until a later cleanup release proves the replacement path is stable.
 3. **Use expand/contract database changes**:
    - expand with nullable columns, new tables, compatible indexes, and dual-write support;
@@ -90,11 +90,11 @@ Completed sequence:
 
 Laravel 10 should not include frontend modernization beyond fixes required to keep the existing Mix build working.
 
-## Phase 2: Backend Upgrade to Laravel 11 — Completed / Current
+## Phase 2: Backend Upgrade to Laravel 11 — Completed
 
 Goal: modernize Laravel application structure carefully while preserving runtime behavior.
 
-Status: completed and current. Composer now targets Laravel `^11.0`, PHP `^8.2`, PHPUnit `^10.5`, Collision `^8`, Ignition `^2.9`, ide-helper `^3.7`, and stevebauman/location `^7.6`. The existing Laravel 10-style app structure was intentionally preserved to reduce upgrade risk. Full validation passed under the Node 18 baseline; on local PHP 8.5, PHPUnit may report vendor deprecations from Laravel's default database config while still exiting successfully.
+Status: completed. Composer targeted Laravel `^11.0`, PHP `^8.2`, PHPUnit 10-compatible test tooling, Collision `^8`, Ignition `^2.9`, ide-helper `^3.7`, and stevebauman/location `^7.6`. The existing Laravel 10-style app structure was intentionally preserved to reduce upgrade risk. Full validation passed under the Node 18 baseline; on local PHP 8.5, PHPUnit may report vendor deprecations from Laravel's default database config while still exiting successfully.
 
 Special care areas:
 
@@ -111,21 +111,18 @@ Completed sequence:
 4. Re-run full backend validation and smoke tests.
 5. Deploy independently from database and frontend rewrites.
 
-## Phase 3: Backend Upgrade to Laravel 12
+## Phase 3: Backend Upgrade to Laravel 12 — Completed / Current
 
 Goal: complete the supported Laravel target version without combining unrelated product changes.
 
-Recommended sequence:
+Status: completed and current. Composer now targets Laravel `^12.0`, PHP `^8.2`, PHPUnit `^11.5.50`, Collision `^8.9`, Ignition `^2.9`, ide-helper `^3.7`, stevebauman/location `^7.6`, `tymon/jwt-auth` `^2.0`, and `rap2hpoutre/laravel-log-viewer` `^2.0`. The existing Laravel 10-style app structure remains intentionally preserved because Laravel 12 supports it and this keeps behavior stable.
 
-1. Upgrade Laravel `11 -> 12` and all required first-party packages.
-2. Re-check authentication packages and decide whether `tymon/jwt-auth` remains justified.
-3. If moving to Sanctum:
-   - add Sanctum alongside JWT first;
-   - dual-support authentication where needed;
-   - migrate admin sessions/tokens;
-   - remove JWT only after a later release proves Sanctum coverage.
-4. Re-run security, route, config, and smoke validations.
-5. Deploy as a tagged release and monitor before starting frontend modernization.
+Completed sequence:
+
+1. Upgraded Laravel `11 -> 12` and required Laravel-compatible dev packages.
+2. Preserved JWT authentication, routes, health endpoint, media behavior, migrations, and deployment flow.
+3. Re-ran Composer validation, route listing, Artisan tests, and PHPUnit.
+4. Deploy as a tagged release and monitor before starting frontend modernization.
 
 ## Phase 4: Frontend Runtime and Build Tooling
 

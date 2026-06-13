@@ -11,7 +11,7 @@ EdFolio is a comprehensive portfolio management system that combines the power o
 ## Tech Stack
 
 ### Backend
-- **Laravel 11** - PHP framework for robust backend API
+- **Laravel 12** - PHP framework for robust backend API
 - **MySQL** - Primary database
 - **Redis** - Caching and session management
 - **JWT Authentication** - Secure admin authentication
@@ -195,9 +195,9 @@ Application and image versioning now come from the root `VERSION` file. The Lara
 
 Current baseline:
 
-- Laravel `11.x`
+- Laravel `12.x`
 - PHP Composer constraint `^8.2`
-- PHPUnit `10.5+`
+- PHPUnit `11.5+`
 - Node `18.20.x` LTS for Laravel Mix/Webpack asset builds
 - React `18`
 - Laravel Mix `6`
@@ -205,13 +205,13 @@ Current baseline:
 
 Recommended upgrade path:
 
-See [`UPGRADE_PATH.md`](UPGRADE_PATH.md) for the phased production-safe upgrade plan covering the completed Laravel `9 -> 10 -> 11` phases plus the remaining Laravel `11 -> 12` phase, frontend modernization, database migrations, deployment safety, validation, rollback, and post-upgrade feature ideas.
+See [`UPGRADE_PATH.md`](UPGRADE_PATH.md) for the phased production-safe upgrade plan covering the completed Laravel `9 -> 10 -> 11 -> 12` backend phases plus remaining frontend modernization, database migrations, deployment safety, validation, rollback, and post-upgrade feature ideas.
 
 High-level sequence:
 
 1. Keep docs and validation scripts accurate
 2. Add missing security, health-check, and deployment safeguards
-3. Continue Laravel upgrades in supported steps (`11 -> 12`)
+3. Keep Laravel 12 backend validation green
 4. Standardize Node LTS and replace Laravel Mix with Vite
 5. Modernize React Router, Redux, styled-components, Ant Design, then React
 6. Apply database improvements with zero-downtime expand/contract migrations

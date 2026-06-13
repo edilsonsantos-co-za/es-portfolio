@@ -1,7 +1,7 @@
 # EdFolio Project Roadmap & Development Tracker
 
 ## Current Project Overview
-- **Tech Stack**: Laravel 11 + React 18 + Ant Design 5 + Docker
+- **Tech Stack**: Laravel 12 + React 18 + Ant Design 5 + Docker
 - **Purpose**: Modern portfolio management system with admin panel
 - **Current Features**: Projects, Skills, Education, Experience, Services, Messages, Visitor tracking, Template system
 - **Upgrade Strategy**: See `UPGRADE_PATH.md` for the phased Laravel 12, frontend, database, deployment, validation, and rollback plan.
@@ -16,7 +16,7 @@
 | **Framework Updates** | React 17 → 18 | Concurrent features, automatic batching | High | 1-2 days | ✅ Completed | Successfully upgraded to 18.3.1 |
 | **Framework Updates** | Laravel 9 → 10 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 10 upgrade completed; full validation passed |
 | **Framework Updates** | Laravel 10 → 11 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 11 upgrade completed; existing app structure preserved; full validation passed under Node 18 |
-| **Framework Updates** | Laravel 11 → 12 | Continue incremental backend modernization with safe deploy boundaries | High | 1-2 weeks | 📋 Planning | Follow `UPGRADE_PATH.md`; do not combine major framework jumps |
+| **Framework Updates** | Laravel 11 → 12 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 12 upgrade completed; behavior preserved; backend validation passed |
 | **Frontend Tooling** | Laravel Mix → Vite | Replace Webpack/Mix after standardizing Node LTS | High | 3-5 days | 📋 Planning | Keep production image asset build green before removing Mix |
 | **Framework Updates** | Ant Design 4 → 5 | Better theming, performance | Medium | 2-3 days | ✅ Completed | Current package baseline is Ant Design 5 |
 | **Framework Updates** | Ant Design 5 → 6 | Future component-library modernization | Medium | 2-3 days | 📋 Planning | Do after Vite, router, Redux, and styled-components upgrades |
