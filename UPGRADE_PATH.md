@@ -1,13 +1,13 @@
 # EdFolio Upgrade Path
 
-This document defines the phased upgrade path for EdFolio from the current Laravel 10 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
+This document defines the phased upgrade path for EdFolio from the current Laravel 11 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
 
 The production database is active, so every phase must be reversible, observable, and safe for zero-downtime or near-zero-downtime deployment.
 
 ## Current Baseline
 
-- Backend: Laravel `10.x`
-- PHP: Composer constraint `^8.1`; Docker image uses `php:8.2-apache`
+- Backend: Laravel `11.x`
+- PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
 - Frontend: React `18`, Laravel Mix `6`, Webpack entrypoints in `webpack.mix.js`
 - Node: Docker and CI currently use Node `18`; local Node `26` is not compatible with the current Laravel Mix/Webpack production build
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
@@ -15,7 +15,7 @@ The production database is active, so every phase must be reversible, observable
 
 ## Non-Negotiable Production Safety Rules
 
-1. **No big-bang upgrades**: Laravel `9 -> 10` is complete; continue incrementally (`10 -> 11 -> 12`) and deploy each major version separately.
+1. **No big-bang upgrades**: Laravel `9 -> 10 -> 11` is complete; continue incrementally (`11 -> 12`) and deploy each major version separately.
 2. **No destructive migrations in upgrade releases**: avoid dropping or renaming columns, tables, indexes, routes, or config until a later cleanup release proves the replacement path is stable.
 3. **Use expand/contract database changes**:
    - expand with nullable columns, new tables, compatible indexes, and dual-write support;
@@ -67,11 +67,11 @@ Complete this before changing framework or frontend dependencies.
 - Standardize on a supported Node LTS for the current build before migrating tools.
 - Do not use Node `26` with the current Laravel Mix/Webpack setup unless the production build has been proven locally and in CI.
 
-## Phase 1: Backend Upgrade to Laravel 10 — Completed / Current
+## Phase 1: Backend Upgrade to Laravel 10 — Completed
 
 Goal: reach Laravel 10 with minimal product behavior changes.
 
-Status: completed and current. Composer now targets Laravel `^10.0`, PHP `^8.1`, PHPUnit `^10.1`, Collision `^7`, and Ignition `^2`; `app/Http/Kernel.php` uses Laravel 10 `middlewareAliases`; `phpunit.xml` uses the PHPUnit 10 schema. Full validation passed after the upgrade.
+Status: completed. Composer targeted Laravel `^10.0`, PHP `^8.1`, PHPUnit `^10.1`, Collision `^7`, and Ignition `^2`; `app/Http/Kernel.php` used Laravel 10 `middlewareAliases`; `phpunit.xml` used the PHPUnit 10 schema. Full validation passed after the upgrade.
 
 Completed sequence:
 
@@ -90,9 +90,11 @@ Completed sequence:
 
 Laravel 10 should not include frontend modernization beyond fixes required to keep the existing Mix build working.
 
-## Phase 2: Backend Upgrade to Laravel 11
+## Phase 2: Backend Upgrade to Laravel 11 — Completed / Current
 
 Goal: modernize Laravel application structure carefully while preserving runtime behavior.
+
+Status: completed and current. Composer now targets Laravel `^11.0`, PHP `^8.2`, PHPUnit `^10.5`, Collision `^8`, Ignition `^2.9`, ide-helper `^3.7`, and stevebauman/location `^7.6`. The existing Laravel 10-style app structure was intentionally preserved to reduce upgrade risk. Full validation passed under the Node 18 baseline; on local PHP 8.5, PHPUnit may report vendor deprecations from Laravel's default database config while still exiting successfully.
 
 Special care areas:
 
@@ -101,7 +103,7 @@ Special care areas:
 - Exception handling, scheduler, and bootstrap configuration should be refactored in small commits with tests.
 - Keep existing route names, URL paths, and API responses stable unless a migration plan exists.
 
-Recommended sequence:
+Completed sequence:
 
 1. Upgrade framework and first-party packages to Laravel 11-compatible versions.
 2. Refactor `Kernel` and route provider setup only as required by Laravel 11.
