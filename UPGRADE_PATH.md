@@ -88,7 +88,7 @@ Completed sequence:
 6. Deploy as its own release tag.
 7. Monitor logs, queue behavior if applicable, admin login, contact form, and portfolio reads.
 
-Laravel 10 should not include frontend modernization beyond fixes required to keep the existing Mix build working.
+Laravel 10 did not include frontend modernization beyond fixes required to keep the legacy asset build working; the later Mix-to-Vite migration is now completed.
 
 ## Phase 2: Backend Upgrade to Laravel 11 — Completed
 
@@ -126,12 +126,12 @@ Completed sequence:
 
 ## Phase 4: Frontend Runtime and Build Tooling
 
-Goal: keep the Vite frontend pipeline stable without changing React behavior first.
+Goal: keep the completed Vite frontend pipeline stable without changing React behavior first.
 
 Recommended sequence:
 
 1. Standardize Node LTS across local, Docker, and CI.
-2. Keep the Vite build green after migration.
+2. Keep the Vite build green after the completed migration.
 3. Maintain equivalent entrypoints in `vite.config.js`.
 4. Confirm Blade asset references, manifests, cache-busting, production image builds, and local dev workflows.
 5. Keep validating Vite production builds in CI and deployment images.

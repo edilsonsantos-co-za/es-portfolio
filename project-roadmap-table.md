@@ -17,9 +17,9 @@
 | **Framework Updates** | Laravel 9 → 10 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 10 upgrade completed; full validation passed |
 | **Framework Updates** | Laravel 10 → 11 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 11 upgrade completed; existing app structure preserved; full validation passed under Node 18 |
 | **Framework Updates** | Laravel 11 → 12 | Incremental backend modernization with safe deploy boundaries | High | Completed | ✅ Completed | Laravel 12 upgrade completed; behavior preserved; backend validation passed |
-| **Frontend Tooling** | Laravel Mix → Vite | Replace Webpack/Mix after standardizing Node LTS | High | Completed | ✅ Completed | Production build now uses Vite with equivalent React entrypoints |
+| **Frontend Tooling** | Legacy Laravel Mix → Vite | Completed replacement of the old Webpack/Mix pipeline after standardizing Node LTS | High | Completed | ✅ Completed | Production build now uses Vite with equivalent React entrypoints |
 | **Framework Updates** | Ant Design 4 → 5 | Better theming, performance | Medium | 2-3 days | ✅ Completed | Current package baseline is Ant Design 5 |
-| **Framework Updates** | Ant Design 5 → 6 | Future component-library modernization | Medium | 2-3 days | 📋 Planning | Do after Vite, router, Redux, and styled-components upgrades |
+| **Framework Updates** | Ant Design 5 → 6 | Future component-library modernization | Medium | 2-3 days | 📋 Planning | Do after the Vite baseline remains stable, plus router, Redux, and styled-components upgrades |
 | **Framework Updates** | PHP runtime alignment → later PHP minor | Performance & modern features | Medium | 1 day | 📋 Planning | Composer permits PHP `^8.2`; Docker currently uses PHP 8.2 |
 | **Code Quality** | Add TypeScript | Type safety and developer experience | High | 5-7 days | ❌ Not Started | Major refactoring required |
 | **Code Quality** | Laravel API Resources | Consistent API responses | Medium | 2-3 days | ❌ Not Started | Replace manual array returns |
