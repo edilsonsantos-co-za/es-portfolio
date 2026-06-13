@@ -287,17 +287,17 @@ The development environment differs from production:
 
 Current project baseline:
 
-- Laravel `9.52.x`
-- PHP platform pin `8.2.29`
-- PHPUnit `9.6.x`
+- Laravel `10.x`
+- PHP Composer constraint `^8.1`
+- PHPUnit `10.1+`
 - React `18`
 - Laravel Mix `6`
 
 Recommended next engineering phases:
 
 1. Add PHP static analysis and formatting tooling
-2. Upgrade Laravel in supported majors rather than one jump
-3. Replace Mix with Vite once the Laravel upgrade path is underway
+2. Continue Laravel upgrades in supported majors (`10 -> 11 -> 12`) rather than one jump
+3. Replace Mix with Vite once the Laravel 11/12 upgrade path is underway
 4. Extract reusable CI workflows for validation, image build, and deploy
 
 ## Next Steps

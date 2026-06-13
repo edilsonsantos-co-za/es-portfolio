@@ -1,13 +1,13 @@
 # EdFolio Upgrade Path
 
-This document defines the phased upgrade path for EdFolio from the current Laravel 9 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
+This document defines the phased upgrade path for EdFolio from the current Laravel 10 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
 
 The production database is active, so every phase must be reversible, observable, and safe for zero-downtime or near-zero-downtime deployment.
 
 ## Current Baseline
 
-- Backend: Laravel `9.52.x`
-- PHP: Composer platform pinned to `8.2.29`; Docker image uses `php:8.2-apache`
+- Backend: Laravel `10.x`
+- PHP: Composer constraint `^8.1`; Docker image uses `php:8.2-apache`
 - Frontend: React `18`, Laravel Mix `6`, Webpack entrypoints in `webpack.mix.js`
 - Node: Docker and CI currently use Node `18`; local Node `26` is not compatible with the current Laravel Mix/Webpack production build
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
@@ -15,7 +15,7 @@ The production database is active, so every phase must be reversible, observable
 
 ## Non-Negotiable Production Safety Rules
 
-1. **No big-bang upgrades**: upgrade Laravel incrementally (`9 -> 10 -> 11 -> 12`) and deploy each major version separately.
+1. **No big-bang upgrades**: Laravel `9 -> 10` is complete; continue incrementally (`10 -> 11 -> 12`) and deploy each major version separately.
 2. **No destructive migrations in upgrade releases**: avoid dropping or renaming columns, tables, indexes, routes, or config until a later cleanup release proves the replacement path is stable.
 3. **Use expand/contract database changes**:
    - expand with nullable columns, new tables, compatible indexes, and dual-write support;
@@ -67,11 +67,13 @@ Complete this before changing framework or frontend dependencies.
 - Standardize on a supported Node LTS for the current build before migrating tools.
 - Do not use Node `26` with the current Laravel Mix/Webpack setup unless the production build has been proven locally and in CI.
 
-## Phase 1: Backend Upgrade to Laravel 10
+## Phase 1: Backend Upgrade to Laravel 10 — Completed / Current
 
 Goal: reach Laravel 10 with minimal product behavior changes.
 
-Recommended sequence:
+Status: completed and current. Composer now targets Laravel `^10.0`, PHP `^8.1`, PHPUnit `^10.1`, Collision `^7`, and Ignition `^2`; `app/Http/Kernel.php` uses Laravel 10 `middlewareAliases`; `phpunit.xml` uses the PHPUnit 10 schema. Full validation passed after the upgrade.
+
+Completed sequence:
 
 1. Create an upgrade branch and capture a production backup before dependency changes.
 2. Remove or replace abandoned packages that block Laravel 10.
