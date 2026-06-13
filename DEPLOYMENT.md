@@ -189,7 +189,7 @@ A Docker named volume (`edfolio_storage`) is mounted at `/var/www/html/storage/a
 Production frontend assets are now baked into the Docker image during CI. The VPS no longer compiles JavaScript during deployment.
 
 - Keep `SKIP_ASSET_BUILD=true` in production so the app container expects precompiled assets from the image.
-- The Docker Hub image (`datasparklab/edfolio:<tag>`) already contains `public/js/*` and `public/mix-manifest.json`.
+- The Docker Hub image (`datasparklab/edfolio:<tag>`) already contains the Vite output in `public/build/`, including `public/build/manifest.json`.
 - Deployments only need `docker compose pull` and `docker compose up -d`, which avoids the previous VPS memory pressure during asset compilation.
 - If the image build fails in GitHub Actions, deployment stops before the VPS is touched.
 

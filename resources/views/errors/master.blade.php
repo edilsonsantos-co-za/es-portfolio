@@ -13,6 +13,6 @@
             data-message="@yield('message')"
         />
 
-        <script src="{{ asset('js/client/frontend/roots/error.js') }}"></script>
+        @vite('resources/js/client/frontend/roots/error.js')
     </body>
 </html>

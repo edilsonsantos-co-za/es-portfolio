@@ -26,7 +26,7 @@ EdFolio is a comprehensive portfolio management system that combines the power o
 ### Infrastructure
 - **Docker** - Containerized development and production environments
 - **Apache** - Web server
-- **Laravel Mix** - Asset compilation and bundling
+- **Vite** - Asset compilation and bundling
 
 ## Features
 
@@ -142,8 +142,7 @@ Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated wi
 ### Validation and local safeguards
 
 Use the Node 18 LTS baseline before running npm-based validation. This matches
-CI/Docker and avoids Laravel Mix/Webpack runtime incompatibilities seen on newer
-Node majors:
+CI/Docker and keeps frontend builds reproducible:
 
 ```bash
 nvm install
@@ -198,9 +197,9 @@ Current baseline:
 - Laravel `12.x`
 - PHP Composer constraint `^8.2`
 - PHPUnit `11.5+`
-- Node `18.20.x` LTS for Laravel Mix/Webpack asset builds
+- Node `18.20.x` LTS for Vite asset builds
 - React `18`
-- Laravel Mix `6`
+- Vite `5`
 - GitHub Actions now updated to Node 24-compatible action majors
 
 Recommended upgrade path:
@@ -212,7 +211,7 @@ High-level sequence:
 1. Keep docs and validation scripts accurate
 2. Add missing security, health-check, and deployment safeguards
 3. Keep Laravel 12 backend validation green
-4. Standardize Node LTS and replace Laravel Mix with Vite
+4. Keep the Vite frontend build stable on Node LTS
 5. Modernize React Router, Redux, styled-components, Ant Design, then React
 6. Apply database improvements with zero-downtime expand/contract migrations
 7. Split CI into reusable `validate`, `build-image`, and `deploy` workflows for cross-project reuse
@@ -354,7 +353,7 @@ edfolio/
 │   ├── migrations/               # Database migrations
 │   └── seeders/                  # Database seeders
 ├── public/                       # Public web root
-│   └── js/client/                # Compiled React application
+│   └── build/                    # Compiled Vite assets
 ├── resources/
 │   └── js/
 │       └── client/               # React source code
@@ -363,7 +362,7 @@ edfolio/
 ├── docker-compose.dev.yml        # Development Docker setup
 ├── docker-compose.prod.yml       # Production Docker setup
 ├── Dockerfile                    # Application Docker image
-└── webpack.mix.js                # Laravel Mix configuration
+└── vite.config.js                # Vite configuration
 ```
 
 ## Documentation

@@ -6,9 +6,6 @@ vendor/
 public/js/
 public/css/
 public/mix-manifest.json
-!public/js/
-!public/js/**
-!public/mix-manifest.json
 
 # Development files
 .git/

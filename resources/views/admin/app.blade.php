@@ -16,5 +16,5 @@
     <script>
         const settings = @json($settings);
     </script>
-    <script src="{{ asset('js/client/admin/roots/app.js') }}"></script>
+    @vite('resources/js/client/admin/roots/app.js')
 @endsection

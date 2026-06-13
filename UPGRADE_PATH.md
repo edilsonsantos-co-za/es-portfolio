@@ -8,8 +8,8 @@ The production database is active, so every phase must be reversible, observable
 
 - Backend: Laravel `12.x`
 - PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
-- Frontend: React `18`, Laravel Mix `6`, Webpack entrypoints in `webpack.mix.js`
-- Node: Docker and CI currently use Node `18`; local Node `26` is not compatible with the current Laravel Mix/Webpack production build
+- Frontend: React `18`, Vite `5`, Laravel Vite entrypoints in `vite.config.js`
+- Node: Docker and CI currently use Node `18`; use `.nvmrc` locally for reproducible frontend builds
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
 - Deployment: image-based production deploys using Docker Hub release tags generated from the root `VERSION` file
 
@@ -64,8 +64,8 @@ Complete this before changing framework or frontend dependencies.
 ### Runtime Standardization
 
 - Keep PHP aligned across Composer platform, Dockerfile, CI, and production.
-- Standardize on a supported Node LTS for the current build before migrating tools.
-- Do not use Node `26` with the current Laravel Mix/Webpack setup unless the production build has been proven locally and in CI.
+- Standardize on a supported Node LTS for frontend builds.
+- Do not use a different Node major unless the production build has been proven locally and in CI.
 
 ## Phase 1: Backend Upgrade to Laravel 10 — Completed
 
@@ -126,15 +126,15 @@ Completed sequence:
 
 ## Phase 4: Frontend Runtime and Build Tooling
 
-Goal: move from Laravel Mix/Webpack to a modern frontend pipeline without changing React behavior first.
+Goal: keep the Vite frontend pipeline stable without changing React behavior first.
 
 Recommended sequence:
 
 1. Standardize Node LTS across local, Docker, and CI.
-2. Keep the existing Mix build green before introducing Vite.
-3. Introduce Vite with equivalent entrypoints to `webpack.mix.js`.
+2. Keep the Vite build green after migration.
+3. Maintain equivalent entrypoints in `vite.config.js`.
 4. Confirm Blade asset references, manifests, cache-busting, production image builds, and local dev workflows.
-5. Remove Laravel Mix only after Vite production builds are validated in CI and deployment images.
+5. Keep validating Vite production builds in CI and deployment images.
 
 Validation:
 

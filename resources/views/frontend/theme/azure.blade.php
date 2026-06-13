@@ -989,7 +989,7 @@
     </script>
 
     <!-- Portfolio Projects JS -->
-    <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @vite('resources/js/client/frontend/roots/projects.js')
 
     @if (!empty($portfolioConfig['script']['footer']) && $portfolioConfig['script']['footer'] != '')
         <script>

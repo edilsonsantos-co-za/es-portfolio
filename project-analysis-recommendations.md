@@ -12,7 +12,7 @@
 
 ### **1. Framework & Dependencies Updates**
 - **Keep Laravel 12 backend validation green** while planning frontend tooling modernization separately
-- **Standardize Node LTS, migrate Laravel Mix/Webpack → Vite, then upgrade React ecosystem packages**
+- **Keep Vite stable on Node LTS, then upgrade React ecosystem packages**
 - **Upgrade Ant Design 5 → 6 after router, state, and build-tool migrations are stable**
 - **Keep PHP 8.2 aligned across Composer, Docker, CI, and production before considering a later PHP minor upgrade**
 

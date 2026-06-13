@@ -423,7 +423,7 @@
     <!-- Template Main JS File -->
     <script src="{{ asset('assets/themes/rigel/js/main.js') }}"></script>
 
-    <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @vite('resources/js/client/frontend/roots/projects.js')
     <script>
         $(function() {
             $('.lazy').lazy();

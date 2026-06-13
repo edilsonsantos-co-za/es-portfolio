@@ -61,7 +61,7 @@ Complete Docker-based development setup with all required services.
 ### 🔄 **Automatic Features**
 - **Database migrations** run on startup
 - **Database seeding** for fresh installations
-- **Asset building** with npm/webpack
+- **Asset building** with npm/Vite
 - **Database backups** before migrations
 
 ## Common Commands
@@ -69,8 +69,7 @@ Complete Docker-based development setup with all required services.
 ### Quality gates
 
 Use the Node 18 LTS baseline before running local npm commands or validation.
-The pinned `.nvmrc` matches CI/Docker and keeps the current Laravel Mix/Webpack
-build away from newer Node-major ESM/CommonJS incompatibilities:
+The pinned `.nvmrc` matches CI/Docker and keeps Vite builds reproducible:
 
 ```bash
 nvm install
@@ -291,13 +290,13 @@ Current project baseline:
 - PHP Composer constraint `^8.2`
 - PHPUnit `11.5+`
 - React `18`
-- Laravel Mix `6`
+- Vite `5`
 
 Recommended next engineering phases:
 
 1. Add PHP static analysis and formatting tooling
 2. Keep Laravel 12 backend validation green
-3. Replace Mix with Vite after standardizing Node LTS
+3. Keep the Vite frontend build stable on Node LTS
 4. Extract reusable CI workflows for validation, image build, and deploy
 
 ## Next Steps

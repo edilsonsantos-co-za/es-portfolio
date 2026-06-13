@@ -377,7 +377,7 @@
     <script src="{{ asset('assets/common/lib/jquery.lazy/jquery.lazy.min.js') }}"></script>
     <!-- Core theme JS-->
     <script src="{{ asset('assets/themes/vega/js/scripts.js') }}"></script>
-    <script src="{{ asset('js/client/frontend/roots/projects.js') }}"></script>
+    @vite('resources/js/client/frontend/roots/projects.js')
     <script>
         $(function() {
             if ($('#szn-preloader').length) {

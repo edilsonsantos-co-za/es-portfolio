@@ -102,12 +102,12 @@ If admin JS files return 404 errors:
 
 1. Check if assets were compiled:
    ```bash
-   docker exec edfolio-prod ls -la /var/www/html/public/js/client/admin/roots/
+   docker exec edfolio-prod ls -la /var/www/html/public/build/
    ```
 
 2. Confirm the image already contains built assets:
    ```bash
-   docker exec edfolio-prod ls -la /var/www/html/public/mix-manifest.json
+   docker exec edfolio-prod ls -la /var/www/html/public/build/manifest.json
    ```
 
 3. If the image is missing assets, rebuild locally to compare behavior:

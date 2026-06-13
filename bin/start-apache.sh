@@ -123,26 +123,26 @@ if [ "$SKIP_ASSET_BUILD" != "true" ] && [ -f /var/www/html/package.json ]; then
   # Build assets with memory limits and explicit failure handling
   echo "[STARTUP] Building assets with memory optimization..."
   BUILD_EXIT=0
-  NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee /tmp/npm-build.log || BUILD_EXIT=$?
+  NPM_BUILD_LOG="/var/www/html/storage/logs/npm-build.log"
+  NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee "$NPM_BUILD_LOG" || BUILD_EXIT=$?
   if [ "$BUILD_EXIT" -ne 0 ]; then
     echo "[ERROR] npm run build failed. Log output:"
-    if [ -f /tmp/npm-build.log ]; then
-      tail -20 /tmp/npm-build.log
+    if [ -f "$NPM_BUILD_LOG" ]; then
+      tail -20 "$NPM_BUILD_LOG"
     fi
     exit "$BUILD_EXIT"
   fi
   echo "[SUCCESS] Frontend asset building completed."
 elif [ "$SKIP_ASSET_BUILD" = "true" ]; then
   FRONTEND_ASSET_DIR="/var/www/html/.frontend-assets"
-  if [ -f "$FRONTEND_ASSET_DIR/.ready" ] && [ -f "$FRONTEND_ASSET_DIR/js/client/admin/roots/app.js" ] && [ -f "$FRONTEND_ASSET_DIR/js/client/frontend/roots/projects.js" ] && [ -f "$FRONTEND_ASSET_DIR/mix-manifest.json" ]; then
+  if [ -f "$FRONTEND_ASSET_DIR/.ready" ] && [ -f "$FRONTEND_ASSET_DIR/build/manifest.json" ]; then
     echo "[STARTUP] Hydrating prebuilt frontend assets from shared volume..."
-    rm -rf /var/www/html/public/js
+    rm -rf /var/www/html/public/build
     mkdir -p /var/www/html/public
-    cp -R "$FRONTEND_ASSET_DIR/js" /var/www/html/public/js
-    cp "$FRONTEND_ASSET_DIR/mix-manifest.json" /var/www/html/public/mix-manifest.json
-    chown -R www-data:www-data /var/www/html/public/js /var/www/html/public/mix-manifest.json
+    cp -R "$FRONTEND_ASSET_DIR/build" /var/www/html/public/build
+    chown -R www-data:www-data /var/www/html/public/build
     echo "[STARTUP] Skipping asset build (SKIP_ASSET_BUILD=true, precompiled assets detected)"
-  elif [ -f /var/www/html/public/js/client/admin/roots/app.js ] && [ -f /var/www/html/public/js/client/frontend/roots/projects.js ] && [ -f /var/www/html/public/mix-manifest.json ]; then
+  elif [ -f /var/www/html/public/build/manifest.json ]; then
     echo "[STARTUP] Skipping asset build (SKIP_ASSET_BUILD=true, image assets detected)"
   else
     echo "[ERROR] SKIP_ASSET_BUILD=true but precompiled frontend assets are missing."
