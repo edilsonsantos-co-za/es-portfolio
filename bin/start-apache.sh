@@ -69,12 +69,6 @@ else
   fi
 fi
 
-# Fix Dashboard.js issue at runtime (not build time)
-if [ -f /var/www/html/resources/js/client/admin/components/dashboard/Dashboard.js ]; then
-  echo "[STARTUP] Fixing Dashboard.js import issue..."
-  sed -i 's/import Icon, { InfoCircleOutlined } from/import Icon from/g' /var/www/html/resources/js/client/admin/components/dashboard/Dashboard.js || echo "[WARNING] Dashboard.js fix failed"
-fi
-
 # Update Composer dependencies if needed (runtime flexibility)
 echo "[STARTUP] Updating Composer dependencies if needed..."
 cd /var/www/html
@@ -283,18 +277,22 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     echo "[STARTUP] APP_KEY already set, skipping key generation"
   fi
   
-  # Always generate JWT secret to ensure it's set
-  echo "[STARTUP] Generating JWT secret key..."
-  
-  # First clear any existing corrupted JWT_SECRET entries
-  sed -i '/^JWT_SECRET=/d' .env || echo "[WARNING] Could not clean JWT_SECRET from .env"
-  
-  # Generate a fresh JWT secret
-  JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n')
-  echo "" >> .env  # Add newline to ensure proper formatting
-  echo "JWT_SECRET=$JWT_SECRET" >> .env
-  
-  echo "[SUCCESS] JWT secret set in .env"
+  echo "[STARTUP] Checking JWT secret..."
+  JWT_SECRET_VALUE=$(grep '^JWT_SECRET=' .env | tail -n 1 | cut -d'=' -f2- || true)
+
+  if [ -z "$JWT_SECRET_VALUE" ]; then
+    if [ "$APP_ENV_ACTUAL" = "production" ]; then
+      echo "[FATAL] JWT_SECRET is missing in production. Refusing to generate an ephemeral secret that would invalidate active tokens."
+      exit 1
+    fi
+
+    echo "[STARTUP] Generating development JWT secret key..."
+    JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n')
+    printf '\nJWT_SECRET=%s\n' "$JWT_SECRET" >> .env
+    echo "[SUCCESS] Development JWT secret set in .env"
+  else
+    echo "[STARTUP] JWT_SECRET already set, skipping generation"
+  fi
   
   # Ensure About record exists for portfolio to work properly
   echo "[STARTUP] Ensuring About record exists..."
