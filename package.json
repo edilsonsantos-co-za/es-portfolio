@@ -67,7 +67,7 @@
         "reddit-image-fetcher": "^2.0.12",
         "redux": "^5.0.1",
         "redux-thunk": "^3.1.0",
-        "styled-components": "^5.2.1",
+        "styled-components": "^6.4.2",
         "typed.js": "^2.0.12"
     }
 }
