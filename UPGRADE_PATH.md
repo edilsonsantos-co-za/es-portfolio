@@ -8,7 +8,7 @@ The production database is active, so every phase must be reversible, observable
 
 - Backend: Laravel `12.x`
 - PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
-- Frontend: React `18`, Vite `5`, Laravel Vite entrypoints in `vite.config.js`
+- Frontend: React `18`, Vite `8`, Laravel Vite entrypoints in `vite.config.js`
 - Node: Docker, CI, and local `.nvmrc` use Node `20` for reproducible frontend builds
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
 - Deployment: image-based production deploys using Docker Hub release tags generated from the root `VERSION` file
@@ -168,6 +168,19 @@ Avoid mixing React 19 with the build-tool migration in the same release.
 ## Phase 6: Database Modernization
 
 Database work must follow zero-downtime migration patterns.
+
+### Completed Expand Steps
+
+- Added low-risk indexes for current admin, portfolio, message, visitor, and project query patterns.
+- Added nullable JSON shadow columns for legacy JSON-encoded long-text data:
+  - `about.taglines_json`
+  - `about.social_links_json`
+  - `projects.categories_json`
+  - `projects.images_json`
+  - `portfolio_configs.setting_value_json`
+  - `portfolio_configs.default_value_json`
+
+These shadow columns are intentionally not used by application reads or writes yet. The next safe step is a dual-write release, followed by batched backfill and comparison before switching reads.
 
 ### Candidate Improvements
 
