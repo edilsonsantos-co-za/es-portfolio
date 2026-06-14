@@ -4,11 +4,7 @@ use App\Services\ApplicationVersion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-//log viewer
 Route::middleware('operational.web')->group(function () {
-    Route::get('/admin/system-logs', ['\Rap2hpoutre\LaravelLogViewer\LogViewerController', 'index'])
-        ->name('admin.system-logs');
-
     Route::get('/optimize', ['App\Http\Controllers\Admin\AdminController', 'optimize'])->name('optimize');
 });
 
@@ -45,6 +41,10 @@ Route::get('/ready', function (ApplicationVersion $applicationVersion) {
         'timestamp' => now()->toIso8601String(),
     ]);
 })->name('ready');
+
+Route::get('/admin/system-logs', function () {
+    abort(404);
+});
 
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/{path?}', ['App\Http\Controllers\Admin\AdminController', 'app'])->where('path', '.*')->name('admin.app');

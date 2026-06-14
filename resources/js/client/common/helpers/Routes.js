@@ -19,7 +19,6 @@ const web = {
         portfolioServices: '/admin/portfolio/services',
         visitors: '/admin/visitors',
         messages: '/admin/messages',
-        systemLogs: '/admin/system-logs',
     },
     frontend: {
         home: '/',

@@ -37,7 +37,7 @@ Complete this before changing framework or frontend dependencies.
   - `/command/{cmd}` must never be available in production and should be removed if not essential.
   - `/optimize` should be converted to a protected operational command or removed from public routing.
   - `/admin/system-logs` must require strong admin authorization and should not expose raw sensitive log data.
-- Replace or strongly gate `rap2hpoutre/laravel-log-viewer`; prefer a private observability channel or authenticated, audited admin-only log access.
+- `rap2hpoutre/laravel-log-viewer` has been removed; prefer a private observability channel or authenticated, audited admin-only log access if log viewing is reintroduced.
 - Keep Laravel's built-in CORS middleware enabled and preserve `config/cors.php` behavior.
 - Review JWT authentication:
   - keep `tymon/jwt-auth` only if stateless token behavior is still required;
@@ -115,7 +115,7 @@ Completed sequence:
 
 Goal: complete the supported Laravel target version without combining unrelated product changes.
 
-Status: completed and current. Composer now targets Laravel `^12.0`, PHP `^8.2`, PHPUnit `^11.5.50`, Collision `^8.9`, Ignition `^2.9`, ide-helper `^3.7`, stevebauman/location `^7.6`, `tymon/jwt-auth` `^2.0`, and `rap2hpoutre/laravel-log-viewer` `^2.0`. The existing Laravel 10-style app structure remains intentionally preserved because Laravel 12 supports it and this keeps behavior stable.
+Status: completed and current. Composer now targets Laravel `^12.0`, PHP `^8.2`, PHPUnit `^11.5.50`, Collision `^8.9`, Ignition `^2.9`, ide-helper `^3.7`, stevebauman/location `^7.6`, and `tymon/jwt-auth` `^2.3`. The existing Laravel 10-style app structure remains intentionally preserved because Laravel 12 supports it and this keeps behavior stable.
 
 Completed sequence:
 

@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import Utils from '../../../common/helpers/Utils';
 import {
   HomeOutlined,
-  FileTextOutlined,
   ExperimentOutlined,
   ControlOutlined,
   TeamOutlined,
@@ -139,13 +138,6 @@ const ZLayout = ({ children }) => {
                     name: 'Optimize',
                     onclickHandle: optimizeOnClick,
                     icon: <ThunderboltOutlined/>,
-                },
-                {
-                    path: Routes.web.admin.systemLogs,
-                    key: Routes.web.admin.systemLogs,
-                    name: 'System Logs',
-                    onclickHandle: () => { window.open(Routes.web.admin.systemLogs) },
-                    icon: <FileTextOutlined/>,
                 },
                 {
                     path: Routes.web.admin.settings,

@@ -14,7 +14,6 @@
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^3",
-        "rap2hpoutre/laravel-log-viewer": "^2.0",
         "stevebauman/location": "^7.6",
         "tymon/jwt-auth": "^2.3"
     },
