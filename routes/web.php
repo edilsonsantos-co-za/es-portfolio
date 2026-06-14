@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\ApplicationVersion;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 //log viewer
@@ -20,6 +21,30 @@ Route::get('/health', function (ApplicationVersion $applicationVersion) {
         'timestamp' => now()->toIso8601String(),
     ]);
 })->name('health');
+
+Route::get('/ready', function (ApplicationVersion $applicationVersion) {
+    try {
+        DB::select('select 1');
+    } catch (\Throwable $exception) {
+        report($exception);
+
+        return response()->json([
+            'status' => 'unavailable',
+            'version' => $applicationVersion->version(),
+            'release_tag' => $applicationVersion->releaseTag(),
+            'environment' => app()->environment(),
+            'timestamp' => now()->toIso8601String(),
+        ], 503);
+    }
+
+    return response()->json([
+        'status' => 'ready',
+        'version' => $applicationVersion->version(),
+        'release_tag' => $applicationVersion->releaseTag(),
+        'environment' => app()->environment(),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+})->name('ready');
 
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/{path?}', ['App\Http\Controllers\Admin\AdminController', 'app'])->where('path', '.*')->name('admin.app');
