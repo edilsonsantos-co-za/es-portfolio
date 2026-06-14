@@ -1,19 +1,19 @@
 import React from 'react';
 import { Dropdown, Avatar } from 'antd';
 import { LogoutOutlined, UserOutlined, ProfileOutlined, UnlockOutlined } from '@ant-design/icons';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Routes from '../../../common/helpers/Routes';
 
 const AvatarDropdown = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const onMenuClick = ({ key }) => {
         if (key === 'logout') {
-            history.push(Routes.web.admin.logout);
+            navigate(Routes.web.admin.logout);
         } else if (key === 'profile') {
-            history.push(Routes.web.admin.portfolioAbout);
+            navigate(Routes.web.admin.portfolioAbout);
         } else if (key === 'password') {
-            history.push(Routes.web.admin.settings);
+            navigate(Routes.web.admin.settings);
         }
     };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProLayout from '@ant-design/pro-layout';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Routes from '../../../common/helpers/Routes';
 import PropTypes from 'prop-types';
@@ -28,7 +28,7 @@ const ZLayout = ({ children }) => {
     const navColor = globalState.navColor;
     const layout = globalState.menuLayout;
     const [collapsed, setCollapsed] = useState(false);
-    let history = useHistory();
+    let navigate = useNavigate();
 
     useEffect(() => {
         !isMobile && setCollapsed(globalState.shortMenu);
@@ -150,7 +150,7 @@ const ZLayout = ({ children }) => {
     };
 
     const navigateToPath = (path) => {
-        history.push(path);
+        navigate(path);
     }
     
     return (

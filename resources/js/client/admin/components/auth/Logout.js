@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Routes from '../../../common/helpers/Routes';
 import { removeApiToken } from '../../redux/ActionCreators';
 
@@ -12,8 +12,9 @@ const Logout = () => {
     }, [])
 
     return (
-        <Redirect
+        <Navigate
             to={Routes.web.admin.login}
+            replace
         />
     );
 }

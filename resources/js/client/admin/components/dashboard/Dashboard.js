@@ -7,7 +7,6 @@ import { Card, Col, Image, notification, Row, Spin, Typography, Space } from 'an
 import { InfoCircleOutlined } from '@ant-design/icons';
 import Icon from '@ant-design/icons';
 import { BiArchive } from 'react-icons/bi';
-import { useHistory } from 'react-router-dom';
 import StatCard from './StatCard';
 import { GoKey } from 'react-icons/go';
 import { BsBriefcase } from 'react-icons/bs';
@@ -18,6 +17,7 @@ import { Tiny } from '@ant-design/plots';
 import RedditImageFetcher from 'reddit-image-fetcher';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const { Text } = Typography;
 
@@ -39,7 +39,7 @@ const WallpaperLoading = styled.div`
 `;
 
 const Dashboard = () => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const [wallpaper, setWallpaper] = useState(null);
     const [wallpaperLoading, setWallpaperLoading] = useState(false);
@@ -388,7 +388,7 @@ const Dashboard = () => {
                             <Card
                                 hoverable={true}
                                 onClick={() => {
-                                    history.push(Routes.web.admin.visitors);
+                                    navigate(Routes.web.admin.visitors);
                                 }}
                                 variant="borderless"
                                 loading={loading}
@@ -452,7 +452,7 @@ const Dashboard = () => {
                         <Card
                                 hoverable={true}
                                 onClick={() => {
-                                    history.push(Routes.web.admin.messages);
+                                    navigate(Routes.web.admin.messages);
                                 }}
                                 variant="borderless"
                                 loading={loading}
@@ -525,7 +525,7 @@ const Dashboard = () => {
                         >
                             <Card
                                 onClick={() => {
-                                    history.push(Routes.web.admin.portfolioConfig);
+                                    navigate(Routes.web.admin.portfolioConfig);
                                 }}
                                 hoverable={true}
                                 variant="borderless"

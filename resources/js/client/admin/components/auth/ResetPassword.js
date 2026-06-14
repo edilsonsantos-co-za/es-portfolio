@@ -4,7 +4,7 @@ import AuthLayout from './AuthLayout';
 import axios from 'axios';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
-import { Link, useHistory, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { AiOutlineMail } from 'react-icons/ai';
 import {BsShieldLock} from 'react-icons/bs';
@@ -15,7 +15,7 @@ const ResetPassword = () => {
     const globalState = useSelector(state => state.globalState);
     const siteName = globalState.siteName;
     const apiToken = globalState.apiToken;
-    let history = useHistory();
+    let navigate = useNavigate();
     let location = useLocation();
 
     useEffect(() => {
@@ -24,8 +24,8 @@ const ResetPassword = () => {
 
     useEffect(() => {
         if (apiToken) {
-            let { from } = location.state || { from: { pathname: Routes.web.admin.dashboard } };
-            history.push(from);
+            let from = location.state?.from || { pathname: Routes.web.admin.dashboard };
+            navigate(from, { replace: true });
         }
     }, [apiToken]);
 
@@ -41,7 +41,7 @@ const ResetPassword = () => {
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
                 Utils.showNotification(response.data.message, 'success');
-                history.push(Routes.web.admin.login);
+                navigate(Routes.web.admin.login);
             });
         })
         .catch((error) => {

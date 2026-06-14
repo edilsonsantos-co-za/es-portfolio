@@ -4,7 +4,7 @@ import AuthLayout from './AuthLayout';
 import axios from 'axios';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveApiToken } from '../../redux/ActionCreators';
 import {AiOutlineUser} from 'react-icons/ai';
@@ -13,7 +13,7 @@ import {BsShieldLock} from 'react-icons/bs';
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
-    let history = useHistory();
+    let navigate = useNavigate();
     let location = useLocation();
     const [form] = Form.useForm();
     const {siteName, apiToken, demoMode} = useSelector(state => state.globalState);
@@ -31,8 +31,8 @@ const Login = () => {
 
     useEffect(() => {
         if (apiToken) {
-            let { from } = location.intended || { from: { pathname: Routes.web.admin.dashboard } };
-            history.push(from);
+            let from = location.state?.from || { pathname: Routes.web.admin.dashboard };
+            navigate(from, { replace: true });
         }
     }, [apiToken]);
 

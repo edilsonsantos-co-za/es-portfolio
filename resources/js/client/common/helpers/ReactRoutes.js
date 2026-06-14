@@ -2,7 +2,7 @@
 import loadable from '@loadable/component';
 import Routes from './Routes';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
+import { Navigate } from 'react-router-dom';
 import React from 'react';
 
 const Login = loadable(() => import('../../admin/components/auth/Login'));
@@ -26,8 +26,9 @@ const RedirectLogin = () => {
     
     return (
         <React.Fragment>
-            <Redirect
+            <Navigate
                 to={apiToken ? Routes.web.admin.dashboard : Routes.web.admin.login}
+                replace
             />
         </React.Fragment>
     )

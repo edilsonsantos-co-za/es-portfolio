@@ -5,13 +5,13 @@ import AuthLayout from './AuthLayout';
 import axios from 'axios';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const ForgetPassword = () => {
     const [loading, setLoading] = useState(false);
     const {siteName, apiToken, demoMode} = useSelector(state => state.globalState);
-    let history = useHistory();
+    let navigate = useNavigate();
     let location = useLocation();
 
     useEffect(() => {
@@ -20,8 +20,8 @@ const ForgetPassword = () => {
 
     useEffect(() => {
         if (apiToken) {
-            let { from } = location.state || { from: { pathname: Routes.web.admin.dashboard } };
-            history.push(from);
+            let from = location.state?.from || { pathname: Routes.web.admin.dashboard };
+            navigate(from, { replace: true });
         }
     }, [apiToken]);
 
@@ -38,7 +38,7 @@ const ForgetPassword = () => {
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
                 Utils.showNotification(response.data.message, 'success', null, true);
-                history.push(Routes.web.admin.login);
+                navigate(Routes.web.admin.login);
             });
         })
         .catch((error) => {

@@ -1,33 +1,17 @@
 import React from 'react';
 import { useSelector } from "react-redux";
-import { Redirect, Route } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Routes from "../../common/helpers/Routes";
-import PropTypes from 'prop-types';
 
-const PrivateRoute = ({ children, ...rest }) => {
+const PrivateRoute = () => {
     const apiToken = useSelector(state => state.globalState.apiToken);
+    const location = useLocation();
 
-    return (
-        <Route
-            {...rest}
-            render={({ location }) =>
-                (typeof apiToken !=='undefined' && apiToken !== null) ? (
-                    children
-                ) : (
-                    <Redirect
-                        to={{
-                            pathname: Routes.web.admin.login,
-                            intended: { from: location }
-                        }}
-                    />
-                )
-            }
-        />
-    );
-}
+    if (typeof apiToken !== 'undefined' && apiToken !== null) {
+        return <Outlet />;
+    }
 
-PrivateRoute.propTypes = {
-    children: PropTypes.node,
+    return <Navigate to={Routes.web.admin.login} state={{ from: location }} replace />;
 }
 
 export default PrivateRoute;

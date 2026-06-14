@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App as AntdApp, ConfigProvider } from 'antd';
-import enUSIntl from 'antd/locale/en_US';import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import enUSIntl from 'antd/locale/en_US';import { BrowserRouter, Outlet, Route, Routes as RouterRoutes } from 'react-router-dom';
 
 // Suppress known antd v5 / rc-resize-observer findDOMNode warning (upstream library issue)
 const _consoleError = console.error;
@@ -61,22 +61,34 @@ const fadeoutAndRemoveElement = (el, speed) => {
  * public routes
  */
 const publicRoutes = () => {
-    return ReactRoutes.admin.filter(route => route.private === false).map((route, index) => (
-        <Route key={index} exact={route.exact} path={route.path}>
-            <route.component fallback={<LazyLoadingFallbackUi/>}/>
-        </Route>
-    ));
+    return ReactRoutes.admin.filter(route => route.private === false).map((route, index) => {
+        const RouteComponent = route.component;
+
+        return (
+            <Route
+                key={index}
+                path={route.path}
+                element={<RouteComponent fallback={<LazyLoadingFallbackUi/>}/>}
+            />
+        );
+    });
 }
 
 /**
  * private routes
  */
 const privateRoutes = () => {
-    return ReactRoutes.admin.filter(route => route.private === true).map((route, index) => (
-        <Route key={index} exact={route.exact} path={route.path}>
-            <route.component fallback={<LazyLoadingFallbackUi spinner={true}/>}/>
-        </Route>
-    ));
+    return ReactRoutes.admin.filter(route => route.private === true).map((route, index) => {
+        const RouteComponent = route.component;
+
+        return (
+            <Route
+                key={index}
+                path={route.path}
+                element={<RouteComponent fallback={<LazyLoadingFallbackUi spinner={true}/>}/>}
+            />
+        );
+    });
 }
 
 /**
@@ -135,32 +147,24 @@ const App = () => {
                     <AntdApp>
                         <AntdAppBridge />
                         <BrowserRouter>
-                        <Switch>
+                        <RouterRoutes>
                             
                             {/* public routes */}
                             {publicRoutes()}
 
                             {/* private routes */}
-                            <PrivateRoute>
-                                <ZLayout>
-                                    <Switch>
-                                        {privateRoutes()}
-                                        <Route>
-                                            <NotFound/>
-                                        </Route>
-                                    </Switch>
-                                </ZLayout>
-                            </PrivateRoute>
+                            <Route element={<PrivateRoute />}>
+                                <Route element={<ZLayout><Outlet /></ZLayout>}>
+                                    {privateRoutes()}
+                                    <Route path="*" element={<NotFound/>} />
+                                </Route>
+                            </Route>
 
                             {/* 404 route */}
-                            <Route>
-                                <NotFound/>
-                            </Route>
-                            <Route path={Routes.web.admin.notFound}>
-                                <NotFound/>
-                            </Route>
+                            <Route path={Routes.web.admin.notFound} element={<NotFound/>} />
+                            <Route path="*" element={<NotFound/>} />
                             
-                        </Switch>
+                        </RouterRoutes>
                         </BrowserRouter>
                     </AntdApp>
                 </ConfigProvider>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, Typography } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import CountUp from 'react-countup';
 import PropTypes from 'prop-types';
@@ -38,7 +38,7 @@ cursor: pointer;
 `;
 
 const StatCard = ({ icon, color, title, number, loading= false, link = false, isCard = true }) => {
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const children = (
         <Wrapper>
@@ -75,7 +75,7 @@ const StatCard = ({ icon, color, title, number, loading= false, link = false, is
                 <Card
                     onClick={() => {
                         if (link) {
-                            history.push(link);
+                            navigate(link);
                         }
                     }}
                     loading={loading}
