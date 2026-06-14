@@ -1,6 +1,6 @@
 # EdFolio Upgrade Path
 
-This document defines the phased upgrade path for EdFolio from the current Laravel 12 / React 18 baseline to a modern, supportable Laravel 12+ and Vite-based frontend stack.
+This document defines the phased upgrade path for EdFolio from the historical Laravel 9 / React 18 baseline to the current Laravel 12 / React 19 / Vite 8 stack.
 
 The production database is active, so every phase must be reversible, observable, and safe for zero-downtime or near-zero-downtime deployment.
 
@@ -8,7 +8,7 @@ The production database is active, so every phase must be reversible, observable
 
 - Backend: Laravel `12.x`
 - PHP: Composer constraint `^8.2`; Docker image uses `php:8.2-apache`
-- Frontend: React `18`, Vite `8`, Laravel Vite entrypoints in `vite.config.js`
+- Frontend: React `19`, React Router `7`, Redux `5`, Ant Design `6`, styled-components `6`, Vite `8`, Laravel Vite entrypoints in `vite.config.js`
 - Node: Docker, CI, and local `.nvmrc` use Node `20` for reproducible frontend builds
 - Database: production MySQL database is active and must not be destructively migrated in the same release as application code
 - Deployment: image-based production deploys using Docker Hub release tags generated from the root `VERSION` file
@@ -126,7 +126,9 @@ Completed sequence:
 
 ## Phase 4: Frontend Runtime and Build Tooling
 
-Goal: keep the completed Vite frontend pipeline stable without changing React behavior first.
+Goal: keep the completed Vite frontend pipeline stable and reproducible.
+
+Status: completed. The app now uses Vite `8`, Laravel Vite entrypoints in `vite.config.js`, Node `20.20.2`, and ESLint `10` flat config. The legacy Laravel Mix/Webpack pipeline has been removed.
 
 Recommended sequence:
 
@@ -144,26 +146,19 @@ Validation:
 - public page rendering
 - production image contains compiled assets and the expected manifest
 
-## Phase 5: Frontend Library Modernization
+## Phase 5: Frontend Library Modernization — Completed
 
-Do this after Vite is stable.
+Status: completed. Frontend packages have been modernized in isolated, validated commits:
 
-Recommended order:
+1. React Router `5 -> 7` with `Routes`, `Navigate`, `Outlet`, and `useNavigate`.
+2. Redux `4 -> 5` and redux-thunk `2 -> 3` while preserving the existing store shape.
+3. styled-components `5 -> 6`.
+4. React `18 -> 19` and React DOM `19`.
+5. Ant Design `5 -> 6`, with `@ant-design/icons` declared explicitly.
+6. Remaining runtime libraries updated: `react-icons`, `react-countup`, `typed.js`, `rc-queue-anim`, `axios`, and `less`.
+7. ESLint `7 -> 10` with flat config and the React plugin compatibility shim.
 
-1. React Router `v5 -> v6/v7`
-   - update route declarations and navigation;
-   - verify admin deep links and redirects.
-2. Redux to Redux Toolkit
-   - migrate store slices incrementally;
-   - keep API contracts stable.
-3. styled-components `6`
-   - verify server/client class generation assumptions and theming.
-4. Ant Design `6`
-   - migrate components and theme configuration in focused batches.
-5. React `19`
-   - upgrade last, after router, state, styling, and component-library compatibility is confirmed.
-
-Avoid mixing React 19 with the build-tool migration in the same release.
+Future frontend improvement should focus on behavior-level refactors, especially replacing the hand-written Redux store with Redux Toolkit slices and code-splitting the largest Vite chunks.
 
 ## Phase 6: Database Modernization
 
