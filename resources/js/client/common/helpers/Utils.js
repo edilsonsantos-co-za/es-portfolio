@@ -112,7 +112,7 @@ const handleException = (error, callback = null) => {
     if (typeof error === 'string') {
         try {
             error = JSON.parse(error);
-        } catch (error) {
+        } catch {
             // do nothing
         }
     }

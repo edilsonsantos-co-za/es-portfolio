@@ -152,7 +152,6 @@ const Experiences = () => {
                             // onChange: (_, selectedRows) => setSelectedRows(selectedRows),
                         }}
                         expandable={{
-                            // eslint-disable-next-line react/display-name
                             expandedRowRender: record => <p style={{ margin: '0 17px' }}>Details: {record.details}</p>,
                         }}
                         tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (

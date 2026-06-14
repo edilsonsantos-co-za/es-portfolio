@@ -98,7 +98,6 @@ const Messages = () => {
             width: 130,
             sorter: true,
             tip: 'Reply back status. Change this after replying manually.',
-            // eslint-disable-next-line react/display-name
             render: (text, row) => (
                 <Switch
                     onChange={(checked) => repliedOnChangeHandler(checked, row)}
@@ -213,7 +212,6 @@ const Messages = () => {
                             // onChange: (_, selectedRows) => setSelectedRows(selectedRows),
                         }}
                         expandable={{
-                            // eslint-disable-next-line react/display-name
                             expandedRowRender: record => <p style={{ margin: '0 17px' }}>Body: {record.body}</p>,
                         }}
                         tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (
