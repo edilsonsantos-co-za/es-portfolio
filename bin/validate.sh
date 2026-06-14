@@ -14,6 +14,7 @@ append_path_if_dir() {
 }
 
 bootstrap_path() {
+  local desired_node_version
   local node_bin
 
   append_path_if_dir /opt/homebrew/bin
@@ -22,9 +23,16 @@ bootstrap_path() {
   append_path_if_dir /usr/local/sbin
   append_path_if_dir /Applications/Docker.app/Contents/Resources/bin
 
-  for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
-    append_path_if_dir "$node_bin"
-  done
+  if [[ -f .nvmrc ]]; then
+    desired_node_version="$(<.nvmrc)"
+    append_path_if_dir "$HOME/.nvm/versions/node/v${desired_node_version#v}/bin"
+  fi
+
+  if ! command -v node >/dev/null 2>&1; then
+    for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
+      append_path_if_dir "$node_bin"
+    done
+  fi
 
   export PATH
 }

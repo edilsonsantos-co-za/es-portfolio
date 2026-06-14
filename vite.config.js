@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = async ({ mode }) => {
-    const { transformWithEsbuild } = await import('vite');
+    const { transformWithOxc } = await import('vite');
     const { default: laravel } = await import('laravel-vite-plugin');
     const { default: react } = await import('@vitejs/plugin-react');
     const jsAsJsx = () => ({
@@ -12,8 +12,8 @@ module.exports = async ({ mode }) => {
                 return null;
             }
 
-            return transformWithEsbuild(code, id, {
-                loader: 'jsx',
+            return transformWithOxc(code, id, {
+                lang: 'jsx',
             });
         },
     });
@@ -43,13 +43,6 @@ module.exports = async ({ mode }) => {
             preprocessorOptions: {
                 less: {
                     javascriptEnabled: true,
-                },
-            },
-        },
-        optimizeDeps: {
-            esbuildOptions: {
-                loader: {
-                    '.js': 'jsx',
                 },
             },
         },
