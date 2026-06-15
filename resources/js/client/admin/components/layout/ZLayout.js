@@ -62,6 +62,10 @@ const ZLayout = ({ children }) => {
         });
     }
 
+    const headerNavContentProps = layout === 'top' && !isMobile
+        ? { rightContentRender: () => <NavContent/> }
+        : { headerContentRender: () => <NavContent/> };
+
     const defaultProps = {
         title: siteName,
         navTheme: menuColor,
@@ -150,6 +154,7 @@ const ZLayout = ({ children }) => {
                 },
             ]
         },
+        ...headerNavContentProps,
     };
 
     const navigateToPath = (path) => {
@@ -184,7 +189,6 @@ const ZLayout = ({ children }) => {
                             {dom}
                         </a>
                     )}
-                    rightContentRender={() => <NavContent/>}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: '24px' }}
                 >
