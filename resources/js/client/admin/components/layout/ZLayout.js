@@ -184,29 +184,24 @@ const ZLayout = ({ children }) => {
                             {dom}
                         </a>
                     )}
-                    headerRender={(props, defaultDom) => (
-                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                            {defaultDom}
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    height: '100%',
-                                    minWidth: 96,
-                                    zIndex: 1,
-                                }}
-                            >
-                                <NavContent/>
-                            </div>
-                        </div>
-                    )}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: '24px' }}
                 >
                     {children}
                     {/* <BackTop /> */}
                 </ProLayout>
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        right: 0,
+                        height: 56,
+                        minWidth: 96,
+                        zIndex: 1000,
+                    }}
+                >
+                    <NavContent/>
+                </div>
             </div>
         </React.Fragment>
     )
