@@ -227,14 +227,23 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
       echo "[STARTUP] RUN_SEEDING=true - Seeding forced"
     elif [ "$RUN_SEEDING" = "auto" ]; then
       # Check if critical tables are empty (indicating first run or need for seeding)
+      ADMIN_COUNT=$(php artisan tinker --execute="echo App\Models\Admin::count();" 2>/dev/null | tail -n 1 | tr -d '\n' || echo "0")
       ABOUT_COUNT=$(php artisan tinker --execute="echo App\Models\About::count();" 2>/dev/null | tail -n 1 | tr -d '\n' || echo "0")
       PORTFOLIO_COUNT=$(php artisan tinker --execute="echo DB::table('portfolio_configs')->count();" 2>/dev/null | tail -n 1 | tr -d '\n' || echo "0")
       
       if [ "$ABOUT_COUNT" = "0" ] || [ "$PORTFOLIO_COUNT" = "0" ]; then
         SHOULD_SEED="true"
-        echo "[STARTUP] Critical tables empty (About: $ABOUT_COUNT, Portfolio: $PORTFOLIO_COUNT) - will run seeding"
+        echo "[STARTUP] Critical tables empty (Admins: $ADMIN_COUNT, About: $ABOUT_COUNT, Portfolio: $PORTFOLIO_COUNT) - will run seeding"
+      elif [ "$ADMIN_COUNT" = "0" ]; then
+        echo "[STARTUP] No admin users detected - running AdminSeeder only"
+        php artisan db:seed --class='Database\Seeders\AdminSeeder' --force --verbose 2>&1 | tee /tmp/admin-seeder.log
+        ADMIN_COUNT=$(php artisan tinker --execute="echo App\Models\Admin::count();" 2>/dev/null | tail -n 1 | tr -d '\n' || echo "0")
+        if [ "$ADMIN_COUNT" = "0" ]; then
+          echo "[FATAL] AdminSeeder completed but no admin users exist. Refusing to start without an admin login."
+          exit 1
+        fi
       else
-        echo "[STARTUP] Database appears to be seeded (About: $ABOUT_COUNT, Portfolio: $PORTFOLIO_COUNT)"
+        echo "[STARTUP] Database appears to be seeded (Admins: $ADMIN_COUNT, About: $ABOUT_COUNT, Portfolio: $PORTFOLIO_COUNT)"
       fi
     else
       echo "[STARTUP] RUN_SEEDING=$RUN_SEEDING - Skipping seeding"
@@ -253,7 +262,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   fi
   
   echo "[STARTUP] Verifying critical tables are populated..."
-  php artisan tinker --execute="echo 'About records: ' . \App\Models\About::count(); echo 'Portfolio config records: ' . DB::table('portfolio_configs')->count();" || echo "[ERROR] Table verification failed"
+  php artisan tinker --execute="echo 'Admin records: ' . \App\Models\Admin::count(); echo 'About records: ' . \App\Models\About::count(); echo 'Portfolio config records: ' . DB::table('portfolio_configs')->count();" || echo "[ERROR] Table verification failed"
   
   echo "[STARTUP] Clearing application cache..."
   php artisan cache:clear || echo "[ERROR] Cache clear failed, but continuing..."
