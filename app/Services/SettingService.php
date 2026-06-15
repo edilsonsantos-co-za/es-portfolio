@@ -162,9 +162,9 @@ class SettingService implements SettingInterface
             $result = $this->getSettingByKey(CoreConstants::SETTING__MENU_LAYOUT, ['setting_value']);
 
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                $data['menuLayout'] = $result['payload']->setting_value;
+                $data['menuLayout'] = $result['payload']->setting_value === 'mix' ? 'side' : $result['payload']->setting_value;
             } else {
-                $data['menuLayout'] = 'mix';
+                $data['menuLayout'] = 'side';
             }
 
             //get menu color

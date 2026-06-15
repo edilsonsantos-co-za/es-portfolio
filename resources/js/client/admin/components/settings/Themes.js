@@ -18,11 +18,14 @@ const StyledListItem = styled(Item)`
 padding: 16px 0px !important;
 `;
 
+const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
+
 const Themes = (props) => {
     const isMobile = useIsMobile();
     const [loading, setLoading] = useState(false);
     const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [currentSettingToChange, setCurrentSettingToChange] = useState(null);
+    const currentMenuLayout = normalizeMenuLayout(props.globalState.menuLayout);
 
     const colorPickerSubmitCallback = (color) => {
         submitData(CoreConstants.settings.ACCENT_COLOR, color);
@@ -153,12 +156,12 @@ const Themes = (props) => {
                                     size="small"
                                     options={
                                         [
-                                            { label: 'Side', value: 'mix' },
+                                            { label: 'Side', value: 'side' },
                                             { label: 'Top', value: 'top' },
                                         ]
                                     }
                                     onChange={menuLayoutChangeHandle}
-                                    value={props.globalState.menuLayout}
+                                    value={currentMenuLayout}
                                     optionType="button"
                                     buttonStyle="solid"
                                 />
@@ -168,7 +171,7 @@ const Themes = (props) => {
                         </StyledListItem>
                     </Spin>
                     {
-                        props.globalState.menuLayout === 'mix' && (
+                        currentMenuLayout === 'side' && (
                             <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.settings.SHORT_MENU}>
                                 <StyledListItem actions={
                                     [
@@ -216,7 +219,7 @@ const Themes = (props) => {
                         </StyledListItem>
                     </Spin>
                     {
-                       ( isMobile || (props.globalState.menuLayout === 'mix')) && (
+                       ( isMobile || (currentMenuLayout === 'side')) && (
                             <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.settings.NAV_COLOR}>
                                 <StyledListItem actions={
                                     [

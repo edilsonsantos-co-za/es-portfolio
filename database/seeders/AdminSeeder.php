@@ -63,8 +63,8 @@ class AdminSeeder extends Seeder
                         //menu layout
                         $data = [
                             'setting_key' => CoreConstants::SETTING__MENU_LAYOUT,
-                            'setting_value' => 'mix',
-                            'default_value' => 'mix',
+                            'setting_value' => 'side',
+                            'default_value' => 'side',
                         ];
                         $settingService->insertOrUpdate($data);
 

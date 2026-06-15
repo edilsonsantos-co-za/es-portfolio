@@ -18,15 +18,18 @@ import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
 import axios from 'axios';
 
+const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
+const normalizeNavTheme = (value) => (value === 'dark' || value === 'realDark' ? 'realDark' : 'light');
+
 const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
     const location = useLocation();
     const globalState = useSelector(state => state.globalState);
     const logo = globalState.logo;
     const siteName = globalState.siteName;
-    const menuColor = globalState.menuColor;
+    const menuColor = normalizeNavTheme(globalState.menuColor);
     const navColor = globalState.navColor;
-    const layout = globalState.menuLayout;
+    const layout = normalizeMenuLayout(globalState.menuLayout);
     const [collapsed, setCollapsed] = useState(false);
     let navigate = useNavigate();
 
