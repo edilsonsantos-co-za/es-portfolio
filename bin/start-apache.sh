@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 
 # Set git safe directory to avoid ownership issues
 git config --global --add safe.directory /var/www/html
@@ -91,7 +91,11 @@ mkdir -p \
   /var/www/html/storage/framework/views \
   /var/www/html/storage/logs
 
-composer install --no-dev --optimize-autoloader --no-interaction || echo "[WARNING] Composer update failed, but continuing..."
+if [ "$APP_ENV_ACTUAL" = "development" ]; then
+  composer install --optimize-autoloader --no-interaction || echo "[WARNING] Composer update failed, but continuing..."
+else
+  composer install --no-dev --optimize-autoloader --no-interaction || echo "[WARNING] Composer update failed, but continuing..."
+fi
 
 # Set file permissions
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
@@ -109,22 +113,28 @@ if [ "$SKIP_ASSET_BUILD" != "true" ] && [ -f /var/www/html/package.json ]; then
   npm cache clean --force || echo "[WARNING] npm cache clean failed"
   
   # Install npm dependencies with memory-efficient options
-  if [ ! -d /var/www/html/node_modules ]; then
+  if [ ! -x /var/www/html/node_modules/.bin/vite ]; then
     echo "[STARTUP] Installing npm dependencies with memory limits..."
-    NODE_OPTIONS="--max-old-space-size=1024" npm ci --legacy-peer-deps --production=false --no-audit --no-fund || echo "[ERROR] npm install failed, but continuing..."
+    NODE_OPTIONS="--max-old-space-size=1024" npm ci --legacy-peer-deps --include=dev --no-audit --no-fund || {
+      echo "[FATAL] npm install failed."
+      exit 1
+    }
   fi
   
   # Build assets with memory limits and explicit failure handling
   echo "[STARTUP] Building assets with memory optimization..."
-  BUILD_EXIT=0
   NPM_BUILD_LOG="/var/www/html/storage/logs/npm-build.log"
-  NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee "$NPM_BUILD_LOG" || BUILD_EXIT=$?
-  if [ "$BUILD_EXIT" -ne 0 ]; then
-    echo "[ERROR] npm run build failed. Log output:"
-    if [ -f "$NPM_BUILD_LOG" ]; then
-      tail -20 "$NPM_BUILD_LOG"
+  if ! NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee "$NPM_BUILD_LOG"; then
+    echo "[WARNING] npm run build failed. Reinstalling npm dependencies once before retrying..."
+    rm -rf /var/www/html/node_modules
+    NODE_OPTIONS="--max-old-space-size=1024" npm ci --legacy-peer-deps --include=dev --no-audit --no-fund
+    if ! NODE_OPTIONS="--max-old-space-size=1024" APP_ENV=${APP_ENV:-production} npm run build 2>&1 | tee "$NPM_BUILD_LOG"; then
+      echo "[ERROR] npm run build failed. Log output:"
+      if [ -f "$NPM_BUILD_LOG" ]; then
+        tail -20 "$NPM_BUILD_LOG"
+      fi
+      exit 1
     fi
-    exit "$BUILD_EXIT"
   fi
   echo "[SUCCESS] Frontend asset building completed."
 elif [ "$SKIP_ASSET_BUILD" = "true" ]; then
@@ -195,7 +205,10 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   # Smart database management
   if [ "$FORCE_FRESH_DB" = "true" ]; then
     echo "[STARTUP] FORCE_FRESH_DB=true - Running fresh database migration and seeding..."
-    php artisan migrate:fresh --seed --force || echo "[ERROR] Fresh migration/seeding failed, but continuing..."
+    php artisan migrate:fresh --seed --force || {
+      echo "[FATAL] Fresh migration/seeding failed. Refusing to start without a valid seeded database."
+      exit 1
+    }
   else
     # Check if migrations are needed
     SHOULD_MIGRATE="false"
@@ -252,7 +265,10 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     # Run seeding if needed
     if [ "$SHOULD_SEED" = "true" ]; then
       echo "[STARTUP] Running database seeding..."
-      php artisan db:seed --force --verbose 2>&1 | tee /tmp/seeder.log || echo "[ERROR] Seeding failed, but continuing..."
+      php artisan db:seed --force --verbose 2>&1 | tee /tmp/seeder.log || {
+        echo "[FATAL] Database seeding failed. Refusing to start without required seed data."
+        exit 1
+      }
       echo "[STARTUP] Seeding completed. Checking seeder logs..."
       if [ -f /tmp/seeder.log ]; then
         echo "[DEBUG] Seeder output:"

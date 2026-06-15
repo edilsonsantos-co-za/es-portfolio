@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
     volumes:
       - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
       # Explicit backup volume for easy access
       - ./storage/app/backups:/var/www/html/storage/app/backups
     networks:
@@ -25,3 +26,6 @@ services:
 networks:
   milkyway:
     external: true
+
+volumes:
+  node_modules:
