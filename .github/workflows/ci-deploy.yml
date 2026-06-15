@@ -75,7 +75,7 @@ jobs:
         id: image
         run: |
           VERSION="$(tr -d '[:space:]' < VERSION)"
-          RELEASE_TAG="v${VERSION}"
+          IMMUTABLE_TAG="sha-${GITHUB_SHA::12}"
           IMAGE_NAME="${DOCKERHUB_NAMESPACE}/${GITHUB_REPOSITORY#*/}"
 
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -84,7 +84,8 @@ jobs:
           fi
 
           echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
-          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "tag=$IMMUTABLE_TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -114,6 +115,9 @@ jobs:
           tags: |
             ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
             ${{ steps.image.outputs.name }}:latest
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.image.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -319,7 +323,7 @@ jobs:
               f"Author: {author_name}",
               f"Triggered by: {triggered_by}",
               f"Message: {commit_message}",
-              f"Release tag: {os.environ.get('IMAGE_TAG', 'n/a')}",
+              f"Image tag: {os.environ.get('IMAGE_TAG', 'n/a')}",
               f"Validate: {validate_result}",
               f"Build and publish: {build_result}",
               f"Deploy production: {deploy_result}",
