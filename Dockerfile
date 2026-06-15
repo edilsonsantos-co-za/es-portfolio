@@ -1,3 +1,5 @@
+FROM node:20.20.2-bookworm-slim AS node-runtime
+
 FROM php:8.2-apache AS base
 
 # Install system dependencies and PHP extensions in single layer
@@ -18,14 +20,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install Node.js and npm (always available for runtime asset building)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends nodejs && \
-    npm cache clean --force && \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.npm
+# Install Node.js and npm from the official Node image to avoid running
+# NodeSource apt setup during constrained Docker builds.
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+COPY --from=node-runtime /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node-runtime /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node-runtime /usr/local/bin/corepack /usr/local/bin/corepack
+COPY --from=node-runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -sf ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -sf ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+    && ln -sf ../lib/node_modules/corepack/dist/corepack.js /usr/local/bin/corepack
 
 # Configure Apache - using printf instead of echo to avoid shell issues
 RUN printf "ServerName localhost\n" >> /etc/apache2/apache2.conf && \
@@ -53,7 +57,8 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 
 # Install PHP dependencies (cached unless composer files change)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+RUN COMPOSER_CACHE_DIR=/tmp/composer-cache composer install --no-cache --no-dev --optimize-autoloader --no-interaction --no-scripts \
+    && rm -rf /tmp/composer-cache /root/.composer/cache
 
 # Copy startup script and make executable
 COPY bin/start-apache.sh /usr/local/bin/start-apache.sh
