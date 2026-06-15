@@ -62,10 +62,6 @@ const ZLayout = ({ children }) => {
         });
     }
 
-    const headerNavContentProps = layout === 'top' && !isMobile
-        ? { rightContentRender: () => <NavContent/> }
-        : { headerContentRender: () => <NavContent/> };
-
     const defaultProps = {
         title: siteName,
         navTheme: menuColor,
@@ -154,7 +150,6 @@ const ZLayout = ({ children }) => {
                 },
             ]
         },
-        ...headerNavContentProps,
     };
 
     const navigateToPath = (path) => {
@@ -188,6 +183,23 @@ const ZLayout = ({ children }) => {
                         >
                             {dom}
                         </a>
+                    )}
+                    headerRender={(props, defaultDom) => (
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                            {defaultDom}
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    height: '100%',
+                                    minWidth: 96,
+                                    zIndex: 1,
+                                }}
+                            >
+                                <NavContent/>
+                            </div>
+                        </div>
                     )}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: '24px' }}
