@@ -13,13 +13,52 @@ import {
   MailOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons';
-import { message } from 'antd';
-import NavContent from './NavContent';
+import Icon from '@ant-design/icons';
+import { Avatar, message } from 'antd';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
 import axios from 'axios';
+import styled from 'styled-components';
+import { CgMouse } from 'react-icons/cg';
+import AvatarDropdown from './AvatarDropdown';
 
 const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
 const normalizeNavTheme = (value) => (value === 'dark' || value === 'realDark' ? 'realDark' : 'light');
+
+const LayoutShell = styled.div`
+    height: 100vh;
+
+    .ant-pro-sider-actions {
+        display: none !important;
+    }
+
+    .ant-pro-sider-collapsed .ant-menu-item-icon,
+    .ant-pro-sider-collapsed .ant-menu-submenu-title .ant-menu-item-icon {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .ant-pro-sider-collapsed .ant-menu,
+    .ant-pro-sider-collapsed .ant-menu-item,
+    .ant-pro-sider-collapsed .ant-menu-submenu,
+    .ant-pro-sider-collapsed .ant-menu-submenu-title {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .ant-pro-sider-collapsed .ant-menu {
+        flex-direction: column;
+    }
+
+    .ant-pro-sider-collapsed .ant-menu-item,
+    .ant-pro-sider-collapsed .ant-menu-submenu-title {
+        justify-content: center;
+        padding-inline: 0 !important;
+    }
+`;
 
 const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
@@ -73,6 +112,9 @@ const ZLayout = ({ children }) => {
             setCollapsed(_collapsed)
         },
         logo: Utils.mediaUrl(logo),
+        menu: {
+            hideMenuWhenCollapsed: false,
+        },
         route: {
             routes: [
                 {
@@ -155,14 +197,17 @@ const ZLayout = ({ children }) => {
     const navigateToPath = (path) => {
         navigate(path);
     }
+
+    const headerActionsRender = () => [
+        <a href={Routes.web.frontend.home} target="_blank" rel="noreferrer" title="Visit Front Panel" key="front-panel">
+            <Avatar icon={<Icon component={CgMouse} />} size="small"/>
+        </a>,
+        <AvatarDropdown key="admin-profile"/>,
+    ];
     
     return (
         <React.Fragment>
-            <div
-                style={{
-                    height: '100vh',
-                }}
-            >
+            <LayoutShell>
                 <ProLayout
                     {...defaultProps}
                     location={location}
@@ -184,25 +229,14 @@ const ZLayout = ({ children }) => {
                             {dom}
                         </a>
                     )}
+                    actionsRender={headerActionsRender}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: '24px' }}
                 >
                     {children}
                     {/* <BackTop /> */}
                 </ProLayout>
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        right: 0,
-                        height: 56,
-                        minWidth: 96,
-                        zIndex: 1000,
-                    }}
-                >
-                    <NavContent/>
-                </div>
-            </div>
+            </LayoutShell>
         </React.Fragment>
     )
 }
