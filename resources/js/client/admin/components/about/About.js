@@ -6,7 +6,6 @@ import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import FileUploader from '../uploader/FileUploader';
 import Typed from 'typed.js';
-import QueueAnim from 'rc-queue-anim';
 import SocialLinkPopup from './SocialLinkPopup';
 import { DownloadOutlined } from '@ant-design/icons';
 import PageWrapper from '../layout/PageWrapper';
@@ -42,6 +41,25 @@ const pulseAnimation = keyframes`
 
 const AnimatedDiv = styled.div`
 animation: ${props => props.animate ? css`${pulseAnimation} 2s ease-in-out infinite;` : ''};
+`;
+
+const fadeIn = keyframes`
+from {
+opacity: 0;
+transform: translateX(20px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+`;
+
+const AnimatedList = styled.div`
+> div {
+animation: ${fadeIn} 0.3s ease-out forwards;
+animation-delay: ${props => props.index * 0.05}s;
+opacity: 0;
+}
 `;
 
 const { Title, Text, Paragraph } = Typography;
@@ -556,7 +574,7 @@ const About = () => {
                                     >
                                         {
                                             taglines.length ? (
-                                                <QueueAnim type={['right', 'left']} leaveReverse>
+                                                <AnimatedList>
                                                     {
                                                         taglines.map((item, index) => (
                                                             <div key={index}>
@@ -574,7 +592,7 @@ const About = () => {
                                                             </div>
                                                         ))
                                                     }
-                                                </QueueAnim>
+                                                </AnimatedList>
                                             ) : (
                                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                                             )
@@ -598,7 +616,7 @@ const About = () => {
                                     >
                                         {
                                             socialLinks.length ? (
-                                                <QueueAnim type={['right', 'left']} leaveReverse>
+                                                <AnimatedList>
                                                     {
                                                         socialLinks.map((item, index) => (
                                                             <div key={index}>
@@ -621,7 +639,7 @@ const About = () => {
                                                             </div>
                                                         ))
                                                     }
-                                                </QueueAnim>
+                                                </AnimatedList>
                                             ) : (
                                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                                             )
