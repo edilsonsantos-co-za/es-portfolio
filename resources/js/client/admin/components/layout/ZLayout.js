@@ -13,13 +13,11 @@ import {
   MailOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons';
-import Icon from '@ant-design/icons';
-import { Avatar, message } from 'antd';
+import { message } from 'antd';
+import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
 import axios from 'axios';
 import styled from 'styled-components';
-import { CgMouse } from 'react-icons/cg';
-import AvatarDropdown from './AvatarDropdown';
 
 const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
 const normalizeNavTheme = (value) => (value === 'dark' || value === 'realDark' ? 'realDark' : 'light');
@@ -58,6 +56,17 @@ const LayoutShell = styled.div`
         justify-content: center;
         padding-inline: 0 !important;
     }
+`;
+
+const AdminTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 56px;
+    margin: -24px -24px 24px;
+    padding: 0 16px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 `;
 
 const ZLayout = ({ children }) => {
@@ -197,13 +206,8 @@ const ZLayout = ({ children }) => {
     const navigateToPath = (path) => {
         navigate(path);
     }
-
-    const headerActionsRender = () => [
-        <a href={Routes.web.frontend.home} target="_blank" rel="noreferrer" title="Visit Front Panel" key="front-panel">
-            <Avatar icon={<Icon component={CgMouse} />} size="small"/>
-        </a>,
-        <AvatarDropdown key="admin-profile"/>,
-    ];
+    
+    const shouldRenderInlineTopBar = layout === 'side' && !isMobile;
     
     return (
         <React.Fragment>
@@ -229,10 +233,15 @@ const ZLayout = ({ children }) => {
                             {dom}
                         </a>
                     )}
-                    actionsRender={headerActionsRender}
+                    rightContentRender={!shouldRenderInlineTopBar ? () => <NavContent/> : false}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: '24px' }}
                 >
+                    {shouldRenderInlineTopBar && (
+                        <AdminTopBar>
+                            <NavContent/>
+                        </AdminTopBar>
+                    )}
                     {children}
                     {/* <BackTop /> */}
                 </ProLayout>
