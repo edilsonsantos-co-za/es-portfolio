@@ -61,12 +61,37 @@ const LayoutShell = styled.div`
 const AdminTopBar = styled.div`
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    min-height: 56px;
+    justify-content: space-between;
+    min-height: 64px;
     margin: -24px -24px 24px;
-    padding: 0 16px;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    padding: 0 24px;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.06);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+`;
+
+const TopBarTitle = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+`;
+
+const TopBarPrimaryText = styled.span`
+    color: rgba(0, 0, 0, 0.88);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+`;
+
+const TopBarSecondaryText = styled.span`
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 12px;
+    line-height: 18px;
 `;
 
 const ZLayout = ({ children }) => {
@@ -239,6 +264,10 @@ const ZLayout = ({ children }) => {
                 >
                     {shouldRenderInlineTopBar && (
                         <AdminTopBar>
+                            <TopBarTitle>
+                                <TopBarPrimaryText>{siteName}</TopBarPrimaryText>
+                                <TopBarSecondaryText>Administration</TopBarSecondaryText>
+                            </TopBarTitle>
                             <NavContent/>
                         </AdminTopBar>
                     )}
