@@ -249,7 +249,8 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
         echo "[STARTUP] Critical tables empty (Admins: $ADMIN_COUNT, About: $ABOUT_COUNT, Portfolio: $PORTFOLIO_COUNT) - will run seeding"
       elif [ "$ADMIN_COUNT" = "0" ]; then
         echo "[STARTUP] No admin users detected - running AdminSeeder only"
-        php artisan db:seed --class='Database\Seeders\AdminSeeder' --force --verbose 2>&1 | tee /tmp/admin-seeder.log
+        ADMIN_SEEDER_LOG="/var/www/html/storage/logs/admin-seeder.log"
+        php artisan db:seed --class='Database\Seeders\AdminSeeder' --force --verbose 2>&1 | tee "$ADMIN_SEEDER_LOG"
         ADMIN_COUNT=$(php artisan tinker --execute="echo App\Models\Admin::count();" 2>/dev/null | tail -n 1 | tr -d '\n' || echo "0")
         if [ "$ADMIN_COUNT" = "0" ]; then
           echo "[FATAL] AdminSeeder completed but no admin users exist. Refusing to start without an admin login."
@@ -265,14 +266,15 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     # Run seeding if needed
     if [ "$SHOULD_SEED" = "true" ]; then
       echo "[STARTUP] Running database seeding..."
-      php artisan db:seed --force --verbose 2>&1 | tee /tmp/seeder.log || {
+      SEEDER_LOG="/var/www/html/storage/logs/seeder.log"
+      php artisan db:seed --force --verbose 2>&1 | tee "$SEEDER_LOG" || {
         echo "[FATAL] Database seeding failed. Refusing to start without required seed data."
         exit 1
       }
       echo "[STARTUP] Seeding completed. Checking seeder logs..."
-      if [ -f /tmp/seeder.log ]; then
+      if [ -f "$SEEDER_LOG" ]; then
         echo "[DEBUG] Seeder output:"
-        cat /tmp/seeder.log
+        cat "$SEEDER_LOG"
       fi
     fi
   fi

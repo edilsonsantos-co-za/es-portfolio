@@ -172,7 +172,7 @@ jobs:
           envs: APP_IMAGE,APP_IMAGE_TAG,DEPLOY_PATH,DOCKERHUB_TOKEN,DOCKERHUB_USERNAME
           script: |
             set -euo pipefail
-            compose_file="$(mktemp /tmp/edfolio-deploy-compose.XXXXXX.yml)"
+            compose_file="${DEPLOY_PATH}/.edfolio-deploy-compose.yml"
             cleanup() {
               rm -f "$compose_file"
             }

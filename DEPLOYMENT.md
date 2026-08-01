@@ -6,7 +6,7 @@ Production deployment is now image-based and GitHub Actions-driven:
 
 1. `validate` runs the repository quality gates.
 2. `build-and-publish` builds frontend assets on the runner, packages them into the Docker image, and pushes the image to Docker Hub.
-3. `deploy-production` SSHes to the VPS, generates the current production Compose file in `/tmp`, pulls the requested image tag, and recreates `edfolio-prod`.
+3. `deploy-production` SSHes to the VPS, generates the current production Compose file under the deployment path, pulls the requested image tag, and recreates `edfolio-prod`.
 4. `notify-google-chat` posts a non-blocking deployment status message when `GOOGLE_CHAT_WEBHOOK_URL` is configured.
 
 This replaces the older "smart code injection / fast code update" approach. The current system always deploys immutable images.
