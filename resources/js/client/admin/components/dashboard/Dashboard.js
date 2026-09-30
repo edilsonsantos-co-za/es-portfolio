@@ -14,7 +14,7 @@ import { GiSecretBook } from 'react-icons/gi';
 import { AiOutlineTeam } from 'react-icons/ai';
 import { RiServiceLine, RiMessage3Line } from 'react-icons/ri';
 import { Tiny } from '@ant-design/plots';
-import RedditImageFetcher from 'reddit-image-fetcher';
+import fetchWallpaper from '../../../common/helpers/Wallpaper';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -135,11 +135,10 @@ const Dashboard = () => {
         setWallpaperError(null);
         setWallpaper(null);
 
-        RedditImageFetcher
-        .fetch({type: 'wallpaper'})
+        fetchWallpaper()
         .then(result => {
-            if (result.length) {
-                setWallpaper(result[0]);
+            if (result) {
+                setWallpaper(result);
             } else {
                 setWallpaperError('No wallpaper found');
             }
@@ -605,7 +604,7 @@ const Dashboard = () => {
                             >
                                 <Card.Meta
                                     title={<React.Fragment><small>Daily Wallpaper {demoMode && (
-                                        <a href="https://github.com/arifszn/reddit-image-fetcher" target="_blank" rel="noreferrer"><InfoCircleOutlined style={{paddingLeft: '2px', color: 'rgba(0, 0, 0, 0.45)'}}/></a>
+                                        <a href="https://www.reddit.com/r/wallpaper" target="_blank" rel="noreferrer"><InfoCircleOutlined style={{paddingLeft: '2px', color: 'rgba(0, 0, 0, 0.45)'}}/></a>
                                     )}</small></React.Fragment>}
                                     description={
                                         <div onClick={getWallpaper} style={{cursor: 'pointer'}}><small>{wallpaper ? 'Get Another' : 'Load Wallpaper'}</small></div>
