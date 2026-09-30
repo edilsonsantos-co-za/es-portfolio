@@ -17,54 +17,61 @@ import { Pie, WordCloud } from '@ant-design/plots';
 
 const { confirm } = Modal;
 
+// Configs target @ant-design/plots v2 (G2 v5); v1 options such as
+// `statistic`, `wordField` and `d.percent` are silently ignored there.
+const formatPercent = (datum, index, data) => {
+    const total = Array.isArray(data)
+        ? data.reduce((sum, item) => sum + (Number(item && item.value) || 0), 0)
+        : 0;
+    const value = Number(datum && datum.value) || 0;
+
+    return total > 0 ? `${Math.round((value / total) * 100)}%` : '0%';
+};
+
 const pieConfig = {
-    appendPadding: 10,
     angleField: 'value',
     colorField: 'name',
-    radius: 1,
     height: 200,
+    autoFit: true,
+    radius: 1,
     innerRadius: 0.6,
     label: {
         position: 'inside',
-        autoRotate: false,
-        text: (d) => {
-            const percent = Number(d && d.percent);
-
-            return `${Number.isFinite(percent) ? (percent * 100).toFixed(0) : '0'}%`;
-        },
+        text: formatPercent,
         style: {
-            textAlign: 'center',
-            fontSize: 14,
+            fontSize: 12,
+            fontWeight: 'bold',
             fill: '#fff',
         },
     },
-    interactions: [{ type: 'element-selected' }, { type: 'element-active' }],
-    statistic: {
-        title: false,
-        content: {
-            style: {
-                whiteSpace: 'pre-wrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-            },
-            formatter: function formatter() {
-                return '';
-            },
+    legend: {
+        color: {
+            title: false,
+            position: 'right',
+            rowPadding: 5,
         },
+    },
+    tooltip: {
+        title: 'name',
+        items: [{ field: 'value', name: 'Visitors' }],
     },
 };
 
 const wordCloudConfig = {
-    wordField: 'name',
-    weightField: 'value',
+    textField: 'name',
     colorField: 'name',
-    wordStyle: {
-        fontFamily: 'Verdana',
-        fontSize: [8, 32],
-        rotation: 0,
+    autoFit: true,
+    layout: {
+        spiral: 'rectangular',
+        fontSize: [14, 48],
+        rotate: 0,
+        padding: 2,
+        random: () => 0.5,
     },
-    random: function random() {
-        return 0.5;
+    legend: false,
+    tooltip: {
+        title: 'name',
+        items: [{ field: 'value', name: 'Visitors' }],
     },
 };
 
