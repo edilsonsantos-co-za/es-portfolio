@@ -24,10 +24,12 @@ class AdminSeeder extends Seeder
         try {
             $adminService= resolve(AdminInterface::class);
 
+            [$email, $password] = $this->resolveCredentials();
+
             $result = $adminService->handleSignup([
-                'email' => 'admin@admin.com',
-                'password' => '12345',
-                'password_confirmation' => '12345',
+                'email' => $email,
+                'password' => $password,
+                'password_confirmation' => $password,
             ]);
 
             if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
@@ -153,5 +155,31 @@ class AdminSeeder extends Seeder
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
         }
+    }
+
+    /**
+     * Admin credentials come from ADMIN_EMAIL / ADMIN_PASSWORD. Production never
+     * falls back to the well-known demo password.
+     *
+     * @return array{0: string, 1: string}
+     * @throws Exception
+     */
+    private function resolveCredentials(): array
+    {
+        $email = env('ADMIN_EMAIL') ?: 'admin@admin.com';
+        $password = env('ADMIN_PASSWORD');
+
+        if (empty($password)) {
+            if (app()->environment('production')) {
+                $message = 'ADMIN_PASSWORD must be set to seed the production admin account.';
+                $this->command?->error($message);
+
+                throw new Exception($message);
+            }
+
+            $password = '12345';
+        }
+
+        return [$email, $password];
     }
 }

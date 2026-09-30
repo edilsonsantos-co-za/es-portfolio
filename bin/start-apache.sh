@@ -367,6 +367,13 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     echo "[STARTUP] JWT_SECRET already set, skipping generation"
   fi
   
+  if [ "$APP_ENV_ACTUAL" = "production" ]; then
+    echo "[STARTUP] Auditing admin accounts for default passwords..."
+    if ! php artisan admin:password --check-default; then
+      echo "[SECURITY WARNING] An admin account uses a default password. Rotate it now: php artisan admin:password <email>"
+    fi
+  fi
+
   # Ensure About record exists for portfolio to work properly
   echo "[STARTUP] Ensuring About record exists..."
   php artisan tinker --execute="
