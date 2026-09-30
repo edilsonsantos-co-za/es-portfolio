@@ -1,30 +1,16 @@
 #!/usr/bin/env bash
+# commit-authorship-guard
+# Rejects Co-authored-by trailers so history keeps a single author.
 set -euo pipefail
 
-MSG_FILE="$1"
-MSG_CONTENT="$(cat "$MSG_FILE")"
-SUBJECT="$(printf '%s' "$MSG_CONTENT" | head -n1)"
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
 
-if printf '%s\n' "$MSG_CONTENT" | grep -q '^Co-authored-by:'; then
-  printf 'Commit messages must not include Co-authored-by trailers.\n' >&2
-  exit 1
-fi
+./.githooks/check-commit-identity.sh message "$1"
 
-if printf '%s\n' "$SUBJECT" | grep -Eq '^(v[0-9]+\.[0-9]+\.[0-9]+|chore\(release\): v[0-9]+\.[0-9]+\.[0-9]+|(feat|fix|docs|refactor|test|chore)(\([^)]+\))?!?: .+)$'; then
-  exit 0
-fi
-
-cat >&2 <<'EOF'
-Commit message format not allowed.
-
-Allowed formats:
-- feat: ...
-- fix: ...
-- docs: ...
-- refactor: ...
-- test: ...
-- chore: ...
-- chore(release): vX.Y.Z
-- vX.Y.Z
-EOF
-exit 1
+# ─── Delegate to pre-existing hook implementations ───────────────────────────
+for legacy in ".githooks/legacy/commit-msg" ".husky/commit-msg"; do
+    if [[ -x "$legacy" ]]; then
+        "$legacy" "$@" </dev/null
+    fi
+done

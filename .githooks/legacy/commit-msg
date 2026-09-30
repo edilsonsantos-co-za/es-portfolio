@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MSG_FILE="$1"
+MSG_CONTENT="$(cat "$MSG_FILE")"
+SUBJECT="$(printf '%s' "$MSG_CONTENT" | head -n1)"
+
+if printf '%s\n' "$MSG_CONTENT" | grep -q '^Co-authored-by:'; then
+  printf 'Commit messages must not include Co-authored-by trailers.\n' >&2
+  exit 1
+fi
+
+if printf '%s\n' "$SUBJECT" | grep -Eq '^(v[0-9]+\.[0-9]+\.[0-9]+|chore\(release\): v[0-9]+\.[0-9]+\.[0-9]+|(feat|fix|docs|refactor|test|chore)(\([^)]+\))?!?: .+)$'; then
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+Commit message format not allowed.
+
+Allowed formats:
+- feat: ...
+- fix: ...
+- docs: ...
+- refactor: ...
+- test: ...
+- chore: ...
+- chore(release): vX.Y.Z
+- vX.Y.Z
+EOF
+exit 1
