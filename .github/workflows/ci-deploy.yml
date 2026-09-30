@@ -45,7 +45,9 @@ jobs:
 
   build-and-publish:
     needs: validate
-    if: github.ref == 'refs/heads/main'
+    # Manual only: production is now built and deployed on the server
+    # (docker-compose.prod.yml), and the Docker Hub repo is no longer private.
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.image.outputs.tag }}
@@ -239,7 +241,7 @@ jobs:
       - validate
       - build-and-publish
       - deploy-production
-    if: always() && github.ref == 'refs/heads/main'
+    if: always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}

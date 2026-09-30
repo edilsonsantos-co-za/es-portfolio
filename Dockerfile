@@ -1,5 +1,15 @@
 FROM node:20.20.2-bookworm-slim AS node-runtime
 
+# Build frontend assets inside the image so a plain server checkout (where
+# public/build is gitignored) can produce a complete production image.
+FROM node-runtime AS assets
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps --no-audit --no-fund
+COPY vite.config.js ./
+COPY resources ./resources
+RUN NODE_OPTIONS="--max-old-space-size=768" npm run build
+
 FROM php:8.2-apache AS base
 
 # Install system dependencies and PHP extensions in single layer
@@ -66,6 +76,7 @@ RUN chmod +x /usr/local/bin/start-apache.sh
 
 # Copy application code (invalidates cache when code changes)
 COPY . .
+COPY --from=assets /app/public/build ./public/build
 
 # Frontend assets are built in CI before the Docker build and copied in from
 # the workspace so the image build stays within GitHub Actions memory limits.

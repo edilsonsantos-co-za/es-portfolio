@@ -1,5 +1,23 @@
 # Deployment System
 
+## Server-side deploy (current)
+
+Production is built directly on the VPS from the git checkout; no registry or
+GitHub Actions minutes are needed. The Dockerfile compiles frontend assets itself.
+
+```bash
+cd /workspace/edilsonsantos-co-za/edfolio
+git pull
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml logs -f app   # watch startup
+```
+
+`.env.prod` lives only in this directory on the server (it is gitignored).
+Rollback: `git checkout <previous-commit>` and rerun the `up -d --build` command.
+
+The GitHub Actions publish/deploy jobs below now run only via manual
+`workflow_dispatch`.
+
 ## Overview
 
 Production deployment is now image-based and GitHub Actions-driven:
