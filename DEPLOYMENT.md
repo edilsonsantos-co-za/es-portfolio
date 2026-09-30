@@ -58,6 +58,17 @@ CREATE_DB_BACKUP=true
 REQUIRE_DB_ON_BOOT=true
 ```
 
+### Runtime secrets
+
+Environment files are **not** committed or baked into the image. The only source of
+production configuration is `${DEPLOY_PATH}/.env.prod` on the VPS, loaded via
+`env_file`. Use `.env.prod.example` as the template. The container refuses to boot
+in production unless `APP_KEY`, `JWT_SECRET`, `DB_HOST`, `DB_DATABASE`,
+`DB_USERNAME` and `DB_PASSWORD` are set there.
+
+When `CREATE_DB_BACKUP=true` and the backup fails, startup aborts before running
+`migrate:fresh` or pending migrations instead of changing the schema unprotected.
+
 The application can force HTTPS URL generation, but only when the public hostname is actually backed by a valid certificate at the reverse proxy.
 
 Recommended `.env.prod` pattern:

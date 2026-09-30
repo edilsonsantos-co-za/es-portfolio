@@ -4,8 +4,9 @@ Complete Docker-based development setup with all required services.
 
 ## Quick Start
 
-1. **Setup environment**:
+1. **Setup environment** (env files are gitignored; start from the template):
    ```bash
+   cp .env.dev.example .env.dev   # then fill in the secrets
    ./bin/create-env.sh dev
    ```
 

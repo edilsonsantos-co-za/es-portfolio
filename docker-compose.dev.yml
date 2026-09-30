@@ -18,7 +18,8 @@ services:
     environment:
       # Docker startup behavior for development
       - SKIP_ASSET_BUILD=false
-      - FORCE_FRESH_DB=true
+      # Set to true to drop and reseed the shared dev database on start
+      - FORCE_FRESH_DB=${FORCE_FRESH_DB:-false}
       - CREATE_DB_BACKUP=true
       - RUN_MIGRATIONS=auto
       - RUN_SEEDING=auto

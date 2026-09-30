@@ -32,6 +32,17 @@ echo "[DEBUG] RUN_SEEDING='$RUN_SEEDING'"
 echo "[DEBUG] REQUIRE_DB_ON_BOOT='$REQUIRE_DB_ON_BOOT'"
 echo "[DEBUG] APP_ENV='$APP_ENV_ACTUAL'"
 
+# Resolve a setting from the container environment first (runtime secrets are
+# injected via env_file), then fall back to the .env file if one exists.
+env_value() {
+  local name="$1" value
+  value="${!name:-}"
+  if [ -z "$value" ] && [ -f .env ]; then
+    value=$(grep "^${name}=" .env | tail -n 1 | cut -d'=' -f2- || true)
+  fi
+  printf '%s' "$value"
+}
+
 # Set up environment using new system
 if [ "$APP_ENV_ACTUAL" = "development" ]; then
   SOURCE_ENV="dev"
@@ -39,8 +50,13 @@ else
   SOURCE_ENV="prod"
 fi
 
-echo "[STARTUP] Setting up $APP_ENV_ACTUAL environment using create-env.sh..."
-if [ -f "./bin/create-env.sh" ]; then
+echo "[STARTUP] Setting up $APP_ENV_ACTUAL environment..."
+if [ ! -f ".env.$SOURCE_ENV" ]; then
+  # Env templates are not shipped in the image; configuration comes from the
+  # container environment (env_file). Laravel only needs an .env to exist.
+  echo "[STARTUP] .env.$SOURCE_ENV not present; using container environment variables"
+  [ -f .env ] || : > .env
+elif [ -f "./bin/create-env.sh" ]; then
   chmod +x ./bin/create-env.sh
   echo "[DEBUG] Running: ./bin/create-env.sh $SOURCE_ENV"
   ./bin/create-env.sh "$SOURCE_ENV" || {
@@ -86,7 +102,7 @@ mkdir -p \
   /var/www/html/storage/app/public/favicon \
   /var/www/html/storage/app/public/meta-image \
   /var/www/html/storage/app/backups \
-  /var/www/html/storage/framework/cache \
+  /var/www/html/storage/framework/cache/data \
   /var/www/html/storage/framework/sessions \
   /var/www/html/storage/framework/views \
   /var/www/html/storage/logs
@@ -156,6 +172,27 @@ else
   echo "[STARTUP] Skipping asset build - package.json missing"
 fi
 
+# Destructive schema changes must not run when the requested backup failed.
+require_backup_before() {
+  if [ "${BACKUP_FAILED:-false}" = "true" ]; then
+    echo "[FATAL] Database backup failed; refusing to run $1 without it. Fix the backup or set CREATE_DB_BACKUP=false to override."
+    exit 1
+  fi
+}
+
+# Refuse to boot production without its runtime secrets.
+if [ "$APP_ENV_ACTUAL" = "production" ]; then
+  MISSING_VARS=""
+  for required in APP_KEY JWT_SECRET DB_HOST DB_DATABASE DB_USERNAME DB_PASSWORD; do
+    [ -n "$(env_value "$required")" ] || MISSING_VARS="$MISSING_VARS $required"
+  done
+  if [ -n "$MISSING_VARS" ]; then
+    echo "[FATAL] Missing required production settings:$MISSING_VARS"
+    echo "[FATAL] Provide them via the deploy env_file (\${DEPLOY_PATH}/.env.prod)."
+    exit 1
+  fi
+fi
+
 # Wait for external MySQL database to be available
 echo "[STARTUP] Waiting for MySQL database at $DB_HOST to be ready..."
 for i in {1..30}; do
@@ -185,12 +222,18 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     BACKUP_FILE="$BACKUP_DIR/edfolio_backup_$(date +%Y%m%d_%H%M%S).sql"
     echo "[STARTUP] Creating backup at: $BACKUP_FILE"
     
-    mysqldump -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE" || {
+    # --skip-ssl matches the mysqladmin checks above; the MariaDB client
+    # otherwise fails certificate verification against the internal DB.
+    if mysqldump --skip-ssl --single-transaction -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE.partial" \
+      && [ -s "$BACKUP_FILE.partial" ]; then
+      mv "$BACKUP_FILE.partial" "$BACKUP_FILE"
+    else
       echo "[WARNING] Database backup failed"
+      rm -f "$BACKUP_FILE.partial"
       BACKUP_FILE=""
-    }
+    fi
     
-    if [ -n "$BACKUP_FILE" ] && [ -f "$BACKUP_FILE" ]; then
+    if [ -n "$BACKUP_FILE" ] && [ -s "$BACKUP_FILE" ]; then
       BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
       echo "[SUCCESS] Database backup saved to: $BACKUP_FILE (Size: $BACKUP_SIZE)"
       
@@ -199,12 +242,14 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
       find "$BACKUP_DIR" -name "edfolio_backup_*.sql" -type f | sort | head -n -10 | xargs rm -f || echo "[WARNING] Backup cleanup failed"
     else
       echo "[ERROR] Backup file creation failed or file is empty"
+      BACKUP_FAILED=true
     fi
   fi
   
   # Smart database management
   if [ "$FORCE_FRESH_DB" = "true" ]; then
     echo "[STARTUP] FORCE_FRESH_DB=true - Running fresh database migration and seeding..."
+    require_backup_before "migrate:fresh"
     php artisan migrate:fresh --seed --force || {
       echo "[FATAL] Fresh migration/seeding failed. Refusing to start without a valid seeded database."
       exit 1
@@ -230,6 +275,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     # Run migrations if needed
     if [ "$SHOULD_MIGRATE" = "true" ]; then
       echo "[STARTUP] Running database migrations..."
+      require_backup_before "migrations"
       php artisan migrate --force || echo "[ERROR] Migration failed, but continuing..."
     fi
 
@@ -297,7 +343,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   
   # Only generate key if APP_KEY is empty or missing
   echo "[STARTUP] Checking application key..."
-  if grep -q "^APP_KEY=$" .env || ! grep -q "^APP_KEY=" .env || [ -z "$(grep '^APP_KEY=' .env | cut -d'=' -f2)" ]; then
+  if [ -z "$(env_value APP_KEY)" ]; then
     echo "[STARTUP] Generating application key..."
     php artisan key:generate --force || echo "[ERROR] Key generation failed, but continuing..."
   else
@@ -305,7 +351,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
   fi
   
   echo "[STARTUP] Checking JWT secret..."
-  JWT_SECRET_VALUE=$(grep '^JWT_SECRET=' .env | tail -n 1 | cut -d'=' -f2- || true)
+  JWT_SECRET_VALUE=$(env_value JWT_SECRET)
 
   if [ -z "$JWT_SECRET_VALUE" ]; then
     if [ "$APP_ENV_ACTUAL" = "production" ]; then
