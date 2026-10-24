@@ -220,6 +220,11 @@ const templates = [
         title: 'Azure',
         image: window.location.origin + '/' +'assets/common/img/templates/azure.png',
     },
+    {
+        id: 'orion',
+        title: 'Orion',
+        image: window.location.origin + '/' +'assets/common/img/templates/orion.png',
+    },
 ];
 
 /**
