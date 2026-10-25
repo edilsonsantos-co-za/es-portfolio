@@ -60,6 +60,12 @@ class FrontendController extends Controller
 
         $template = $data['portfolioConfig']['template'];
 
+        // Outside production, ?theme=<name> previews another theme without changing the saved setting
+        $preview = (string) $request->query('theme', '');
+        if (!app()->environment('production') && preg_match('/^[a-z]+$/', $preview) && view()->exists('frontend.theme.'.$preview)) {
+            $template = $preview;
+        }
+
         return view('frontend.theme.'.$template, $data);
     }
 

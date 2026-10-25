@@ -225,6 +225,31 @@ const templates = [
         title: 'Orion',
         image: window.location.origin + '/' +'assets/common/img/templates/orion.png',
     },
+    {
+        id: 'nova',
+        title: 'Nova',
+        image: window.location.origin + '/' +'assets/common/img/templates/nova.png',
+    },
+    {
+        id: 'altair',
+        title: 'Altair',
+        image: window.location.origin + '/' +'assets/common/img/templates/altair.png',
+    },
+    {
+        id: 'lyra',
+        title: 'Lyra',
+        image: window.location.origin + '/' +'assets/common/img/templates/lyra.png',
+    },
+    {
+        id: 'atlas',
+        title: 'Atlas',
+        image: window.location.origin + '/' +'assets/common/img/templates/atlas.png',
+    },
+    {
+        id: 'sirius',
+        title: 'Sirius',
+        image: window.location.origin + '/' +'assets/common/img/templates/sirius.png',
+    },
 ];
 
 /**
