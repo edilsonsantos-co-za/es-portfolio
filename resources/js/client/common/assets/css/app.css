@@ -133,9 +133,9 @@ body .ant-menu-submenu-title:active {
     background: var(--primary-shadow-color);
 }
 
-/* Admin content area padding */
+/* Admin content area: padding lives on .atlas-content so the top bar can sit flush */
 .ant-pro-layout-content {
-    padding: 24px !important;
+    padding: 0 !important;
 }
 
 /*#endregion And Design Custom*/

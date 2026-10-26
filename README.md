@@ -1,45 +1,54 @@
 # EdFolio
 
-A modern, full-stack portfolio application built with Laravel and React, designed for developers and creatives to showcase their work professionally.
+A self-hosted developer portfolio with a content admin panel, built with Laravel 12 and React 19.
 
-> **Note:** This project is a fork of [ezfolio](https://github.com/arifszn/ezfolio) by [arifszn](https://github.com/arifszn).
+> EdFolio is a maintained fork of [ezfolio](https://github.com/arifszn/ezfolio) by [Ariful Alam (arifszn)](https://github.com/arifszn).
+> The original gave it its shape: a Laravel API, a React admin and Blade portfolio themes. This fork brings the stack
+> up to date, hardens it for production and adds a new design and single sign-on. Credit for the original design and
+> idea goes to the upstream project.
 
-## About
+## What this fork adds
 
-EdFolio is a comprehensive portfolio management system that combines the power of Laravel's backend with React's dynamic frontend. Whether you're a developer, designer, or creative professional, EdFolio provides all the tools you need to build and manage a professional online presence.
+**A current stack, upgraded step by step**
+- Laravel 12 on PHP 8.2, reached through Laravel 10 and 11 one release at a time
+- React 19, Ant Design 6, React Router 7 and Redux 5; Laravel Mix replaced by Vite
+- Node 20 toolchain, ESLint and pinned dependency audits
 
-## Tech Stack
+**Production hardening**
+- Docker images for development and production, with health and readiness endpoints
+- Operational routes locked down (the bundled log viewer is removed), native CORS middleware
+- Database readiness probe, additive indexes, JSON shadow columns, and production data that is never reseeded on container restart
+- A pre-push validation hook (lint, build, compose checks) and feature tests for the hardened routes
 
-### Backend
-- **Laravel 12** - PHP framework for robust backend API
-- **MySQL** - Primary database
-- **Redis** - Caching and session management
-- **JWT Authentication** - Secure admin authentication
+**One design: Atlas**
+- The portfolio, the admin panel and its sign-in page share one look: a bento grid with a live local clock, an
+  availability tile and stack meters on the public page, with light and dark modes and `prefers-reduced-motion` support
+- Other themes (the original Azure, Rigel, Vega and Procyon, and the Orion family) moved to the separate ES
+  Marketplace repository. The public site links to the store with `STORE_URL`.
 
-### Frontend
-- **React 18** - Modern UI library
-- **Ant Design** - Professional UI component library
-- **Redux** - State management
-- **React Router** - Client-side routing
-- **Styled Components** - CSS-in-JS styling
-
-### Infrastructure
-- **Docker** - Containerized development and production environments
-- **Apache** - Web server
-- **Vite** - Asset compilation and bundling
+**Single sign-on (optional)**
+- Admin sign-in through [Logto](https://logto.io) using OpenID Connect (authorization code + PKCE), with no extra packages
+- Only existing admins can sign in: the verified email must match an admin account. Accounts are never created automatically.
+- With SSO configured, `/admin/login` goes straight to the SSO sign-in page and signing out also ends the SSO session.
+  The password form is only shown on installs without SSO.
+- Enabled by setting `LOGTO_ENDPOINT`, `LOGTO_APP_ID` and `LOGTO_APP_SECRET`. Password login keeps working alongside it.
 
 ## Features
 
-- **Portfolio Management** - Showcase projects with descriptions, images, and links
-- **Experience Timeline** - Display professional work history
-- **Education Section** - Highlight academic achievements
-- **Skills Management** - Organize and display technical skills
-- **Services Offered** - List professional services
-- **Contact Form** - Integrated messaging system
-- **Admin Dashboard** - Full-featured admin panel for content management
-- **Visitor Analytics** - Track portfolio visits and engagement
-- **Theme Customization** - Dynamic theming support
-- **Responsive Design** - Mobile-first, fully responsive layout
+- Projects, experience, education, skills and services, all managed from the admin panel
+- Contact form with an inbox in the admin, and visitor analytics
+- Admin accent colour, logo and favicon set from the settings screen
+- Blog link in the navigation when `BLOG_URL` is set
+- Responsive, mobile-first layouts
+
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| Backend | Laravel 12, PHP 8.2, MySQL, JWT (tymon/jwt-auth) |
+| Admin | React 19, Ant Design 6, Redux 5, React Router 7, Vite |
+| Portfolio | Blade themes with plain CSS and JavaScript (no build step) |
+| Runtime | Docker, Apache |
 
 ## Local Development
 
@@ -133,7 +142,18 @@ CREATE_DB_BACKUP=true               # Backup before migrations
 
 # Build behavior
 SKIP_ASSET_BUILD=false              # Skip frontend asset building
+
+# Optional integrations
+BLOG_URL=                           # Adds a Blog link to the public site
+STORE_URL=                          # Store link; defaults to https://store.edilsonsantos.co.za when unset, empty hides it
+LOGTO_ENDPOINT=                     # e.g. https://auth.example.com (enables SSO with the two below)
+LOGTO_APP_ID=
+LOGTO_APP_SECRET=
+LOGTO_INTERNAL_ENDPOINT=            # Optional server-to-server URL, e.g. http://logto:3001 in Docker
 ```
+
+To set up SSO, create a **Traditional web** application in Logto with the redirect URI
+`<APP_URL>/auth/sso/callback` and the post sign-out redirect URI `<APP_URL>/`.
 
 Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated with a valid HTTPS certificate and your proxy forwards the usual `X-Forwarded-*` headers. Leaving it `false` prevents Laravel from rewriting every asset URL to `https://` on hosts that are still serving plain HTTP or have incomplete TLS setup.
 

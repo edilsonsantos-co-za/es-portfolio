@@ -18,6 +18,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/login', ['App\Http\Controllers\Admin\Api\AdminController', 'login']);
         Route::post('/forget-password', ['App\Http\Controllers\Admin\Api\AdminController', 'forgetPassword']);
         Route::post('/reset-password', ['App\Http\Controllers\Admin\Api\AdminController', 'resetPassword']);
+        Route::post('/sso/exchange', ['App\Http\Controllers\Auth\SsoController', 'exchange']);
 
         Route::group(['middleware' => ['jwt.verify']], function () {
             Route::post('/refresh-token', ['App\Http\Controllers\Admin\Api\AdminController', 'refreshToken'])->name('refresh-token');

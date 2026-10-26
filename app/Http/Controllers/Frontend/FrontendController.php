@@ -58,9 +58,7 @@ class FrontendController extends Controller
             return view('frontend.maintenance', $data);
         }
 
-        $template = $data['portfolioConfig']['template'];
-
-        return view('frontend.theme.'.$template, $data);
+        return view('frontend.theme.atlas', $data);
     }
 
     /**

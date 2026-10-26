@@ -30,9 +30,9 @@ const AvatarDropdown = () => {
     return (
         <React.Fragment>
             <Dropdown menu={menuItems} trigger={['click']}>
-                <span>
-                    <Avatar icon={<UserOutlined />} size="small" alt="avatar" />
-                </span>
+                <button type="button" className="atlas-icon-btn" aria-label="Account menu" title="Account">
+                    <Avatar icon={<UserOutlined />} size={26} alt="avatar" />
+                </button>
             </Dropdown>
         </React.Fragment>
     );

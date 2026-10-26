@@ -153,7 +153,7 @@ class PortfolioConfigService implements PortfolioConfigInterface
                 if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
                     $data['template'] = $result['payload']->setting_value;
                 } else {
-                    $data['template'] = 'procyon';
+                    $data['template'] = 'atlas';
                 }
             }
 

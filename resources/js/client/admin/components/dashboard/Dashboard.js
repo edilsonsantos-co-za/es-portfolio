@@ -1,50 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
-import { Card, Col, Image, notification, Row, Spin, Typography, Space } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import Icon from '@ant-design/icons';
-import { BiArchive } from 'react-icons/bi';
-import StatCard from './StatCard';
+import { Skeleton } from 'antd';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { GoKey } from 'react-icons/go';
 import { BsBriefcase } from 'react-icons/bs';
 import { GiSecretBook } from 'react-icons/gi';
+import { BiArchive } from 'react-icons/bi';
 import { AiOutlineTeam } from 'react-icons/ai';
 import { RiServiceLine, RiMessage3Line } from 'react-icons/ri';
-import { Tiny } from '@ant-design/plots';
-import RedditImageFetcher from 'reddit-image-fetcher';
-import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
-const { Text } = Typography;
+const formatNumber = (value) => new Intl.NumberFormat().format(value || 0);
 
-const imageHeight = 155;
+/**
+ * Smooth area sparkline drawn in the accent colour; scales to its container.
+ */
+const Sparkline = ({ values }) => {
+    const width = 600;
+    const height = 90;
+    const max = Math.max(...values, 1);
+    const step = values.length > 1 ? width / (values.length - 1) : width;
+    const points = values.map((v, i) => [i * step, height - 4 - (v / max) * (height - 12)]);
+    const line = points.map(([x, y], i) => {
+        if (i === 0) {
+            return `M${x},${y}`;
+        }
+        const [px, py] = points[i - 1];
+        const cx = (px + x) / 2;
+        return `C${cx},${py} ${cx},${y} ${x},${y}`;
+    }).join(' ');
 
-const imageStyle = {
-    objectFit: 'cover',
-    opacity: '0.8'
-}
+    return (
+        <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" width="100%" height={height} aria-hidden="true">
+            <defs>
+                <linearGradient id="atlas-spark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--accent)" stopOpacity=".28"/>
+                    <stop offset="100%" stopColor="var(--accent)" stopOpacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d={`${line} L${width},${height} L0,${height} Z`} fill="url(#atlas-spark)"/>
+            <path d={line} fill="none" stroke="var(--accent)" strokeWidth="2.5" vectorEffect="non-scaling-stroke"/>
+        </svg>
+    );
+};
 
-const WallpaperLoading = styled.div`
-    background: ghostwhite;
-    width: 100%;
-    height: ${imageHeight}px;
-    align-items: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    display: inline-flex;
-`;
+Sparkline.propTypes = {
+    values: PropTypes.arrayOf(PropTypes.number).isRequired,
+};
 
+/**
+ * Atlas dashboard: content counts, visitor and message activity, and the site theme.
+ */
 const Dashboard = () => {
     let navigate = useNavigate();
-
-    const [wallpaper, setWallpaper] = useState(null);
-    const [wallpaperLoading, setWallpaperLoading] = useState(false);
-    const [wallpaperError, setWallpaperError] = useState(null);
-    const { demoMode } = useSelector(state => state.globalState);
+    const { siteName } = useSelector(state => state.globalState);
 
     const todayStartDateUtc = moment.utc(moment().startOf('day')).format('YYYY-MM-DD HH:mm:ss');
     const todayEndDateUtc = moment.utc(moment().endOf('day')).format('YYYY-MM-DD HH:mm:ss');
@@ -57,100 +70,17 @@ const Dashboard = () => {
 
     const [loading, setLoading] = useState(true);
 
-    const [visitorData, setVisitorData] = useState({
-        total: 0,
-        today: 0,
-        thisWeek: 0,
-        thisMonth: 0,
-        trend: []
-    });
-    const [messageData, setMessageData] = useState({
-        total: 0,
-        today: 0,
-        thisWeek: 0,
-        thisMonth: 0,
-    });
-
-    const [skillData, setSkillData] = useState({
-        total: 0
-    });
-
-    const [educationData, setEducationData] = useState({
-        total: 0
-    });
-
-    const [experienceData, setExperienceData] = useState({
-        total: 0
-    });
-
-    const [projectData, setProjectData] = useState({
-        total: 0
-    });
-
-    const [servicesData, setServicesData] = useState({
-        total: 0
-    });
-
-    const [currentTemplate, setCurrentTemplate] = useState(null);
-
-    const [colors, setColors] = useState({});
+    const [visitorData, setVisitorData] = useState({ total: 0, today: 0, thisWeek: 0, thisMonth: 0, trend: [] });
+    const [messageData, setMessageData] = useState({ total: 0, today: 0, thisWeek: 0, thisMonth: 0 });
+    const [skillData, setSkillData] = useState({ total: 0 });
+    const [educationData, setEducationData] = useState({ total: 0 });
+    const [experienceData, setExperienceData] = useState({ total: 0 });
+    const [projectData, setProjectData] = useState({ total: 0 });
+    const [servicesData, setServicesData] = useState({ total: 0 });
 
     useEffect(() => {
-        setColors({
-            skill: Utils.randomHexColor(),
-            education: Utils.randomHexColor(),
-            experience: Utils.randomHexColor(),
-            project: Utils.randomHexColor(),
-            service: Utils.randomHexColor(),
-            visitor: Utils.randomHexColor(),
-            message: Utils.randomHexColor(),
-        })
         loadData();
-
-        if (demoMode) {
-            notification.open({
-                message: (
-                    <div className="text-center">
-                    </div>
-                ),
-                description: <React.Fragment>
-                    <Space direction="vertical" size="middle">
-                        <div className="text-center">
-                            Welcome to edfolio!
-                        </div>
-                        <div className="text-center">
-                            <a href={Routes.web.frontend.home} target="_blank" rel="noreferrer">Visit Front Panel</a>
-                        </div>
-                    </Space>
-                </React.Fragment>,
-                placement: 'bottomRight',
-                duration: 0,
-                key: 'star-notification'
-            });
-        }
     }, []);
-
-    const getWallpaper = () => {
-        setWallpaperLoading(true);
-        setWallpaperError(null);
-        setWallpaper(null);
-
-        RedditImageFetcher
-        .fetch({type: 'wallpaper'})
-        .then(result => {
-            if (result.length) {
-                setWallpaper(result[0]);
-            } else {
-                setWallpaperError('No wallpaper found');
-            }
-        })
-        .catch(() => {
-            setWallpaperError('Wallpaper unavailable');
-        })
-        .finally(() => {
-            setWallpaperLoading(false);
-        });
-    }
 
     const loadData = (_loading = true) => {
         setLoading(_loading);
@@ -224,11 +154,6 @@ const Dashboard = () => {
                         total: result.services.total,
                     });
 
-                    //template
-                    const filteredArray = Utils.templates.filter(template => template.id === result.currentTemplate);
-                    if (filteredArray.length) {
-                        setCurrentTemplate(filteredArray[0]);
-                    }
                 }
             });
         })
@@ -239,384 +164,87 @@ const Dashboard = () => {
         });
     }
 
+    const contentStats = [
+        { title: 'Projects', number: projectData.total, icon: <BiArchive/>, link: Routes.web.admin.portfolioProjects },
+        { title: 'Experience', number: experienceData.total, icon: <BsBriefcase/>, link: Routes.web.admin.portfolioExperiences },
+        { title: 'Skills', number: skillData.total, icon: <GoKey/>, link: Routes.web.admin.portfolioSkills },
+        { title: 'Education', number: educationData.total, icon: <GiSecretBook/>, link: Routes.web.admin.portfolioEducation },
+        { title: 'Services', number: servicesData.total, icon: <RiServiceLine/>, link: Routes.web.admin.portfolioServices },
+    ];
+
+    const activity = (data) => [
+        { label: 'This month', value: data.thisMonth },
+        { label: 'This week', value: data.thisWeek },
+        { label: 'Today', value: data.today },
+    ];
+
     return (
-        <React.Fragment>
-            <Row gutter={24}>
-                <Col 
-                    xl={24}
-                    lg={24}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                >
-                    <Row gutter={24}>
-                        <Col 
-                            xl={6}
-                            lg={6}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <StatCard 
-                                link={Routes.web.admin.portfolioSkills} 
-                                loading={loading}
-                                icon={<Icon component={GoKey}/>}
-                                color={colors.skill} 
-                                title='Skill' 
-                                number={skillData.total}
-                            />
-                        </Col>
-                        <Col 
-                            xl={6}
-                            lg={6}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <StatCard 
-                                link={Routes.web.admin.portfolioEducation} 
-                                loading={loading}
-                                icon={<Icon component={GiSecretBook}/>}
-                                color={colors.education} 
-                                title='Education' 
-                                number={educationData.total}
-                            />
-                        </Col>
-                        <Col 
-                            xl={6}
-                            lg={6}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <StatCard 
-                                link={Routes.web.admin.portfolioExperiences} 
-                                loading={loading}
-                                icon={<Icon component={BsBriefcase}/>}
-                                color={colors.experience} 
-                                title='Experience' 
-                                number={experienceData.total}
-                            />
-                        </Col>
-                        <Col 
-                            xl={6}
-                            lg={6}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <StatCard 
-                                link={Routes.web.admin.portfolioProjects} 
-                                loading={loading}
-                                icon={<Icon component={BiArchive}/>}
-                                color={colors.project} 
-                                title='Project' 
-                                number={projectData.total}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                <Col 
-                    xl={18}
-                    lg={18}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                >
-                    <Row gutter={24}>
-                        <Col 
-                            xl={8}
-                            lg={10}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <StatCard 
-                                link={Routes.web.admin.portfolioServices} 
-                                loading={loading}
-                                icon={<Icon component={RiServiceLine}/>}
-                                color={colors.service} 
-                                title='Service' 
-                                number={servicesData.total}
-                            />
-                        </Col>
-                        <Col 
-                            xl={16}
-                            lg={14}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <Card
-                                hoverable={true}
-                                variant="borderless"
-                                loading={loading}
-                                className='z-shadow'
-                                style={{cursor: 'default'}}
-                            >
-                                <Row>
-                                    <Col md={24} sm={24} xs={24} style={{textAlign: 'center'}}>
-                                        <Text type={'secondary'}>Visitor Trend</Text>
-                                    </Col>
-                                    <Col md={24} sm={24} xs={24} style={{textAlign: 'center'}}>
-                                        <Tiny.Area
-                                            height={75}
-                                            autoFit={true}
-                                            data={visitorData.trend.map((v, i) => ({ index: i, value: v }))}
-                                            xField="index"
-                                            yField="value"
-                                            smooth={true}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Col>
-                        <Col
-                            xl={24}
-                            lg={24}
-                            md={24}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <Card
-                                hoverable={true}
-                                onClick={() => {
-                                    navigate(Routes.web.admin.visitors);
-                                }}
-                                variant="borderless"
-                                loading={loading}
-                                className='z-shadow'
-                            >
-                                <Row>
-                                    <Col md={24} sm={24} xs={24} style={{textAlign: 'center', paddingBottom: '14px'}}>
-                                        <Text type={'secondary'}>Visitor</Text>
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={AiOutlineTeam}/>}
-                                            color={colors.visitor} 
-                                            title='Total' 
-                                            number={visitorData.total}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={AiOutlineTeam}/>}
-                                            color={colors.visitor} 
-                                            title='This Month' 
-                                            number={visitorData.thisMonth}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={AiOutlineTeam}/>}
-                                            color={colors.visitor} 
-                                            title='This Week' 
-                                            number={visitorData.thisWeek}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={AiOutlineTeam}/>}
-                                            color={colors.visitor} 
-                                            title='Today' 
-                                            number={visitorData.today}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Col>
-                        <Col
-                            xl={24}
-                            lg={24}
-                            md={24}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                        <Card
-                                hoverable={true}
-                                onClick={() => {
-                                    navigate(Routes.web.admin.messages);
-                                }}
-                                variant="borderless"
-                                loading={loading}
-                                className='z-shadow'
-                            >
-                                <Row>
-                                    <Col md={24} sm={24} xs={24} style={{textAlign: 'center', paddingBottom: '14px'}}>
-                                        <Text type={'secondary'}>Message</Text>
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={RiMessage3Line}/>}
-                                            color={colors.message} 
-                                            title='Total' 
-                                            number={messageData.total}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={RiMessage3Line}/>}
-                                            color={colors.message} 
-                                            title='This Month' 
-                                            number={messageData.thisMonth}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={RiMessage3Line}/>}
-                                            color={colors.message} 
-                                            title='This Week' 
-                                            number={messageData.thisWeek}
-                                        />
-                                    </Col>
-                                    <Col md={6} sm={24} xs={24}>
-                                        <StatCard
-                                            isCard={false}
-                                            loading={loading}
-                                            icon={<Icon component={RiMessage3Line}/>}
-                                            color={colors.message} 
-                                            title='Today' 
-                                            number={messageData.today}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col 
-                    xl={6}
-                    lg={6}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                >
-                    <Row gutter={24}>
-                        <Col
-                            xl={24}
-                            lg={24}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                            style={{marginBottom: 24}}
-                        >
-                            <Card
-                                onClick={() => {
-                                    navigate(Routes.web.admin.portfolioConfig);
-                                }}
-                                hoverable={true}
-                                variant="borderless"
-                                size={'small'}
-                                loading={loading}
-                                className='z-shadow'
-                                cover={
-                                    currentTemplate && currentTemplate.image ? (
-                                        <Image
-                                            alt={currentTemplate.title}
-                                            width={'100%'}
-                                            height={imageHeight}
-                                            style={{
-                                                objectFit: 'fill',
-                                                opacity: '0.8'
-                                            }}
-                                            preview={false}
-                                            src={currentTemplate.image}
-                                            placeholder={<WallpaperLoading><Spin/></WallpaperLoading>}
-                                        />
-                                    ) : (
-                                        <WallpaperLoading>
-                                            <div style={{fontSize: '12px', color: '#999', textAlign: 'center'}}>
-                                                No Template Selected
-                                            </div>
-                                        </WallpaperLoading>
-                                    )
-                                }
-                            >
-                                <Card.Meta
-                                    title={<React.Fragment><small>{currentTemplate && currentTemplate.title}</small></React.Fragment>}
-                                    description={<React.Fragment><small>Change Template</small></React.Fragment>}
-                                />
-                            </Card>
-                        </Col>
-                        <Col
-                            xl={24}
-                            lg={24}
-                            md={12}
-                            sm={24}
-                            xs={24}
-                        >
-                            <Card
-                                style={{cursor: 'default'}}
-                                hoverable={true}
-                                size="small"
-                                variant="borderless"
-                                className='z-shadow'
-                                loading={loading}
-                                cover={
-                                    wallpaper ? (
-                                        <Image
-                                            height={imageHeight}
-                                            src={wallpaper.image}
-                                            style={imageStyle}
-                                            placeholder={
-                                                <Image
-                                                    height={imageHeight}
-                                                    width={'100%'}
-                                                    preview={false}
-                                                    src={wallpaper.thumbnail}
-                                                    style={imageStyle}
-                                                />
-                                            }
-                                        />
-                                    ) : wallpaperLoading ? (
-                                        <Spin><WallpaperLoading/></Spin>
-                                    ) : (
-                                        <WallpaperLoading>
-                                            <div style={{fontSize: '12px', color: '#999', textAlign: 'center'}}>
-                                                {wallpaperError || 'Load a wallpaper'}
-                                            </div>
-                                        </WallpaperLoading>
-                                    )
-                                    
-                                }
-                            >
-                                <Card.Meta
-                                    title={<React.Fragment><small>Daily Wallpaper {demoMode && (
-                                        <a href="https://github.com/arifszn/reddit-image-fetcher" target="_blank" rel="noreferrer"><InfoCircleOutlined style={{paddingLeft: '2px', color: 'rgba(0, 0, 0, 0.45)'}}/></a>
-                                    )}</small></React.Fragment>}
-                                    description={
-                                        <div onClick={getWallpaper} style={{cursor: 'pointer'}}><small>{wallpaper ? 'Get Another' : 'Load Wallpaper'}</small></div>
-                                    }
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
-                </Col>
-            </Row>
-        </React.Fragment>
+        <div className="atlas-dash">
+            <header className="atlas-page-head">
+                <div>
+                    <p className="atlas-kicker">Admin overview</p>
+                    <h1>Dashboard</h1>
+                </div>
+                <a className="atlas-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer">View {siteName || 'site'} ↗</a>
+            </header>
+
+            <section className="atlas-stat-grid" aria-label="Portfolio content">
+                {contentStats.map(stat => (
+                    <button key={stat.title} type="button" className="atlas-tile atlas-stat" onClick={() => navigate(stat.link)}>
+                        <span className="atlas-stat-icon" aria-hidden="true">{stat.icon}</span>
+                        <span className="atlas-kicker">{stat.title}</span>
+                        {loading ? <Skeleton.Button active size="small"/> : <span className="atlas-stat-number">{formatNumber(stat.number)}</span>}
+                    </button>
+                ))}
+            </section>
+
+            <section className="atlas-bento">
+                <article className="atlas-tile atlas-activity atlas-span-2">
+                    <div className="atlas-tile-head">
+                        <span className="atlas-stat-icon" aria-hidden="true"><AiOutlineTeam/></span>
+                        <div>
+                            <p className="atlas-kicker">Visitors</p>
+                            <p className="atlas-big">{loading ? '–' : formatNumber(visitorData.total)}</p>
+                        </div>
+                        <button type="button" className="atlas-link" onClick={() => navigate(Routes.web.admin.visitors)}>Open →</button>
+                    </div>
+                    <div className="atlas-trend" aria-hidden="true">
+                        {!loading && <Sparkline values={visitorData.trend}/>}
+                    </div>
+                    <dl className="atlas-split">
+                        {activity(visitorData).map(item => (
+                            <div key={item.label}><dt className="atlas-kicker">{item.label}</dt><dd>{loading ? '–' : formatNumber(item.value)}</dd></div>
+                        ))}
+                    </dl>
+                </article>
+
+                <article className="atlas-tile atlas-activity">
+                    <div className="atlas-tile-head">
+                        <span className="atlas-stat-icon" aria-hidden="true"><RiMessage3Line/></span>
+                        <div>
+                            <p className="atlas-kicker">Messages</p>
+                            <p className="atlas-big">{loading ? '–' : formatNumber(messageData.total)}</p>
+                        </div>
+                        <button type="button" className="atlas-link" onClick={() => navigate(Routes.web.admin.messages)}>Open →</button>
+                    </div>
+                    <dl className="atlas-split">
+                        {activity(messageData).map(item => (
+                            <div key={item.label}><dt className="atlas-kicker">{item.label}</dt><dd>{loading ? '–' : formatNumber(item.value)}</dd></div>
+                        ))}
+                    </dl>
+                </article>
+
+                <article className="atlas-tile atlas-theme-tile">
+                    <p className="atlas-kicker">Site theme</p>
+                    <p className="atlas-theme-name">Atlas</p>
+                    <p className="atlas-muted">The built-in design shared by the portfolio, the blog and their admins.</p>
+                    <div className="atlas-actions">
+                        <button type="button" className="atlas-btn" onClick={() => navigate(Routes.web.admin.portfolioConfig)}>Site settings</button>
+                        <a className="atlas-btn ghost" href={Utils.storeUrl} target="_blank" rel="noreferrer">Theme store ↗</a>
+                    </div>
+                </article>
+            </section>
+        </div>
     )
 }
 

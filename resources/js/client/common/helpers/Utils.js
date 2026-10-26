@@ -201,24 +201,9 @@ const changeAccentColor = (color) => {
  */
 const templates = [
     {
-        id: 'procyon',
-        title: 'Procyon',
-        image: window.location.origin + '/' +'assets/common/img/templates/procyon.png',
-    },
-    {
-        id: 'rigel',
-        title: 'Rigel',
-        image: window.location.origin + '/' +'assets/common/img/templates/rigel.png',
-    },
-    {
-        id: 'vega',
-        title: 'Vega',
-        image: window.location.origin + '/' +'assets/common/img/templates/vega.png',
-    },
-    {
-        id: 'azure',
-        title: 'Azure',
-        image: window.location.origin + '/' +'assets/common/img/templates/azure.png',
+        id: 'atlas',
+        title: 'Atlas',
+        image: window.location.origin + '/' +'assets/common/img/templates/atlas.png',
     },
 ];
 
@@ -239,6 +224,7 @@ const Utils = {
     changeAccentColor,
     mediaUrl,
     templates,
+    storeUrl: window.edfolioStoreUrl || 'https://store.edilsonsantos.co.za',
     setAntdInstances,
 }
 
