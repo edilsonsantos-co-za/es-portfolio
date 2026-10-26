@@ -1,4 +1,4 @@
-{{-- Shared <head> content for the Orion family of themes. Expects $themeKey (localStorage key) and $fonts (Google Fonts query). --}}
+{{-- Shared <head> content for the Orion family of themes. Expects $fonts (Google Fonts query). --}}
 @include('common.googleAnalytics')
 @if (!empty($portfolioConfig['script']['header']))
     <script>
@@ -22,10 +22,5 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?{{ $fonts }}&display=swap" rel="stylesheet">
 
-<script>
-    // Apply the saved colour theme before first paint
-    try {
-        var saved = localStorage.getItem(@json($themeKey));
-        if (saved) document.documentElement.setAttribute('data-theme', saved);
-    } catch (e) {}
-</script>
+{{-- Applies the saved colour theme before first paint; shared with the blog, store and admins. --}}
+<script src="{{ asset('theme-mode.js') }}?v={{ filemtime(public_path('theme-mode.js')) }}"></script>

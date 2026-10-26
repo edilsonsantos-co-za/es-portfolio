@@ -1,21 +1,14 @@
 {{--
     Shared behaviour for the Orion family: colour theme toggle (#theme-btn), mobile menu (#menu-btn / #menu),
-    rotating tagline (#tagline), reveal-on-scroll ([data-reveal]) and the contact form. Expects $themeKey and $taglines.
+    rotating tagline (#tagline), reveal-on-scroll ([data-reveal]) and the contact form. Expects $taglines.
 --}}
 <script>
     (function () {
-        var root = document.documentElement;
         var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         var themeBtn = document.getElementById('theme-btn');
         if (themeBtn) {
-            themeBtn.addEventListener('click', function () {
-                var dark = root.getAttribute('data-theme') === 'dark' ||
-                    (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
-                var next = dark ? 'light' : 'dark';
-                root.setAttribute('data-theme', next);
-                try { localStorage.setItem(@json($themeKey), next); } catch (e) {}
-            });
+            themeBtn.addEventListener('click', window.esTheme.toggle);
         }
 
         var menu = document.getElementById('menu');

@@ -2,7 +2,6 @@
 @php
     extract(\App\Helpers\ThemeContext::make($about, $experiences));
     $visibility = $portfolioConfig['visibility'];
-    $themeKey = 'atlas-theme';
     $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500';
     $topSkills = collect($skills)->sortByDesc('proficiency')->take(5);
     $latest = collect($experiences)->sortByDesc('id')->first();

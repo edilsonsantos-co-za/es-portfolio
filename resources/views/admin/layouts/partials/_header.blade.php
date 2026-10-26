@@ -1,5 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="{{ asset('theme-mode.js') }}?v={{ filemtime(public_path('theme-mode.js')) }}"></script>
 
 <!-- Favicon -->
 <link rel="shortcut icon" id="favicon" type="image/x-icon" href="{{\Utils::getFavicon()}}">

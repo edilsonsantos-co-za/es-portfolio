@@ -1,52 +1,15 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * Light/dark mode shared with the public Atlas theme: same localStorage key and the
- * same data-theme attribute on <html>, so the choice carries over between the site and the admin.
+ * Light/dark mode shared with the public sites: the admin shell loads /theme-mode.js in <head>,
+ * which applies the saved choice before first paint and keeps it in a parent-domain cookie,
+ * so the choice carries over between the portfolio, the blog, the store and their admins.
  */
-const STORAGE_KEY = 'atlas-theme';
-const listeners = new Set();
-const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+const esTheme = window.esTheme;
 
-const readSaved = () => {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved === 'dark' || saved === 'light' ? saved : null;
-    } catch {
-        return null;
-    }
-};
+export const toggleThemeMode = () => esTheme.toggle();
 
-const saved = readSaved();
-if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-}
-
-const getMode = () => {
-    const forced = document.documentElement.getAttribute('data-theme');
-    if (forced === 'dark' || forced === 'light') {
-        return forced;
-    }
-    return media && media.matches ? 'dark' : 'light';
-};
-
-const subscribe = (listener) => {
-    listeners.add(listener);
-    media && media.addEventListener('change', listener);
-    return () => {
-        listeners.delete(listener);
-        media && media.removeEventListener('change', listener);
-    };
-};
-
-export const toggleThemeMode = () => {
-    const next = getMode() === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* private mode */ }
-    listeners.forEach(listener => listener());
-};
-
-export const useThemeMode = () => useSyncExternalStore(subscribe, getMode);
+export const useThemeMode = () => useSyncExternalStore(esTheme.subscribe, esTheme.get);
 
 /** Atlas palette, for components that take colours in JavaScript (Ant Design tokens, charts). */
 export const ATLAS_PALETTE = {
