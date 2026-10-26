@@ -6,17 +6,19 @@
     $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500';
     $topSkills = collect($skills)->sortByDesc('proficiency')->take(5);
     $latest = collect($experiences)->sortByDesc('id')->first();
+    $logoUrl = \App\Helpers\Utils::getLogo();
+    $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
 @endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     @include('frontend.theme.partials.head')
     <style>
-        :root { --bg: #eef1f6; --card: #ffffff; --card-2: #f5f7fb; --text: #0f172a; --muted: #5b6478; --line: #dde3ee; --accent: #2563eb; --accent-ink: #ffffff; --dark: #0f172a; --on-dark: #f1f5f9; }
+        :root { --bg: #eef1f6; --card: #ffffff; --card-2: #f5f7fb; --text: #0f172a; --muted: #5b6478; --line: #dde3ee; --accent: #2563eb; --accent-ink: #ffffff; --accent-soft: #e6eeff; --dark: #0f172a; --on-dark: #f1f5f9; }
         @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --dark: #3b82f6; --on-dark: #ffffff; }
+            :root:not([data-theme="light"]) { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; }
         }
-        :root[data-theme="dark"] { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --dark: #3b82f6; --on-dark: #ffffff; }
+        :root[data-theme="dark"] { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; }
         *, *::before, *::after { box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: 90px; }
         body { margin: 0; background: var(--bg); color: var(--text); font: 500 16px/1.6 'Manrope', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -27,7 +29,7 @@
 
         .top { position: sticky; top: 0; z-index: 20; padding: 12px 0; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); }
         .top .wrap { display: flex; align-items: center; gap: 12px; }
-        .logo { width: 40px; height: 40px; border-radius: 12px; background: var(--dark); color: var(--on-dark); display: grid; place-items: center; font-weight: 800; text-decoration: none; letter-spacing: -.04em; }
+        .logo { width: 40px; height: 40px; border-radius: 12px; overflow: hidden; flex: none; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 800; text-decoration: none; letter-spacing: -.04em; }
         .tabs { list-style: none; display: flex; gap: 4px; margin: 0 auto; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
         .tabs a { display: block; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--muted); }
         .tabs a:hover { background: var(--card-2); color: var(--text); }
@@ -61,9 +63,9 @@
         .stack ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
         .stack li { display: grid; grid-template-columns: 110px 1fr 40px; gap: 12px; align-items: center; font-weight: 700; font-size: 14px; }
         .stack .meter { height: 8px; border-radius: 8px; background: var(--card-2); overflow: hidden; }
-        .stack .meter i { display: block; height: 100%; border-radius: 8px; background: var(--dark); }
-        .now { grid-column: 1 / -1; background: var(--dark); color: var(--on-dark); border-color: var(--dark); }
-        .now .mono { color: var(--on-dark); opacity: .65; }
+        .stack .meter i { display: block; height: 100%; border-radius: 8px; background: var(--accent); }
+        .now { grid-column: 1 / -1; background: var(--accent-soft); }
+        .now .mono { color: var(--muted); }
         .now h3 { font-size: 26px; margin: 12px 0 2px; letter-spacing: -.02em; }
 
         section.block { padding: 72px 0 12px; }
@@ -90,7 +92,9 @@
         .svc p { margin: 0; color: var(--muted); font-size: 15px; }
 
         .contact { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
-        .contact .cta { background: var(--dark); color: var(--on-dark); border-color: var(--dark); }
+        .contact .cta { background: var(--accent-soft); }
+        .logo img { width: 100%; height: 100%; object-fit: cover; }
+        .signin { padding: 9px 14px; border-radius: 12px; font-size: 14px; }
         .contact .cta h2 { font-size: clamp(34px, 4vw, 52px); }
         .contact .cta a { color: inherit; }
         .contact-form { display: grid; gap: 10px; }
@@ -123,7 +127,7 @@
 <body>
     <header class="top">
         <div class="wrap">
-            <a class="logo" href="#top" aria-label="{{ $about->name }}, home">{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}</a>
+            <a class="logo" href="#top" aria-label="{{ $about->name }}, home">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</a>
             <ul class="tabs" id="menu">
                 @if ($visibility['experiences'] && count($experiences))<li><a href="#experience">Experience</a></li>@endif
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
@@ -132,7 +136,8 @@
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
             </ul>
             <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
-            <button class="icon-btn" type="button" id="theme-btn" aria-label="Toggle colour theme">◐</button>
+            @include('frontend.theme.partials.theme-toggle')
+            <a class="btn signin" href="{{ url('/admin') }}">Sign in</a>
         </div>
     </header>
 

@@ -143,7 +143,7 @@
         </ul>
         <div class="foot">
             <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false">ls</button>
-            <button class="icon-btn" type="button" id="theme-btn" aria-label="Toggle colour theme">theme</button>
+            @include('frontend.theme.partials.theme-toggle')
         </div>
     </aside>
 

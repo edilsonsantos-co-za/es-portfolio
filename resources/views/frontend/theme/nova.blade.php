@@ -152,7 +152,7 @@
             @if ($blogUrl)<li><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
             @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
         </ul>
-        <button class="icon-btn" type="button" id="theme-btn" aria-label="Toggle colour theme">◐</button>
+        @include('frontend.theme.partials.theme-toggle')
     </nav>
 
     <main id="top">

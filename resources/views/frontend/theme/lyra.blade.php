@@ -140,7 +140,7 @@
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
             </ul>
             <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false">Menu</button>
-            <button class="icon-btn" type="button" id="theme-btn" aria-label="Toggle colour theme">◐</button>
+            @include('frontend.theme.partials.theme-toggle')
         </div>
     </header>
 
