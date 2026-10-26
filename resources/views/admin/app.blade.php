@@ -15,6 +15,7 @@
 @section('scripts')
     <script>
         const settings = @json($settings);
+        window.edfolioSso = { enabled: @json(\App\Services\Sso\LogtoClient::fromConfig()->enabled()), loginUrl: @json(route('sso.login')) };
     </script>
     @vite('resources/js/client/admin/roots/app.js')
 @endsection

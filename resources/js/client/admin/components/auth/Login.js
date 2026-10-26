@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Input, Typography } from 'antd';
+import { Alert, Button, Divider, Form, Input, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import AuthLayout from './AuthLayout';
 import axios from 'axios';
@@ -10,8 +10,18 @@ import { saveApiToken } from '../../redux/ActionCreators';
 import {AiOutlineUser} from 'react-icons/ai';
 import {BsShieldLock} from 'react-icons/bs';
 
+const sso = window.edfolioSso || { enabled: false };
+
+const SSO_ERRORS = {
+    not_authorised: 'That account is not an admin of this site.',
+    cancelled: 'Sign-in was cancelled.',
+    state: 'Sign-in session expired. Please try again.',
+    failed: 'Single sign-on failed. Please try again.',
+};
+
 const Login = () => {
     const [loading, setLoading] = useState(false);
+    const [ssoError, setSsoError] = useState(null);
     const dispatch = useDispatch();
     let navigate = useNavigate();
     let location = useLocation();
@@ -26,6 +36,29 @@ const Login = () => {
                 email: 'admin@admin.com', 
                 password: 12345
             });
+        }
+
+        const hash = new URLSearchParams(window.location.hash.slice(1));
+        if (hash.has('sso') || hash.has('sso_error')) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+        if (hash.has('sso_error')) {
+            setSsoError(SSO_ERRORS[hash.get('sso_error')] || SSO_ERRORS.failed);
+        }
+        if (hash.has('sso')) {
+            setLoading(true);
+            axios.post(Routes.api.admin.ssoExchange, { code: hash.get('sso') })
+                .then(response => {
+                    Utils.handleSuccessResponse(response, () => {
+                        dispatch(saveApiToken({ apiToken: response.data.payload.token.access_token }));
+                    });
+                })
+                .catch((error) => {
+                    Utils.handleException(error);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         }
     }, [])
 
@@ -62,6 +95,15 @@ const Login = () => {
     return (
         <React.Fragment>
             <AuthLayout title={'ADMIN LOGIN'}>
+                {ssoError && <Alert type="error" showIcon message={ssoError} style={{ marginBottom: 16 }} />}
+                {sso.enabled && (
+                    <React.Fragment>
+                        <Button type="primary" block size="large" href={sso.loginUrl} loading={loading}>
+                            Continue with single sign-on
+                        </Button>
+                        <Divider plain>or use your password</Divider>
+                    </React.Fragment>
+                )}
                 <Form
                     form={form}
                     name="login"

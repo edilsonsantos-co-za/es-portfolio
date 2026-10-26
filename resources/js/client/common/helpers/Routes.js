@@ -30,6 +30,7 @@ const web = {
 const api = {
     admin: {
         login: Utils.backend+'/api/'+Utils.apiVersion+'/admin/login',
+        ssoExchange: Utils.backend+'/api/'+Utils.apiVersion+'/admin/sso/exchange',
         forgetPassword: Utils.backend+'/api/'+Utils.apiVersion+'/admin/forget-password',
         resetPassword: Utils.backend+'/api/'+Utils.apiVersion+'/admin/reset-password',
         refreshToken: Utils.backend+'/api/'+Utils.apiVersion+'/admin/refresh-token',
