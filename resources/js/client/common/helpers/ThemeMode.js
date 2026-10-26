@@ -12,7 +12,7 @@ const readSaved = () => {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         return saved === 'dark' || saved === 'light' ? saved : null;
-    } catch (e) {
+    } catch {
         return null;
     }
 };
@@ -42,7 +42,7 @@ const subscribe = (listener) => {
 export const toggleThemeMode = () => {
     const next = getMode() === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* private mode */ }
+    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* private mode */ }
     listeners.forEach(listener => listener());
 };
 
