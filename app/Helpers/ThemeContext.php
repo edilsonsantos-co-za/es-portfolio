@@ -19,7 +19,7 @@ class ThemeContext
      *
      * @param object $about
      * @param iterable $experiences
-     * @return array{taglines: array, socials: array, blogUrl: ?string, storeUrl: ?string, years: ?int}
+     * @return array{taglines: array, socials: array, blogUrl: ?string, storeUrl: ?string, years: ?int, availability: ?string, timezone: string, timezoneCity: string, utcOffset: string, timeNote: ?string}
      */
     public static function make($about, $experiences): array
     {
@@ -35,6 +35,34 @@ class ThemeContext
             'blogUrl' => config('custom.blog_url'),
             'storeUrl' => config('custom.store_url'),
             'years' => $years,
+            'availability' => config('custom.availability') ?: null,
+            'timeNote' => config('custom.time_note') ?: null,
+        ] + self::timezone((string) config('custom.timezone', 'UTC'));
+    }
+
+    /**
+     * Time zone details for the local-time display, e.g. "Africa/Johannesburg" gives
+     * the city "Johannesburg" and the offset "UTC+2"
+     *
+     * @param string $name
+     * @return array{timezone: string, timezoneCity: string, utcOffset: string}
+     */
+    private static function timezone(string $name): array
+    {
+        try {
+            $zone = new \DateTimeZone($name);
+        } catch (\Exception $e) {
+            $zone = new \DateTimeZone('UTC');
+        }
+
+        $seconds = $zone->getOffset(new \DateTimeImmutable('now', $zone));
+        $offset = 'UTC' . ($seconds === 0 ? '' : ($seconds > 0 ? '+' : '-') . rtrim(rtrim(number_format(abs($seconds) / 3600, 1), '0'), '.'));
+        $city = str_replace('_', ' ', substr(strrchr('/' . $zone->getName(), '/'), 1));
+
+        return [
+            'timezone' => $zone->getName(),
+            'timezoneCity' => $city,
+            'utcOffset' => $offset,
         ];
     }
 

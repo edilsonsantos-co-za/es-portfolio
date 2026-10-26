@@ -146,6 +146,9 @@ SKIP_ASSET_BUILD=false              # Skip frontend asset building
 # Optional integrations
 BLOG_URL=                           # Adds a Blog link to the public site
 STORE_URL=                          # Store link; defaults to https://store.edilsonsantos.co.za when unset, empty hides it
+PORTFOLIO_AVAILABILITY=             # Atlas availability tile text, e.g. "Open to remote contract work"; empty hides the tile
+PORTFOLIO_TIMEZONE=UTC              # Timezone for the Atlas local-time clock, e.g. Africa/Johannesburg
+PORTFOLIO_TIME_NOTE=                # Short note under the clock, e.g. "overlaps UK and EU"
 LOGTO_ENDPOINT=                     # e.g. https://auth.example.com (enables SSO with the two below)
 LOGTO_APP_ID=
 LOGTO_APP_SECRET=

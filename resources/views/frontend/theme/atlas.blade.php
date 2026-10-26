@@ -162,14 +162,16 @@
                     <span class="badge">👋 {{ explode(' ', $about->name)[0] }}</span>
                 </div>
             @endif
-            <div class="tile avail">
-                <span class="mono"><span class="dot"></span>&nbsp; Status</span>
-                <strong>Open to remote contract work</strong>
-            </div>
+            @if ($availability)
+                <div class="tile avail">
+                    <span class="mono"><span class="dot"></span>&nbsp; Status</span>
+                    <strong>{{ $availability }}</strong>
+                </div>
+            @endif
             <div class="tile clock">
-                <span class="mono">Local time · Johannesburg</span>
-                <strong id="clock">--:--</strong>
-                <span class="mono">UTC+2 · overlaps UK and EU</span>
+                <span class="mono">Local time · {{ $timezoneCity }}</span>
+                <strong id="clock" data-timezone="{{ $timezone }}">--:--</strong>
+                <span class="mono">{{ $utcOffset }}@if ($timeNote) · {{ $timeNote }}@endif</span>
             </div>
             @if ($years)
                 <div class="tile">
@@ -278,7 +280,7 @@
         (function () {
             var el = document.getElementById('clock');
             if (!el) return;
-            var fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Johannesburg' });
+            var fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: el.getAttribute('data-timezone') || 'UTC' });
             function tick() { el.textContent = fmt.format(new Date()); }
             tick();
             setInterval(tick, 15000);
