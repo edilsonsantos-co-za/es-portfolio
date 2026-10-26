@@ -12,11 +12,11 @@
 <head>
     @include('frontend.theme.partials.head')
     <style>
-        :root { --bg: #eef0ea; --card: #ffffff; --card-2: #f6f7f2; --text: #111410; --muted: #5d6459; --line: #dfe3d8; --accent: #b7f34a; --accent-ink: #111410; --dark: #111410; --on-dark: #f3f6ee; }
+        :root { --bg: #eef1f6; --card: #ffffff; --card-2: #f5f7fb; --text: #0f172a; --muted: #5b6478; --line: #dde3ee; --accent: #2563eb; --accent-ink: #ffffff; --dark: #0f172a; --on-dark: #f1f5f9; }
         @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) { --bg: #0b0c0a; --card: #151713; --card-2: #1b1e18; --text: #eef2e8; --muted: #959d8e; --line: #262a22; --accent: #b7f34a; --accent-ink: #111410; --dark: #b7f34a; --on-dark: #111410; }
+            :root:not([data-theme="light"]) { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --dark: #3b82f6; --on-dark: #ffffff; }
         }
-        :root[data-theme="dark"] { --bg: #0b0c0a; --card: #151713; --card-2: #1b1e18; --text: #eef2e8; --muted: #959d8e; --line: #262a22; --accent: #b7f34a; --accent-ink: #111410; --dark: #b7f34a; --on-dark: #111410; }
+        :root[data-theme="dark"] { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --dark: #3b82f6; --on-dark: #ffffff; }
         *, *::before, *::after { box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: 90px; }
         body { margin: 0; background: var(--bg); color: var(--text); font: 500 16px/1.6 'Manrope', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
