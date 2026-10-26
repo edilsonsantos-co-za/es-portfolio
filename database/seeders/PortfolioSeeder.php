@@ -45,8 +45,8 @@ class PortfolioSeeder extends Seeder
             //template
             $data = [
                 'setting_key' => CoreConstants::PORTFOLIO_CONFIG__TEMPLATE,
-                'setting_value' => 'procyon',
-                'default_value' => 'procyon',
+                'setting_value' => 'atlas',
+                'default_value' => 'atlas',
             ];
             $portfolioConfig->insertOrUpdate($data);
 

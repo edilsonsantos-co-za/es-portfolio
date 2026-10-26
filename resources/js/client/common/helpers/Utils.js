@@ -201,54 +201,9 @@ const changeAccentColor = (color) => {
  */
 const templates = [
     {
-        id: 'procyon',
-        title: 'Procyon',
-        image: window.location.origin + '/' +'assets/common/img/templates/procyon.png',
-    },
-    {
-        id: 'rigel',
-        title: 'Rigel',
-        image: window.location.origin + '/' +'assets/common/img/templates/rigel.png',
-    },
-    {
-        id: 'vega',
-        title: 'Vega',
-        image: window.location.origin + '/' +'assets/common/img/templates/vega.png',
-    },
-    {
-        id: 'azure',
-        title: 'Azure',
-        image: window.location.origin + '/' +'assets/common/img/templates/azure.png',
-    },
-    {
-        id: 'orion',
-        title: 'Orion',
-        image: window.location.origin + '/' +'assets/common/img/templates/orion.png',
-    },
-    {
-        id: 'nova',
-        title: 'Nova',
-        image: window.location.origin + '/' +'assets/common/img/templates/nova.png',
-    },
-    {
-        id: 'altair',
-        title: 'Altair',
-        image: window.location.origin + '/' +'assets/common/img/templates/altair.png',
-    },
-    {
-        id: 'lyra',
-        title: 'Lyra',
-        image: window.location.origin + '/' +'assets/common/img/templates/lyra.png',
-    },
-    {
         id: 'atlas',
         title: 'Atlas',
         image: window.location.origin + '/' +'assets/common/img/templates/atlas.png',
-    },
-    {
-        id: 'sirius',
-        title: 'Sirius',
-        image: window.location.origin + '/' +'assets/common/img/templates/sirius.png',
     },
 ];
 
@@ -269,6 +224,7 @@ const Utils = {
     changeAccentColor,
     mediaUrl,
     templates,
+    storeUrl: window.edfolioStoreUrl || 'https://store.edilsonsantos.co.za',
     setAntdInstances,
 }
 

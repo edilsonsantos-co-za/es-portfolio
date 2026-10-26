@@ -133,6 +133,7 @@
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="#services">Services</a></li>@endif
                 @if ($blogUrl)<li><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
+                @if ($storeUrl)<li><a href="{{ $storeUrl }}">Store ↗</a></li>@endif
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
             </ul>
             <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
@@ -268,6 +269,7 @@
     <footer>
         © {{ date('Y') }} {{ $about->name }} ·
         @if ($blogUrl)<a href="{{ $blogUrl }}">Blog</a>@endif
+        @if ($storeUrl)<a href="{{ $storeUrl }}">Store</a>@endif
         @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
     </footer>
 

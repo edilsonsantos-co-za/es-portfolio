@@ -4,7 +4,7 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
 
 > EdFolio is a maintained fork of [ezfolio](https://github.com/arifszn/ezfolio) by [Ariful Alam (arifszn)](https://github.com/arifszn).
 > The original gave it its shape: a Laravel API, a React admin and Blade portfolio themes. This fork brings the stack
-> up to date, hardens it for production and adds new themes and single sign-on. Credit for the original design and
+> up to date, hardens it for production and adds a new design and single sign-on. Credit for the original design and
 > idea goes to the upstream project.
 
 ## What this fork adds
@@ -20,24 +20,17 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
 - Database readiness probe, additive indexes, JSON shadow columns, and production data that is never reseeded on container restart
 - A pre-push validation hook (lint, build, compose checks) and feature tests for the hardened routes
 
-**Six new portfolio themes (the Orion family)**
-
-| Theme | Style |
-|---|---|
-| Orion | Clean single page with rotating taglines and an optional blog link |
-| Nova | Aurora gradients, floating glass navigation, glowing timeline |
-| Altair | Terminal hero that types out commands, file-tree navigation, `git log` career history |
-| Lyra | Editorial layout: serif display type, skills ticker, numbered sections |
-| Atlas | Bento grid: live local clock, availability tile, stack meters |
-| Sirius | Blueprint grid with an animated architecture diagram and cursor spotlight |
-
-All six share one contact form, script and theme-toggle partial. Each has light and dark modes, respects
-`prefers-reduced-motion`, and can be chosen from the admin theme picker. The original Azure, Rigel, Vega and Procyon
-themes are still included.
+**One design: Atlas**
+- The portfolio, the admin panel and its sign-in page share one look: a bento grid with a live local clock, an
+  availability tile and stack meters on the public page, with light and dark modes and `prefers-reduced-motion` support
+- Other themes (the original Azure, Rigel, Vega and Procyon, and the Orion family) moved to the separate ES
+  Marketplace repository. The public site links to the store with `STORE_URL`.
 
 **Single sign-on (optional)**
 - Admin sign-in through [Logto](https://logto.io) using OpenID Connect (authorization code + PKCE), with no extra packages
 - Only existing admins can sign in: the verified email must match an admin account. Accounts are never created automatically.
+- With SSO configured, `/admin/login` goes straight to the SSO sign-in page and signing out also ends the SSO session.
+  The password form is only shown on installs without SSO.
 - Enabled by setting `LOGTO_ENDPOINT`, `LOGTO_APP_ID` and `LOGTO_APP_SECRET`. Password login keeps working alongside it.
 
 ## Features
@@ -151,7 +144,8 @@ CREATE_DB_BACKUP=true               # Backup before migrations
 SKIP_ASSET_BUILD=false              # Skip frontend asset building
 
 # Optional integrations
-BLOG_URL=                           # Adds a Blog link to Orion-family themes
+BLOG_URL=                           # Adds a Blog link to the public site
+STORE_URL=                          # Store link; defaults to https://store.edilsonsantos.co.za when unset, empty hides it
 LOGTO_ENDPOINT=                     # e.g. https://auth.example.com (enables SSO with the two below)
 LOGTO_APP_ID=
 LOGTO_APP_SECRET=

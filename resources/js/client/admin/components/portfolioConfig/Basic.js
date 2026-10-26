@@ -1,6 +1,6 @@
 import PageHeader from '../PageHeader';
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Radio, Spin, Image,  List, Typography, Switch } from 'antd';
+import { Spin, List, Typography, Switch } from 'antd';
 import Utils from '../../../common/helpers/Utils';
 import styled from 'styled-components';
 import HTTP from '../../../common/helpers/HTTP';
@@ -12,32 +12,14 @@ import { CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import SeoPopup from '../SeoPopup';
 import { useSelector } from 'react-redux';
 
-const { Meta } = Card;
 const { Item } = List;
 const { Paragraph, Text } = Typography;
-
-const selectedTemplateStyle = {
-    padding: '.25rem',
-    cursor: 'default',
-    backgroundColor: 'var(--primary-shadow-color)'
-}
-
-const LazyLoadPlaceHolderWrapper = styled.div`
-background: ghostwhite;
-width: 100%;
-height: 100%;
-align-items: center;
-justify-content: center;
--webkit-box-align: center;
-display: inline-flex;
-`;
 
 const StyledListItem = styled(Item)`
 padding: 16px 0px !important;
 `;
 
 const Basic = (props) => {
-    const [template, setTemplate] = useState(null);
     const [accentColor, setAccentColor] = useState(null);
     const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
     const [maintenanceMode, setMaintenanceMode] = useState(false);
@@ -54,7 +36,6 @@ const Basic = (props) => {
 
     useEffect(() => {
         if (props.config) {
-            setTemplate(props.config.template);
             setAccentColor(props.config.accentColor);     
             setGoogleAnalyticsId(props.config.googleAnalyticsId);
             setSeo(props.config.seo);
@@ -79,17 +60,6 @@ const Basic = (props) => {
         setColorPickerVisible(false);
     }
 
-    const templateOnClickHandler = (selected) => {
-        if (selected !== template) {
-            const value = selected;
-
-            const callback = () => {
-                setTemplate(selected);
-            }
-            submitData(CoreConstants.portfolioConfig.TEMPLATE, value, callback);
-        }
-    }
-    
     const submitData = (name, value, callback = null) => {
         if (!loading) {
             setLoading(true);
@@ -163,45 +133,11 @@ const Basic = (props) => {
         }
     }
 
-    const changeTemplate = (
-        <Radio.Group onChange={(e) => templateOnClickHandler(e.target.value)} value={template}>
-            <Row gutter={24}>
-                {
-                    Utils.templates.map((element, index) => {
-                        return (
-                            <Col key={index} xs={{ span: 24 }} lg={{ span: 8 }} style={{
-                                marginBottom: 24,
-                            }}>
-                                <Card
-                                    styles={{ body: {padding: 8} }}
-                                    style={element.id === template ? selectedTemplateStyle : {}}
-                                    onClick={() => templateOnClickHandler(element.id)}
-                                    cover={
-                                        <Image
-                                            className="z-shadow"
-                                            alt={element.title}
-                                            width={'100%'}
-                                            height={155}
-                                            preview={false}
-                                            src={element.image}
-                                            placeholder={
-                                                <LazyLoadPlaceHolderWrapper>
-                                                    <Spin/>
-                                                </LazyLoadPlaceHolderWrapper>
-                                            }
-                                        />
-                                    }
-                                >
-                                    <Meta
-                                        title={<Radio value={element.id}>{element.title}</Radio>}
-                                    />
-                                </Card>
-                            </Col>
-                        )
-                    })
-                }
-            </Row>
-        </Radio.Group>
+    const theme = (
+        <Text type="secondary">
+            Atlas, the built-in theme. More themes are coming to the{' '}
+            <a href={Utils.storeUrl} target="_blank" rel="noreferrer">ES Marketplace store ↗</a>
+        </Text>
     )
 
     return (
@@ -213,11 +149,9 @@ const Basic = (props) => {
                     itemLayout="horizontal"
                     size="large"
                 >
-                    <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.portfolioConfig.TEMPLATE}>
-                        <StyledListItem style={{padding: '16px 0px'}}>
-                            <Item.Meta title={'Portfolio Template'} description={changeTemplate}/>
-                        </StyledListItem>
-                    </Spin>
+                    <StyledListItem>
+                        <Item.Meta title={'Theme'} description={theme}/>
+                    </StyledListItem>
                     <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.portfolioConfig.ACCENT_COLOR}>
                         <StyledListItem actions={
                             [

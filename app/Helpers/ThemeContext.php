@@ -3,7 +3,7 @@
 namespace App\Helpers;
 
 /**
- * View data shared by the Orion family of frontend themes.
+ * View data for the Atlas frontend theme.
  */
 class ThemeContext
 {
@@ -19,7 +19,7 @@ class ThemeContext
      *
      * @param object $about
      * @param iterable $experiences
-     * @return array{taglines: array, socials: array, blogUrl: ?string, years: ?int}
+     * @return array{taglines: array, socials: array, blogUrl: ?string, storeUrl: ?string, years: ?int}
      */
     public static function make($about, $experiences): array
     {
@@ -33,6 +33,7 @@ class ThemeContext
             'taglines' => $about->taglines ? array_values((array) safe_json_decode($about->taglines)) : [],
             'socials' => $about->social_links ? (array) safe_json_decode($about->social_links) : [],
             'blogUrl' => config('custom.blog_url'),
+            'storeUrl' => config('custom.store_url'),
             'years' => $years,
         ];
     }
