@@ -53,6 +53,7 @@ const api = {
         visitorsStats: Utils.backend+'/api/'+Utils.apiVersion+'/admin/visitors/stats',
         messages: Utils.backend+'/api/'+Utils.apiVersion+'/admin/messages',
         stats: Utils.backend+'/api/'+Utils.apiVersion+'/admin/stats',
+        optimize: Utils.backend+'/api/'+Utils.apiVersion+'/admin/optimize',
     },
     frontend: {
         projects: Utils.backend+'/api/'+Utils.apiVersion+'/frontend/projects',

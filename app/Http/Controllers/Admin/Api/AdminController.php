@@ -6,6 +6,7 @@ use CoreConstants;
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\AdminInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -127,5 +128,21 @@ class AdminController extends Controller
         );
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
+
+    /**
+     * Clear the config, route, view and application caches
+     *
+     * @return JsonResponse
+     */
+    public function optimize()
+    {
+        Artisan::call('optimize:clear');
+
+        return response()->json([
+            'message' => 'App is optimized successfully',
+            'payload' => null,
+            'status'  => CoreConstants::STATUS_CODE_SUCCESS
+        ]);
     }
 }

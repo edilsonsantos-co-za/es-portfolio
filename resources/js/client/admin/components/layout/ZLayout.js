@@ -16,7 +16,7 @@ import {
 import { message } from 'antd';
 import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
-import axios from 'axios';
+import HTTP from '../../../common/helpers/HTTP';
 import styled from 'styled-components';
 import { ATLAS_PALETTE, useThemeMode } from '../../../common/helpers/ThemeMode';
 
@@ -107,11 +107,7 @@ const ZLayout = ({ children }) => {
             key: 'optimize'
         });
 
-        axios.get(Routes.web.frontend.optimize, {
-            headers: { 
-                Accept: 'application/json'
-            }
-        })
+        HTTP.post(Routes.api.admin.optimize)
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
                 message.success({ 
