@@ -338,6 +338,15 @@ class PortfolioConfigService implements PortfolioConfigInterface
                 ];
             }
 
+            if ((int) $data['setting_key'] === CoreConstants::PORTFOLIO_CONFIG__TEMPLATE
+                && !app(InstalledThemes::class)->has($data['setting_value'] ?? null)) {
+                return [
+                    'message' => 'That theme is not installed',
+                    'payload' => null,
+                    'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
+                ];
+            }
+
             $newData['setting_key']   = $data['setting_key'];
             $newData['setting_value'] = isset($data['setting_value']) ? $data['setting_value'] : '';
 

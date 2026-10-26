@@ -199,13 +199,8 @@ const changeAccentColor = (color) => {
 /**
  * Portfolio templates
  */
-const templates = [
-    {
-        id: 'atlas',
-        title: 'Atlas',
-        image: window.location.origin + '/' +'assets/common/img/templates/atlas.png',
-    },
-];
+const templates = (window.edfolioThemes || [{ id: 'atlas', title: 'Atlas', image: 'assets/common/img/templates/atlas.png' }])
+    .map(theme => ({ ...theme, image: window.location.origin + '/' + theme.image }));
 
 /**
  * Utility helper

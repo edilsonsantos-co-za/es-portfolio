@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Events\FrontendVisited;
 use App\Http\Controllers\Controller;
+use App\Services\InstalledThemes;
 use App\Services\Contracts\FrontendInterface;
 use Config;
 use CoreConstants;
@@ -58,7 +59,7 @@ class FrontendController extends Controller
             return view('frontend.maintenance', $data);
         }
 
-        return view('frontend.theme.atlas', $data);
+        return view(app(InstalledThemes::class)->view($data['portfolioConfig']['template'] ?? null), $data);
     }
 
     /**
