@@ -1,58 +1,23 @@
-import { Avatar } from 'antd';
 import React from 'react';
-import styled from 'styled-components';
 import Routes from '../../../common/helpers/Routes';
+import Utils from '../../../common/helpers/Utils';
 import AvatarDropdown from './AvatarDropdown';
-import Icon from '@ant-design/icons';
-import { CgMouse } from 'react-icons/cg';
-import { useSelector } from 'react-redux';
+import ThemeToggle from '../../../common/components/ThemeToggle';
 
-const Wrapper = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-`;
-
-const ItemWrapper = styled.div`
-align-items: center;
-height: 100%;
-padding: 0 10px;
-cursor: pointer;
-transition: all .3s;
-justify-content: center;
--webkit-box-align: center;
-display: inline-flex;
-&:hover {
-    background: rgba(0,0,0,.025);
-}
-`;
-
-const NavContent = () => {
-    const {demoMode} = useSelector(state => state.globalState);
-
-    return (
-        <React.Fragment>
-            <Wrapper>
-                {
-                    demoMode && (
-                        <ItemWrapper className="z-hover">
-                        </ItemWrapper>
-                    )
-                }
-                <ItemWrapper className="z-hover">
-                    <a href={Routes.web.frontend.home} target="_blank" rel="noreferrer" title="Visit Front Panel">
-                        <Avatar /* style={{ backgroundColor: 'var(--primary-hover-color)' }} */ icon={<Icon component={CgMouse} />} size="small"/>
-                    </a>
-                </ItemWrapper>
-                <ItemWrapper className="z-hover">
-                    <AvatarDropdown/>
-                </ItemWrapper>
-            </Wrapper>
-        </React.Fragment>
-    )
-}
+/**
+ * Top bar actions, same set as the blog admin: store, view site, light/dark, account.
+ */
+const NavContent = () => (
+    <div className="atlas-topbar-actions">
+        {Utils.storeUrl && (
+            <a className="atlas-btn ghost" href={Utils.storeUrl} target="_blank" rel="noreferrer" title="ES Marketplace store"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9h16l-1 11H5L4 9zM8 9V7a4 4 0 0 1 8 0v2"/></svg><span>Store ↗</span></a>
+        )}
+        <a className="atlas-icon-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer" title="View site" aria-label="View site">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        </a>
+        <ThemeToggle className="atlas-icon-btn"/>
+        <AvatarDropdown/>
+    </div>
+);
 
 export default NavContent;

@@ -1,91 +1,59 @@
-import { Card, Col, Layout, Row, Typography } from 'antd';
 import React from 'react';
-import styled, { keyframes, css } from 'styled-components';
-import Utils from '../../../common/helpers/Utils';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import Utils from '../../../common/helpers/Utils';
+import Routes from '../../../common/helpers/Routes';
+import ThemeToggle from '../../../common/components/ThemeToggle';
+import '../../../common/assets/css/atlas-auth.css';
 
-const zoomInAnimation = keyframes`
-0% {
--webkit-transform: scale(0.5);
-        transform: scale(0.5);
-}
-100% {
--webkit-transform: scale(1);
-        transform: scale(1);
-}
-`;
-
-const StyledContent = styled(Layout.Content)`
-    min-height: 100vh !important;
-    display: flex;
-    justify-content: center;
-`;
-
-const Title = styled.h4`
-    text-align: center;
-    color: lightgray;
-    margin-bottom: 30px;
-`;
-
-const StyledTitle = styled(Typography.Title)`
-    text-align: center;
-    padding-bottom: 30px;
-    padding-top: 10px;
-    img {
-        max-height: 58px;
-    }
-`;
-
-const Wrapper = styled.div`
-    margin: 28px !important;
-    animation: ${css`${zoomInAnimation} 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;`};
-`;
-
-const AuthLayout = ({ children, title }) => {
-    const logo = useSelector(state => state.globalState.logo);
+/**
+ * Atlas sign-in shell, shared in look with the blog: brand bar, one centred card, footer.
+ */
+const AuthLayout = ({ children, title = null, chip = 'Admin workspace', subtitle = null }) => {
+    const { logo, siteName } = useSelector(state => state.globalState);
+    const name = siteName || 'EdFolio';
 
     return (
-        <React.Fragment>
-            <Layout>
-                <StyledContent>
-                    <Row
-                        justify="center"
-                        align="middle"
-                    >
-                        <Col>
-                            <Wrapper>
-                                <Card
-                                    hoverable={true}
-                                    variant="borderless"
-                                    className="z-shadow"
-                                    style={{maxWidth: 380, cursor: 'default'}}
-                                    styles={{ body: {padding: '40px 40px 40px 40px'} }}
-                                >
-                                    <Row>
-                                        <Col span={24}>
-                                            <StyledTitle level={3} style={{textAlign: 'center'}}>
-                                                <img src={Utils.mediaUrl(logo)} alt='logo'/>
-                                            </StyledTitle>
-                                        </Col>
-                                        <Col span={24}><Title>{title}</Title></Col>
-                                        <Col span={24}>
-                                            {children}
-                                        </Col>
-                                    </Row>
-                                </Card>
-                            </Wrapper>
-                        </Col>
-                    </Row>
-                </StyledContent>
-            </Layout>
-        </React.Fragment>
-    )
+        <div className="atlas-auth">
+            <header className="atlas-auth-top">
+                <a href={Routes.web.frontend.home} className="atlas-auth-brand">
+                    {logo ? (
+                        <span className="atlas-auth-logo has-img" aria-hidden="true"><img src={Utils.mediaUrl(logo)} alt=""/></span>
+                    ) : (
+                        <span className="atlas-auth-logo" aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+                    )}
+                    <span className="atlas-auth-brand-text">
+                        <b>{name}</b>
+                        <span className="mono">Portfolio admin</span>
+                    </span>
+                </a>
+                <div className="atlas-auth-actions">
+                    <ThemeToggle/>
+                    <a className="atlas-auth-link-btn" href={Routes.web.frontend.home}>← <span>Back to site</span></a>
+                </div>
+            </header>
+
+            <main className="atlas-auth-main">
+                <div className="atlas-auth-card">
+                    {chip && <span className="atlas-auth-chip">{chip}</span>}
+                    {title && <h1 className="atlas-auth-title">{title}</h1>}
+                    {subtitle && <p className="atlas-auth-sub">{subtitle}</p>}
+                    {children}
+                </div>
+            </main>
+
+            <footer className="atlas-auth-foot mono">
+                <span>© {new Date().getFullYear()} {name}</span>
+            </footer>
+        </div>
+    );
 }
 
 AuthLayout.propTypes = {
     children: PropTypes.node,
-    title: PropTypes.string
+    title: PropTypes.string,
+    chip: PropTypes.string,
+    subtitle: PropTypes.node,
 }
 
 export default AuthLayout;

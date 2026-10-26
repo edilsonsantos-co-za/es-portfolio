@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App as AntdApp, ConfigProvider } from 'antd';
+import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import enUSIntl from 'antd/locale/en_US';import { BrowserRouter, Outlet, Route, Routes as RouterRoutes } from 'react-router-dom';
 
 // Suppress known antd v5 / rc-resize-observer findDOMNode warning (upstream library issue)
@@ -13,8 +13,11 @@ import Routes from '../../common/helpers/Routes';
 import SuspenseErrorBoundary from '../../common/components/SuspenseErrorBoundary';
 import {ErrorBoundaryFallbackUI} from '../../common/components/ErrorBoundaryFallbackUI';
 import '../../common/assets/css/app.css';
+import '../../common/assets/css/atlas-auth.css';
+import '../../common/assets/css/atlas-admin.css';
+import { ATLAS_PALETTE, useThemeMode } from '../../common/helpers/ThemeMode';
 import ReactRoutes from '../../common/helpers/ReactRoutes';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { initializeGlobalState } from '../redux/ActionCreators';
 import ConfigureStore from '../redux/ConfigureStore';
 import PrivateRoute from '../components/PrivateRoute';
@@ -138,12 +141,31 @@ const App = () => {
         setupInterceptors(store);
     }, []);
 
-    const accentColor = useSelector(state => state.globalState.accentColor);
+    const mode = useThemeMode();
+    const palette = ATLAS_PALETTE[mode];
+    const atlasTheme = {
+        algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        token: {
+            colorPrimary: palette.accent,
+            colorLink: palette.accent,
+            colorBgLayout: palette.bg,
+            colorBgContainer: palette.card,
+            colorBgElevated: palette.card,
+            colorBorder: palette.line,
+            colorBorderSecondary: palette.line,
+            colorText: palette.text,
+            colorTextSecondary: palette.muted,
+            fontFamily: "'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif",
+            fontFamilyCode: "'JetBrains Mono', ui-monospace, monospace",
+            borderRadius: 12,
+            borderRadiusLG: 24,
+        },
+    };
 
 	return (
 		<React.Fragment>
             <SuspenseErrorBoundary fallback={<ErrorBoundaryFallbackUI/>}>
-                <ConfigProvider locale={enUSIntl} theme={{ token: { colorPrimary: accentColor || '#1890ff', fontFamily: "'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif", borderRadius: 10 } }}>
+                <ConfigProvider locale={enUSIntl} theme={atlasTheme}>
                     <AntdApp>
                         <AntdAppBridge />
                         <BrowserRouter>

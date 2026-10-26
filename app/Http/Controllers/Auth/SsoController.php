@@ -41,6 +41,18 @@ class SsoController extends Controller
         return redirect()->away($auth['url']);
     }
 
+    /**
+     * End the Logto session after the SPA has dropped its token, so signing out
+     * does not sign straight back in, then return to the public site.
+     */
+    public function logout(): RedirectResponse
+    {
+        $client = LogtoClient::fromConfig();
+        abort_unless($client->enabled(), 404);
+
+        return redirect()->away($client->logoutUrl(url('/')));
+    }
+
     public function callback(Request $request): RedirectResponse
     {
         $client = LogtoClient::fromConfig();

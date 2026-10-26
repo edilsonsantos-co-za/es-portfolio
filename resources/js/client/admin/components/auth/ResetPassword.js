@@ -53,7 +53,7 @@ const ResetPassword = () => {
 
     return (
         <React.Fragment>
-            <AuthLayout title={'RESET PASSWORD'}>
+            <AuthLayout title={'Reset password'}>
                 <Form
                     name="resetPassword"
                     onFinish={onSubmit}

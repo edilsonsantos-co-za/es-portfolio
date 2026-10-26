@@ -18,15 +18,41 @@ import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
 import axios from 'axios';
 import styled from 'styled-components';
+import { ATLAS_PALETTE, useThemeMode } from '../../../common/helpers/ThemeMode';
 
 const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
-const normalizeNavTheme = (value) => (value === 'dark' || value === 'realDark' ? 'realDark' : 'light');
 
 const LayoutShell = styled.div`
     height: 100vh;
 
     .ant-pro-sider-actions {
         display: none !important;
+    }
+
+    .ant-pro-sider {
+        border-inline-end: 1px solid var(--line) !important;
+    }
+
+    .ant-pro-sider-logo {
+        height: 64px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .ant-pro-sider-logo img {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    .ant-pro-sider-logo h1 {
+        font-weight: 800 !important;
+        letter-spacing: -.02em;
+        color: var(--text) !important;
+    }
+
+    .ant-menu-item, .ant-menu-submenu-title {
+        border-radius: 12px !important;
+        font-weight: 600;
     }
 
     .ant-pro-sider-collapsed .ant-menu-item-icon,
@@ -58,41 +84,6 @@ const LayoutShell = styled.div`
     }
 `;
 
-const AdminTopBar = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 64px;
-    margin: -24px -24px 24px;
-    padding: 0 24px;
-    background: rgba(255, 255, 255, 0.96);
-    border-bottom: 1px solid rgba(5, 5, 5, 0.06);
-    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.06);
-    backdrop-filter: blur(8px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-`;
-
-const TopBarTitle = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 0;
-`;
-
-const TopBarPrimaryText = styled.span`
-    color: rgba(0, 0, 0, 0.88);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 22px;
-`;
-
-const TopBarSecondaryText = styled.span`
-    color: rgba(0, 0, 0, 0.45);
-    font-size: 12px;
-    line-height: 18px;
-`;
 
 const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
@@ -100,8 +91,7 @@ const ZLayout = ({ children }) => {
     const globalState = useSelector(state => state.globalState);
     const logo = globalState.logo;
     const siteName = globalState.siteName;
-    const menuColor = normalizeNavTheme(globalState.menuColor);
-    const navColor = globalState.navColor;
+    const palette = ATLAS_PALETTE[useThemeMode()];
     const layout = normalizeMenuLayout(globalState.menuLayout);
     const [collapsed, setCollapsed] = useState(false);
     let navigate = useNavigate();
@@ -137,8 +127,39 @@ const ZLayout = ({ children }) => {
 
     const defaultProps = {
         title: siteName,
-        navTheme: menuColor,
-        headerTheme: navColor,
+        navTheme: 'light',
+        token: {
+            bgLayout: palette.bg,
+            colorTextAppListIcon: palette.muted,
+            sider: {
+                colorMenuBackground: palette.card,
+                colorMenuItemDivider: palette.line,
+                colorBgMenuItemHover: palette.card2,
+                colorBgMenuItemSelected: palette.accentSoft,
+                colorBgMenuItemCollapsedElevated: palette.card,
+                colorTextMenu: palette.muted,
+                colorTextMenuItemHover: palette.text,
+                colorTextMenuActive: palette.text,
+                colorTextMenuSelected: palette.accent,
+                colorTextMenuSecondary: palette.muted,
+                colorTextMenuTitle: palette.text,
+                colorTextCollapsedButton: palette.muted,
+                colorTextCollapsedButtonHover: palette.text,
+            },
+            header: {
+                colorBgHeader: palette.card,
+                colorHeaderTitle: palette.text,
+                colorTextMenu: palette.muted,
+                colorTextMenuSelected: palette.accent,
+                colorBgMenuItemSelected: palette.accentSoft,
+                colorTextRightActionsItem: palette.muted,
+            },
+            pageContainer: {
+                colorBgPageContainer: palette.bg,
+                paddingBlockPageContainerContent: 0,
+                paddingInlinePageContainerContent: 0,
+            },
+        },
         layout: !isMobile ? layout : 'mix',
         fixedHeader: true,
         collapsed: collapsed,
@@ -260,19 +281,17 @@ const ZLayout = ({ children }) => {
                     )}
                     rightContentRender={!shouldRenderInlineTopBar ? () => <NavContent/> : false}
                     breadcrumbRender={() => ('')}
-                    contentStyle={{ padding: '24px' }}
+                    contentStyle={{ padding: 0 }}
                 >
                     {shouldRenderInlineTopBar && (
-                        <AdminTopBar>
-                            <TopBarTitle>
-                                <TopBarPrimaryText>{siteName}</TopBarPrimaryText>
-                                <TopBarSecondaryText>Administration</TopBarSecondaryText>
-                            </TopBarTitle>
+                        <div className="atlas-topbar">
+                            <span className="atlas-kicker">Portfolio admin</span>
                             <NavContent/>
-                        </AdminTopBar>
+                        </div>
                     )}
-                    {children}
-                    {/* <BackTop /> */}
+                    <div className="atlas-content">
+                        {children}
+                    </div>
                 </ProLayout>
             </LayoutShell>
         </React.Fragment>

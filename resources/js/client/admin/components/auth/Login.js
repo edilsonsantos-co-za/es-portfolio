@@ -1,4 +1,3 @@
-import { Alert, Button, Divider, Form, Input, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import AuthLayout from './AuthLayout';
 import axios from 'axios';
@@ -7,8 +6,6 @@ import Utils from '../../../common/helpers/Utils';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveApiToken } from '../../redux/ActionCreators';
-import {AiOutlineUser} from 'react-icons/ai';
-import {BsShieldLock} from 'react-icons/bs';
 
 const sso = window.edfolioSso || { enabled: false };
 
@@ -19,34 +16,35 @@ const SSO_ERRORS = {
     failed: 'Single sign-on failed. Please try again.',
 };
 
+/**
+ * With SSO configured, sign-in happens on the DataSparkLab SSO page: this route only
+ * redirects there, exchanges the one-time code on the way back, or shows why it failed.
+ * The password form is the fallback for installs without SSO.
+ */
 const Login = () => {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
     const [loading, setLoading] = useState(false);
-    const [ssoError, setSsoError] = useState(null);
+    const [ssoError, setSsoError] = useState(() => hash.has('sso_error') ? (SSO_ERRORS[hash.get('sso_error')] || SSO_ERRORS.failed) : null);
+    const [exchanging, setExchanging] = useState(() => hash.has('sso'));
+    const [credentials, setCredentials] = useState({ email: '', password: '' });
     const dispatch = useDispatch();
     let navigate = useNavigate();
     let location = useLocation();
-    const [form] = Form.useForm();
     const {siteName, apiToken, demoMode} = useSelector(state => state.globalState);
 
+    const redirectToSso = sso.enabled && !apiToken && !ssoError && !exchanging;
+
     useEffect(() => {
-        document.title = `Login - ${siteName}`;
+        document.title = `Sign in - ${siteName}`;
 
         if (demoMode) {
-            form.setFieldsValue({
-                email: 'admin@admin.com', 
-                password: 12345
-            });
+            setCredentials({ email: 'admin@admin.com', password: '12345' });
         }
 
-        const hash = new URLSearchParams(window.location.hash.slice(1));
         if (hash.has('sso') || hash.has('sso_error')) {
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
         }
-        if (hash.has('sso_error')) {
-            setSsoError(SSO_ERRORS[hash.get('sso_error')] || SSO_ERRORS.failed);
-        }
         if (hash.has('sso')) {
-            setLoading(true);
             axios.post(Routes.api.admin.ssoExchange, { code: hash.get('sso') })
                 .then(response => {
                     Utils.handleSuccessResponse(response, () => {
@@ -55,12 +53,17 @@ const Login = () => {
                 })
                 .catch((error) => {
                     Utils.handleException(error);
-                })
-                .finally(() => {
-                    setLoading(false);
+                    setSsoError(SSO_ERRORS.failed);
+                    setExchanging(false);
                 });
         }
     }, [])
+
+    useEffect(() => {
+        if (redirectToSso) {
+            window.location.replace(sso.loginUrl);
+        }
+    }, [redirectToSso]);
 
     useEffect(() => {
         if (apiToken) {
@@ -69,19 +72,15 @@ const Login = () => {
         }
     }, [apiToken]);
 
-    const onSubmit = (values) => {
+    const onSubmit = (event) => {
+        event.preventDefault();
         setLoading(true);
-        
-        axios.post(Routes.api.admin.login, {
-            email: values.email,
-            password: values.password,
-        })
+
+        axios.post(Routes.api.admin.login, credentials)
         .then(response => {
             Utils.handleSuccessResponse(response, () => {
-                const apiToken = response.data.payload.token.access_token;
-
                 dispatch(saveApiToken({
-                    apiToken: apiToken
+                    apiToken: response.data.payload.token.access_token
                 }));
             });
         })
@@ -92,68 +91,44 @@ const Login = () => {
         });
     };
 
-    return (
-        <React.Fragment>
-            <AuthLayout title={'ADMIN LOGIN'}>
-                {ssoError && <Alert type="error" showIcon message={ssoError} style={{ marginBottom: 16 }} />}
-                {sso.enabled && (
-                    <React.Fragment>
-                        <Button type="primary" block size="large" href={sso.loginUrl} loading={loading}>
-                            Continue with single sign-on
-                        </Button>
-                        <Divider plain>or use your password</Divider>
-                    </React.Fragment>
-                )}
-                <Form
-                    form={form}
-                    name="login"
-                    onFinish={onSubmit}
-                >
-                    <Form.Item
-                        name="email"
-                        messageVariables={{ label: 'Email' }}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter your email'
-                            },
-                            {
-                                type: 'email',
-                                message: 'Invalid email address'
-                            }
-                        ]}
-                    >
-                        <Input prefix={<AiOutlineUser/>} placeholder="Email" />
-                    </Form.Item>
-                    <Form.Item
-                        name="password"
-                        messageVariables={{ label: 'Password' }}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter your password'
-                            }
-                        ]}
-                    >
-                        <Input.Password
-                            prefix={<BsShieldLock/>}
-                            placeholder="Password"
-                        />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block loading={loading}>
-                            Log in
-                        </Button>
-                    </Form.Item>
-                    <Divider style={{marginBottom: '5px'}}/>
-                    <Form.Item className="text-center">
-                        <Link to={Routes.web.admin.forgetPassword}>
-                            <Typography.Text type="secondary">Forgot password?</Typography.Text>
-                        </Link>
-                    </Form.Item>
-                </Form>
+    const onChange = (event) => setCredentials({ ...credentials, [event.target.name]: event.target.value });
+
+    if (redirectToSso || exchanging) {
+        return (
+            <AuthLayout chip="DataSparkLab SSO" title="Signing you in…" subtitle="Taking you to the DataSparkLab sign-in page."/>
+        );
+    }
+
+    if (sso.enabled) {
+        return (
+            <AuthLayout chip="DataSparkLab SSO" title="We couldn't sign you in">
+                {ssoError && <div className="atlas-auth-alert" role="alert">{ssoError}</div>}
+                <p className="atlas-auth-sub">Sign in with the account linked to this site&apos;s admin, or ask an administrator for access.</p>
+                <a className="atlas-auth-btn" href={sso.loginUrl}>Try again</a>
             </AuthLayout>
-        </React.Fragment>
+        );
+    }
+
+    return (
+        <AuthLayout title="Sign in" subtitle={`Manage the portfolio content and settings for ${siteName || 'this site'}.`}>
+            <form className="atlas-auth-form" onSubmit={onSubmit}>
+                <div className="atlas-auth-field">
+                    <label htmlFor="login_email">Email</label>
+                    <input id="login_email" className="atlas-auth-input" type="email" name="email" value={credentials.email}
+                           onChange={onChange} placeholder="you@example.com" autoComplete="username" autoFocus required/>
+                </div>
+                <div className="atlas-auth-field">
+                    <label htmlFor="login_password">Password</label>
+                    <input id="login_password" className="atlas-auth-input" type="password" name="password" value={credentials.password}
+                           onChange={onChange} placeholder="Enter your password" autoComplete="current-password" required/>
+                </div>
+                <div className="atlas-auth-row">
+                    <span/>
+                    <Link to={Routes.web.admin.forgetPassword}>Forgot password?</Link>
+                </div>
+                <button type="submit" className="atlas-auth-btn" disabled={loading}>{loading ? 'Signing in…' : 'Sign in'}</button>
+            </form>
+        </AuthLayout>
     )
 }
 

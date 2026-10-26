@@ -48,6 +48,7 @@ Route::get('/admin/system-logs', function () {
 
 Route::get('/auth/sso/login', ['App\Http\Controllers\Auth\SsoController', 'login'])->name('sso.login');
 Route::get('/auth/sso/callback', ['App\Http\Controllers\Auth\SsoController', 'callback'])->name('sso.callback');
+Route::get('/auth/sso/logout', ['App\Http\Controllers\Auth\SsoController', 'logout'])->name('sso.logout');
 
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/{path?}', ['App\Http\Controllers\Admin\AdminController', 'app'])->where('path', '.*')->name('admin.app');

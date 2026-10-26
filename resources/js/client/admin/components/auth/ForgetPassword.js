@@ -50,7 +50,7 @@ const ForgetPassword = () => {
 
     return (
         <React.Fragment>
-            <AuthLayout title={'FORGET PASSWORD'}>
+            <AuthLayout title={'Forgot password'}>
                 <Form
                     name="forgetPassword"
                     onFinish={onSubmit}
