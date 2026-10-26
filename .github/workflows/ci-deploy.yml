@@ -43,9 +43,11 @@ jobs:
       - name: Run repository validation
         run: bash ./bin/validate.sh
 
+  # Production ships only when started by hand (Actions > CI and Deploy > Run workflow on main).
+  # Pushes to main run validation only, so work can land on main without going live.
   build-and-publish:
     needs: validate
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.image.outputs.tag }}
@@ -239,7 +241,7 @@ jobs:
       - validate
       - build-and-publish
       - deploy-production
-    if: always() && github.ref == 'refs/heads/main'
+    if: always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
