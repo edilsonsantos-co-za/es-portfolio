@@ -19,15 +19,13 @@ export const GlobalReducer = (state = initialState, action) => {
         case Types.SAVE_API_TOKEN: {
             const {apiToken} = action.payload;
             localStorage.setItem('apiToken', apiToken);
-            state.apiToken = apiToken;
-            
-            return state;
+
+            return { ...state, apiToken };
         }
         case Types.REMOVE_API_TOKEN: {
             localStorage.removeItem("apiToken");
-            state.apiToken = null;
 
-            return state;
+            return { ...state, apiToken: null };
         }
         default:
             return state;
