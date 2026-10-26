@@ -143,7 +143,7 @@ const App = () => {
 	return (
 		<React.Fragment>
             <SuspenseErrorBoundary fallback={<ErrorBoundaryFallbackUI/>}>
-                <ConfigProvider locale={enUSIntl} theme={{ token: { colorPrimary: accentColor || '#1890ff' } }}>
+                <ConfigProvider locale={enUSIntl} theme={{ token: { colorPrimary: accentColor || '#1890ff', fontFamily: "'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif", borderRadius: 10 } }}>
                     <AntdApp>
                         <AntdAppBridge />
                         <BrowserRouter>
