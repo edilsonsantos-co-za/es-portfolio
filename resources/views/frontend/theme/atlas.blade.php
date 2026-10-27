@@ -5,6 +5,7 @@
     $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500';
     $topSkills = collect($skills)->sortByDesc('proficiency')->take(5);
     $latest = collect($experiences)->sortByDesc('id')->first();
+    $education = $education ?? [];
     $logoUrl = \App\Helpers\Utils::getLogo();
     $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
 @endphp
@@ -129,6 +130,7 @@
             <a class="logo" href="#top" aria-label="{{ $about->name }}, home">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</a>
             <ul class="tabs" id="menu">
                 @if ($visibility['experiences'] && count($experiences))<li><a href="#experience">Experience</a></li>@endif
+                @if ($visibility['education'] && count($education))<li><a href="#education">Education</a></li>@endif
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="#services">Services</a></li>@endif
                 @if ($blogUrl)<li><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
@@ -184,15 +186,17 @@
                     <span class="mono">Top of the stack</span>
                     <ul>
                         @foreach ($topSkills as $skill)
-                            <li><span>{{ $skill->name }}</span><span class="meter"><i style="width: {{ (int) $skill->proficiency }}%"></i></span><span class="mono">{{ $skill->proficiency }}</span></li>
+                            <li><span>{{ $skill->name }}</span>@if ($visibility['skillProficiency'])<span class="meter"><i style="width: {{ (int) $skill->proficiency }}%"></i></span><span class="mono">{{ $skill->proficiency }}</span>@endif</li>
                         @endforeach
                     </ul>
                 </div>
             @endif
-            <div class="tile">
-                <span class="mono">About</span>
-                <p style="margin:10px 0 0;color:var(--muted)">{{ \Illuminate\Support\Str::limit($about->description, 150) }}</p>
-            </div>
+            @if ($visibility['about'])
+                <div class="tile">
+                    <span class="mono">About</span>
+                    <p style="margin:10px 0 0;color:var(--muted)">{{ \Illuminate\Support\Str::limit(strip_tags($about->description), 150) }}</p>
+                </div>
+            @endif
             @if ($latest)
                 <div class="tile now">
                     <span class="mono">Currently</span>
@@ -212,6 +216,23 @@
                             <h3>{{ $experience->company }}</h3>
                             <p class="pos">{{ $experience->position }}</p>
                             @if ($experience->details){!! $experience->details !!}@endif
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if ($visibility['education'] && count($education))
+            <section class="block" id="education">
+                <div class="head"><div><span class="mono">Education</span><h2>Where I studied</h2></div></div>
+                <div class="jobs">
+                    @foreach (collect($education)->sortByDesc('id') as $study)
+                        <article class="tile job" data-reveal>
+                            @if ($study->period)<span class="pill">{{ $study->period }}</span>@endif
+                            <h3>{{ $study->institution }}</h3>
+                            <p class="pos">{{ $study->degree }}@if ($study->department) · {{ $study->department }}@endif</p>
+                            @if ($study->cgpa)<p>Grade: {{ $study->cgpa }}</p>@endif
+                            @if ($study->thesis)<p>{{ $study->thesis }}</p>@endif
                         </article>
                     @endforeach
                 </div>
@@ -267,12 +288,14 @@
         @endif
     </main>
 
-    <footer>
-        © {{ date('Y') }} {{ $about->name }} ·
-        @if ($blogUrl)<a href="{{ $blogUrl }}">Blog</a>@endif
-        @if ($storeUrl)<a href="{{ $storeUrl }}">Store</a>@endif
-        @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
-    </footer>
+    @if ($visibility['footer'])
+        <footer>
+            © {{ date('Y') }} {{ $about->name }} ·
+            @if ($blogUrl)<a href="{{ $blogUrl }}">Blog</a>@endif
+            @if ($storeUrl)<a href="{{ $storeUrl }}">Store</a>@endif
+            @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
+        </footer>
+    @endif
 
     @include('frontend.theme.partials.scripts')
     <script>
