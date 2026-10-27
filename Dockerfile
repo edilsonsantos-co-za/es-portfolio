@@ -81,6 +81,7 @@ RUN mkdir -p \
     /var/www/html/storage/app/public/favicon \
     /var/www/html/storage/app/public/meta-image \
     /var/www/html/storage/app/backups \
+    /var/www/html/storage/app/themes \
     /var/www/html/storage/framework/cache \
     /var/www/html/storage/framework/sessions \
     /var/www/html/storage/framework/views \

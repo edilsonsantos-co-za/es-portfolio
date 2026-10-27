@@ -4,6 +4,11 @@ return [
     'demo_mode' => false,
     'blog_url' => env('BLOG_URL'),
     'store_url' => env('STORE_URL', 'https://store.edilsonsantos.co.za'),
+    // Portfolio -> Themes: where the catalogue and packages are fetched from (server side),
+    // where installed themes live (a volume in production), and whether unsigned packages install.
+    'theme_store_url' => env('THEME_STORE_URL', env('STORE_URL', 'https://store.edilsonsantos.co.za')),
+    'themes_path' => env('THEMES_PATH', storage_path('app/themes')),
+    'themes_allow_unsigned' => (bool) env('THEMES_ALLOW_UNSIGNED', false),
     // Shown by the frontend theme; leave empty to hide the tile or line
     'availability' => env('PORTFOLIO_AVAILABILITY'),
     'timezone' => env('PORTFOLIO_TIMEZONE', 'UTC'),

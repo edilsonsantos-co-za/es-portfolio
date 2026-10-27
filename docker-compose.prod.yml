@@ -13,6 +13,8 @@ services:
       - prod_backups:/var/www/html/storage/app/backups
       # Named volume for local-disk uploads when MEDIA_DISK=public
       - edfolio_storage:/var/www/html/storage/app/public
+      # Themes installed from Portfolio -> Themes; survives rebuilds and redeploys
+      - edfolio_themes:/var/www/html/storage/app/themes
     networks:
       - milkyway
     environment:
@@ -44,6 +46,7 @@ services:
 volumes:
   prod_backups:
   edfolio_storage:
+  edfolio_themes:
 
 networks:
   milkyway:

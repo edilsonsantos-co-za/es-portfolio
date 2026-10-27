@@ -11,6 +11,7 @@ import ColorPickerPopup from '../ColorPickerPopup';
 import { CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import SeoPopup from '../SeoPopup';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 const { Item } = List;
 const { Paragraph, Text } = Typography;
@@ -135,14 +136,14 @@ const Basic = (props) => {
         }
     }
 
-    const store = (
-        <a href={Utils.storeUrl} target="_blank" rel="noreferrer">ES Marketplace store ↗</a>
+    const more = (
+        <Link to={Routes.web.admin.portfolioThemes}>Portfolio → Themes</Link>
     )
 
     const theme = Utils.templates.length > 1 ? (
-        <Text type="secondary">Installed themes. Get more from the {store}</Text>
+        <Text type="secondary">Installed themes. Install more under {more}</Text>
     ) : (
-        <Text type="secondary">Atlas, the built-in theme. Get more from the {store}</Text>
+        <Text type="secondary">Atlas, the built-in theme. Install more under {more}</Text>
     )
 
     const templateOnChange = (value) => {

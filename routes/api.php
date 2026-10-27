@@ -40,6 +40,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/mail-settings', ['App\Http\Controllers\Admin\Api\SettingController', 'storeMailSettings']);
 
             Route::match(['get', 'post'], '/portfolio-configs', ['App\Http\Controllers\Admin\Api\PortfolioController', 'index']);
+
+            Route::get('/themes', ['App\Http\Controllers\Admin\Api\ThemeController', 'index']);
+            Route::post('/themes/upload', ['App\Http\Controllers\Admin\Api\ThemeController', 'upload']);
+            Route::post('/themes/{id}/install', ['App\Http\Controllers\Admin\Api\ThemeController', 'install'])->where('id', '[a-z0-9][a-z0-9-]*');
+            Route::post('/themes/{id}/activate', ['App\Http\Controllers\Admin\Api\ThemeController', 'activate'])->where('id', '[a-z0-9][a-z0-9-]*');
+            Route::delete('/themes/{id}', ['App\Http\Controllers\Admin\Api\ThemeController', 'destroy'])->where('id', '[a-z0-9][a-z0-9-]*');
             
             Route::match(['get', 'post'], '/about', ['App\Http\Controllers\Admin\Api\PortfolioController', 'about']);
 

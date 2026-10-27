@@ -21,15 +21,19 @@ use App\Services\Contracts\VisitorInterface;
 use App\Services\EducationService;
 use App\Services\ExperienceService;
 use App\Services\FrontendService;
+use App\Services\InstalledThemes;
 use App\Services\MessageService;
 use App\Services\PortfolioConfigService;
 use App\Services\ProjectService;
 use App\Services\ServiceService;
 use App\Services\SettingService;
 use App\Services\SkillService;
+use App\Services\Themes\ThemePackageVerifier;
+use App\Services\Themes\ThemeStore;
 use App\Services\VisitorService;
 use App\Helpers\Utils;
 use Config;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Schema;
 use URL;
@@ -62,6 +66,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ApplicationVersion::class, function () {
             return new ApplicationVersion(base_path('VERSION'));
         });
+        $this->app->bind(ThemePackageVerifier::class, function ($app) {
+            return new ThemePackageVerifier(
+                $app->make(ApplicationVersion::class),
+                config_path('theme-keys'),
+                (bool) config('custom.themes_allow_unsigned'),
+            );
+        });
+        $this->app->bind(ThemeStore::class, function () {
+            return new ThemeStore((string) config('custom.theme_store_url'));
+        });
     }
 
     /**
@@ -71,6 +85,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Themes installed from the ES Marketplace: themes::<id>.views.theme
+        View::addNamespace(InstalledThemes::VIEW_NAMESPACE, config('custom.themes_path'));
+
         if (Config::get('app.force_https')) {
             URL::forceScheme('https');
         } else {

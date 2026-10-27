@@ -57,6 +57,11 @@ Route::group(['prefix' => 'admin'], function () {
 
 #region [frontend]
 
+// Static files of themes installed from the ES Marketplace
+Route::get('/themes/{id}/{path}', 'App\Http\Controllers\Frontend\ThemeAssetController')
+    ->where(['id' => '[a-z0-9][a-z0-9-]*', 'path' => '[A-Za-z0-9_-][A-Za-z0-9._/-]*'])
+    ->name('theme.asset');
+
 Route::get('/', ['App\Http\Controllers\Frontend\FrontendController', 'index'])->name('frontend');
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');
 

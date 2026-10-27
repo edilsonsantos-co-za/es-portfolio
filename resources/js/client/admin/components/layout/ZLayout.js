@@ -212,6 +212,11 @@ const ZLayout = ({ children }) => {
                             name: 'Config',
                         },
                         {
+                            path: Routes.web.admin.portfolioThemes,
+                            key: Routes.web.admin.portfolioThemes,
+                            name: 'Themes',
+                        },
+                        {
                             path: Routes.web.admin.portfolioAbout,
                             key: Routes.web.admin.portfolioAbout,
                             name: 'About',

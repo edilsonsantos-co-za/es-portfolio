@@ -25,9 +25,11 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
   availability tile and stack meters on the public page, with light and dark modes and `prefers-reduced-motion` support
 - Other themes (the original Azure, Rigel, Vega and Procyon, and the Orion family) moved to the separate ES
   Marketplace repository. The public site links to the store with `STORE_URL`.
-- A theme downloaded from the store is installed by unzipping it over the app root. That adds
-  `resources/views/frontend/theme/<id>.blade.php` and `public/assets/themes/<id>/`. After that it appears
-  in Admin → Portfolio Config → Theme. An unknown or removed theme falls back to Atlas.
+- Themes install from Admin → Portfolio → Themes: pick one from the store or upload a downloaded package. No
+  unzipping, copying or code. Packages must be signed by a key in `config/theme-keys/` (every file is checked
+  against the signed manifest) and land in `storage/app/themes/<id>/`, a volume in production so installs survive
+  redeploys. An unknown or removed theme falls back to Atlas. `THEME_STORE_URL` sets the store;
+  `THEMES_ALLOW_UNSIGNED=true` allows unsigned packages (not recommended: Blade views are code).
 
 **Single sign-on (optional)**
 - Admin sign-in through [Logto](https://logto.io) using OpenID Connect (authorization code + PKCE), with no extra packages

@@ -4,6 +4,7 @@
 /public/storage
 /storage/*.key
 /storage/app/backups/
+/storage/app/themes/
 /vendor
 .env
 .env.backup
