@@ -425,6 +425,9 @@ class VisitorService implements VisitorInterface
 
             //platform
             $data['platform'] = (clone $result)->select('platform', DB::raw('count(*) as total'))->groupBy('platform')->get();
+
+            //daily: new vs returning per day, gaps filled with zeros
+            $data['daily'] = $this->dailySeries(clone $result, $startDate, $endEnd);
             
 
             return [
@@ -440,6 +443,44 @@ class VisitorService implements VisitorInterface
                 'status'  => CoreConstants::STATUS_CODE_ERROR
             ];
         }
+    }
+
+    /**
+     * Visits per day split into new and returning, one row per day in the range.
+     * Without a range it covers the last 30 days.
+     *
+     * @return array<int, array{date: string, new: int, returning: int}>
+     */
+    private function dailySeries($query, $startDate = null, $endDate = null): array
+    {
+        $from = $startDate ? Carbon::parse($startDate)->startOfDay() : now()->subDays(29)->startOfDay();
+        $to = $endDate ? Carbon::parse($endDate)->startOfDay() : now()->startOfDay();
+
+        if ($from->diffInDays($to) > 366) {
+            $from = $to->copy()->subDays(366);
+        }
+
+        $rows = $query->where('created_at', '>=', $from)
+            ->select(DB::raw('DATE(created_at) as day'), 'is_new', DB::raw('count(*) as total'))
+            ->groupBy('day', 'is_new')
+            ->get();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[$row->day][(int) $row->is_new === CoreConstants::TRUE ? 'new' : 'returning'] = (int) $row->total;
+        }
+
+        $series = [];
+        for ($day = $from->copy(); $day->lte($to); $day->addDay()) {
+            $key = $day->toDateString();
+            $series[] = [
+                'date' => $key,
+                'new' => $counts[$key]['new'] ?? 0,
+                'returning' => $counts[$key]['returning'] ?? 0,
+            ];
+        }
+
+        return $series;
     }
 
     /**
