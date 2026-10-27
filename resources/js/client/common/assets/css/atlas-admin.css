@@ -11,6 +11,10 @@ body { margin: 0; color: var(--text); font-family: 'Manrope', system-ui, -apple-
 .atlas-content { padding: 8px 24px 32px; }
 .atlas-topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; margin: 0; padding: 0 24px; background: color-mix(in srgb, var(--card) 88%, transparent); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
 .atlas-topbar-actions { display: flex; align-items: center; gap: 8px; }
+.atlas-topbar-start { display: flex; align-items: center; gap: 12px; }
+.atlas-icon-btn { display: inline-grid; place-items: center; width: 38px; height: 38px; padding: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 16px; cursor: pointer; }
+.atlas-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+.atlas-icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .atlas-icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); display: inline-grid; place-items: center; cursor: pointer; text-decoration: none; }
 .atlas-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 .atlas-icon-btn svg { display: block; }

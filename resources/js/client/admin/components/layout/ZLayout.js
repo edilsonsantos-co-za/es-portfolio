@@ -12,6 +12,7 @@ import {
   TeamOutlined,
   MailOutlined,
   ThunderboltOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
 import { message } from 'antd';
 import NavContent from './NavContent';
@@ -85,6 +86,19 @@ const LayoutShell = styled.div`
 `;
 
 
+// Same behaviour as the blog admin: a hamburger in the top bar folds the sidebar to icons,
+// and the choice is remembered per browser.
+const SIDEBAR_KEY = 'edfolio-admin-sidebar-collapsed';
+
+const readSidebarPreference = () => {
+    try {
+        const value = window.localStorage.getItem(SIDEBAR_KEY);
+        return value === null ? null : value === '1';
+    } catch {
+        return null;
+    }
+};
+
 const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
     const location = useLocation();
@@ -93,12 +107,25 @@ const ZLayout = ({ children }) => {
     const siteName = globalState.siteName;
     const palette = ATLAS_PALETTE[useThemeMode()];
     const layout = normalizeMenuLayout(globalState.menuLayout);
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(() => !isMobile && readSidebarPreference() === true);
     let navigate = useNavigate();
 
     useEffect(() => {
-        !isMobile && setCollapsed(globalState.shortMenu);
+        // The "short menu" setting is the default until the sidebar is toggled in this browser.
+        if (!isMobile && readSidebarPreference() === null) {
+            setCollapsed(globalState.shortMenu);
+        }
     }, [globalState.shortMenu])
+
+    const toggleSidebar = () => {
+        const next = !collapsed;
+        setCollapsed(next);
+        try {
+            window.localStorage.setItem(SIDEBAR_KEY, next ? '1' : '0');
+        } catch {
+            // Private mode: keep the in-memory state only.
+        }
+    }
 
     const optimizeOnClick = () => {
         message.loading({
@@ -258,6 +285,7 @@ const ZLayout = ({ children }) => {
                     {...defaultProps}
                     location={location}
                     fixSiderbar
+                    collapsedButtonRender={false}
                     onMenuHeaderClick={() => navigateToPath(Routes.web.admin.dashboard)}
                     menuItemRender={(item, dom) => (
                         <a
@@ -281,7 +309,19 @@ const ZLayout = ({ children }) => {
                 >
                     {shouldRenderInlineTopBar && (
                         <div className="atlas-topbar">
-                            <span className="atlas-kicker">Portfolio admin</span>
+                            <span className="atlas-topbar-start">
+                                <button
+                                    type="button"
+                                    className="atlas-icon-btn"
+                                    onClick={toggleSidebar}
+                                    aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+                                    aria-expanded={!collapsed}
+                                    title={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+                                >
+                                    <MenuOutlined />
+                                </button>
+                                <span className="atlas-kicker">Portfolio admin</span>
+                            </span>
                             <NavContent/>
                         </div>
                     )}
