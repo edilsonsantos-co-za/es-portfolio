@@ -1,10 +1,11 @@
-{{-- Atlas theme (Orion family): bento-grid hero with live local clock, tabbed pill nav, card-driven sections. --}}
+{{-- Atlas theme (Orion family): live bento hero (spotlight, seconds ring, count-up, filling meters, company ticker), tabbed pill nav, bento sections. --}}
 @php
     extract(\App\Helpers\ThemeContext::make($about, $experiences));
     $visibility = $portfolioConfig['visibility'];
     $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500';
     $topSkills = collect($skills)->sortByDesc('proficiency')->take(5);
     $latest = collect($experiences)->sortByDesc('id')->first();
+    $companies = collect($experiences)->sortByDesc('id')->pluck('company')->filter()->unique()->values();
     $education = $education ?? [];
     $logoUrl = \App\Helpers\Utils::getLogo();
     $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
@@ -39,6 +40,8 @@
         .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 12px; padding: 12px 0 0; }
         .tile { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; }
         .tile:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
+        .bento .tile::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(260px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%); }
+        .bento .tile:not(.photo) > * { position: relative; }
         .intro { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
         .intro h1 { font-size: clamp(40px, 5.4vw, 68px); line-height: .98; letter-spacing: -.045em; margin: 10px 0 14px; font-weight: 800; }
         .intro .role { font-size: 20px; margin: 0; color: var(--muted); }
@@ -57,14 +60,25 @@
         .avail strong { font-size: 22px; line-height: 1.2; }
         .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-ink); display: inline-block; animation: beat 1.6s infinite; }
         @keyframes beat { 50% { transform: scale(1.5); opacity: .5; } }
-        .clock strong { display: block; font: 700 44px/1 'JetBrains Mono', monospace; letter-spacing: -.04em; margin-top: 18px; }
+        .clock { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+        .clock-row { display: flex; align-items: center; gap: 12px; }
+        .clock .ring { width: 52px; height: 52px; flex: none; }
+        .clock strong { font: 700 26px/1 'JetBrains Mono', monospace; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
         .big { font-size: 52px; font-weight: 800; letter-spacing: -.05em; line-height: 1; display: block; margin-top: 14px; }
         .stack { grid-column: span 2; }
         .stack ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
         .stack li { display: grid; grid-template-columns: 110px 1fr 40px; gap: 12px; align-items: center; font-weight: 700; font-size: 14px; }
         .stack .meter { height: 8px; border-radius: 8px; background: var(--card-2); overflow: hidden; }
-        .stack .meter i { display: block; height: 100%; border-radius: 8px; background: var(--accent); }
-        .now { grid-column: 1 / -1; background: var(--accent-soft); }
+        .stack .meter i { display: block; height: 100%; border-radius: 8px; background: var(--accent); transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
+        .stack.pending .meter i { width: 0 !important; }
+        .now { grid-column: span 2; background: var(--accent-soft); }
+        .now.solo { grid-column: 1 / -1; }
+        .shipped { grid-column: span 2; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+        .shipped .track { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+        .ticker { display: flex; gap: 28px; width: max-content; white-space: nowrap; animation: tick 30s linear infinite; font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+        .ticker span::after { content: '·'; margin-left: 28px; color: var(--muted); }
+        .shipped:hover .ticker { animation-play-state: paused; }
+        @keyframes tick { to { transform: translateX(-50%); } }
         .now .mono { color: var(--muted); }
         .now h3 { font-size: 26px; margin: 12px 0 2px; letter-spacing: -.02em; }
 
@@ -72,21 +86,37 @@
         .head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
         h2 { font-size: clamp(30px, 4vw, 48px); letter-spacing: -.045em; margin: 6px 0 0; line-height: 1; font-weight: 800; }
 
-        .jobs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        /* Bento lists: the first item leads as a 2x2 tile and the last one widens so a row never ends in a hole. */
+        .bento-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .bento-list > :first-child { grid-column: span 2; grid-row: span 2; }
+        .bento-list > :only-child { grid-column: 1 / -1; grid-row: auto; }
+        .bento-list > :nth-child(3n+1):last-child { grid-column: 1 / -1; }
+        .bento-list > :nth-child(3n+2):last-child { grid-column: span 2; }
+        .bento-list > :nth-child(2):last-child { grid-column: auto; grid-row: span 2; }
+        /* Text-only lists lead with a wide, single-row tile instead. */
+        .bento-list.wide-lead > :first-child { grid-row: auto; background: var(--accent-soft); border-color: transparent; }
+        .bento-list.wide-lead > :nth-child(n+2):last-child { grid-column: auto; grid-row: auto; }
+        .bento-list.wide-lead > :nth-child(3n):last-child { grid-column: 1 / -1; }
+        .bento-list.wide-lead > :nth-child(3n+1):last-child { grid-column: span 2; }
+        .jobs > :first-child h3 { font-size: 30px; }
         .job h3 { margin: 10px 0 0; font-size: 22px; letter-spacing: -.02em; }
         .job .pos { margin: 0 0 10px; color: var(--muted); }
         .job ul { margin: 0; padding-left: 18px; color: var(--muted); font-weight: 500; }
         .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); font: 500 12px 'JetBrains Mono', monospace; }
 
-        .works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .works .tile:first-child { grid-column: span 2; grid-row: span 2; }
         .work { padding: 0; text-decoration: none; display: flex; flex-direction: column; }
         .work img { width: 100%; flex: 1; min-height: 180px; object-fit: cover; }
         .work .body { padding: 16px 20px 20px; }
         .work h3 { margin: 6px 0 4px; font-size: 19px; }
         .work p { margin: 0; color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        .svcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .svcs > :first-child { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+        .svcs > :first-child .n { background: var(--accent-ink); color: var(--accent); }
+        .svcs > :first-child p { color: inherit; opacity: .85; }
+        .svcs > :first-child { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+        .svcs > :first-child .n { width: 64px; height: 64px; border-radius: 20px; font-size: 26px; }
+        .svcs > :first-child h3 { font-size: clamp(28px, 3.4vw, 44px); letter-spacing: -.035em; line-height: 1.05; margin-top: auto; }
+        .svcs > :first-child p { font-size: 17px; max-width: 46ch; }
         .svc .n { width: 44px; height: 44px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 800; }
         .svc h3 { margin: 16px 0 6px; font-size: 19px; }
         .svc p { margin: 0; color: var(--muted); font-size: 15px; }
@@ -111,17 +141,19 @@
 
         @media (max-width: 1000px) {
             .bento { grid-template-columns: repeat(2, 1fr); }
-            .works, .svcs { grid-template-columns: repeat(2, 1fr); }
+            .bento-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
+            .bento-list > :first-child, .bento-list > :nth-child(even):last-child { grid-column: 1 / -1 !important; }
         }
         @media (max-width: 700px) {
             .menu-btn { display: grid; margin-left: auto; }
             .tabs { display: none; position: absolute; top: 64px; left: 12px; right: 12px; flex-direction: column; }
             .tabs.open { display: flex; }
-            .bento, .jobs, .works, .svcs, .contact, .two { grid-template-columns: 1fr; }
-            .intro, .stack, .works .tile:first-child { grid-column: auto; grid-row: auto; }
+            .bento, .bento-list, .contact, .two { grid-template-columns: 1fr; }
+            .intro, .stack, .now, .shipped, .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
             .photo { grid-row: auto; aspect-ratio: 4/5; }
         }
-        @media (prefers-reduced-motion: reduce) { .dot { animation: none; } .tile:hover { transform: none; } html { scroll-behavior: auto; } }
+        @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile:hover { transform: none; } html { scroll-behavior: auto; } }
     </style>
 </head>
 <body>
@@ -169,20 +201,23 @@
                     <strong>{{ $availability }}</strong>
                 </div>
             @endif
-            <div class="tile clock">
-                <span class="mono">Local time · {{ $timezoneCity }}</span>
-                <strong id="clock" data-timezone="{{ $timezone }}">--:--</strong>
-                <span class="mono">{{ $utcOffset }}@if ($timeNote) · {{ $timeNote }}@endif</span>
-            </div>
             @if ($years)
                 <div class="tile">
                     <span class="mono">In production</span>
-                    <span class="big">{{ $years }}+</span>
+                    <span class="big"><span data-count="{{ $years }}">{{ $years }}</span>+</span>
                     <span class="mono">years</span>
                 </div>
             @endif
+            <div class="tile clock">
+                <span class="mono">Local time · {{ $timezoneCity }}</span>
+                <div class="clock-row">
+                    <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="var(--line)" stroke-width="6"/><circle id="ring" cx="32" cy="32" r="28" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176" transform="rotate(-90 32 32)"/></svg>
+                    <strong id="clock" data-timezone="{{ $timezone }}">--:--</strong>
+                </div>
+                <span class="mono">{{ $utcOffset }}@if ($timeNote) · {{ $timeNote }}@endif</span>
+            </div>
             @if ($visibility['skills'] && count($skills))
-                <div class="tile stack">
+                <div class="tile stack pending">
                     <span class="mono">Top of the stack</span>
                     <ul>
                         @foreach ($topSkills as $skill)
@@ -198,10 +233,16 @@
                 </div>
             @endif
             @if ($latest)
-                <div class="tile now">
+                <div class="tile now{{ $companies->count() > 1 ? '' : ' solo' }}">
                     <span class="mono">Currently</span>
                     <h3>{{ $latest->position }} at {{ $latest->company }}</h3>
                     <span class="mono">{{ $latest->period }}</span>
+                </div>
+            @endif
+            @if ($companies->count() > 1)
+                <div class="tile shipped">
+                    <span class="mono">Shipped at</span>
+                    <div class="track"><div class="ticker">@foreach ([1, 2] as $copy)@foreach ($companies as $company)<span @if ($copy === 2) aria-hidden="true" @endif>{{ $company }}</span>@endforeach @endforeach</div></div>
                 </div>
             @endif
         </div>
@@ -209,7 +250,7 @@
         @if ($visibility['experiences'] && count($experiences))
             <section class="block" id="experience">
                 <div class="head"><div><span class="mono">Experience</span><h2>Where I've worked</h2></div></div>
-                <div class="jobs">
+                <div class="bento-list wide-lead jobs">
                     @foreach (collect($experiences)->sortByDesc('id') as $experience)
                         <article class="tile job" data-reveal>
                             <span class="pill">{{ $experience->period }}</span>
@@ -225,7 +266,7 @@
         @if ($visibility['education'] && count($education))
             <section class="block" id="education">
                 <div class="head"><div><span class="mono">Education</span><h2>Where I studied</h2></div></div>
-                <div class="jobs">
+                <div class="bento-list wide-lead jobs">
                     @foreach (collect($education)->sortByDesc('id') as $study)
                         <article class="tile job" data-reveal>
                             @if ($study->period)<span class="pill">{{ $study->period }}</span>@endif
@@ -242,7 +283,7 @@
         @if ($visibility['projects'] && count($projects))
             <section class="block" id="work">
                 <div class="head"><div><span class="mono">Work</span><h2>Selected projects</h2></div></div>
-                <div class="works">
+                <div class="bento-list works">
                     @foreach ($projects as $project)
                         @php $categories = $project->categories ? (array) safe_json_decode($project->categories) : []; @endphp
                         <a class="tile work" data-reveal @if ($project->link) href="{{ $project->link }}" target="_blank" rel="noopener" @endif>
@@ -261,7 +302,7 @@
         @if ($visibility['services'] && count($services))
             <section class="block" id="services">
                 <div class="head"><div><span class="mono">Services</span><h2>How I can help</h2></div></div>
-                <div class="svcs">
+                <div class="bento-list svcs">
                     @foreach ($services as $service)
                         <div class="tile svc" data-reveal>
                             <span class="n">{{ $loop->iteration }}</span>
@@ -302,10 +343,40 @@
         (function () {
             var el = document.getElementById('clock');
             if (!el) return;
-            var fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: el.getAttribute('data-timezone') || 'UTC' });
-            function tick() { el.textContent = fmt.format(new Date()); }
+            var ring = document.getElementById('ring');
+            var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: el.getAttribute('data-timezone') || 'UTC' });
+            function tick() {
+                var now = new Date();
+                el.textContent = fmt.format(now);
+                ring.setAttribute('stroke-dashoffset', String(176 - 176 * (now.getSeconds() / 60)));
+            }
             tick();
-            setInterval(tick, 15000);
+            setInterval(tick, 1000);
+
+            // Years count up, meters fill in, and a soft spotlight follows the cursor across the tiles.
+            document.querySelectorAll('[data-count]').forEach(function (n) {
+                var to = +n.getAttribute('data-count');
+                if (reduce || !to) return;
+                var t0 = performance.now();
+                (function step(t) {
+                    var k = Math.min(1, (t - t0) / 1200);
+                    n.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
+                    if (k < 1) requestAnimationFrame(step);
+                })(t0);
+            });
+            var stack = document.querySelector('.stack.pending');
+            if (stack) requestAnimationFrame(function () { requestAnimationFrame(function () { stack.classList.remove('pending'); }); });
+            var bento = document.querySelector('.bento');
+            if (bento && !reduce && matchMedia('(hover: hover)').matches) {
+                bento.addEventListener('pointermove', function (e) {
+                    bento.querySelectorAll('.tile').forEach(function (t) {
+                        var r = t.getBoundingClientRect();
+                        t.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                        t.style.setProperty('--my', (e.clientY - r.top) + 'px');
+                    });
+                });
+            }
         })();
     </script>
 </body>
