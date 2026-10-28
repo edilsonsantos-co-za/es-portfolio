@@ -178,6 +178,20 @@ const Dashboard = () => {
         { label: 'Today', value: data.today },
     ];
 
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening');
+    const [leadStat, ...otherStats] = contentStats;
+
+    const statTile = (stat, className = '') => (
+        <button key={stat.title} type="button" className={`atlas-tile atlas-stat ${className}`} onClick={() => navigate(stat.link)}>
+            <span className="atlas-stat-icon" aria-hidden="true">{stat.icon}</span>
+            <span className="atlas-kicker">{stat.title}</span>
+            {loading ? <Skeleton.Button active size="small"/> : <span className="atlas-stat-number">{formatNumber(stat.number)}</span>}
+        </button>
+    );
+
+    // One bento, the admin's variant of the Atlas layout: a welcome tile leads, activity sits beside it,
+    // and the content counts close the grid.
     return (
         <div className="atlas-dash">
             <header className="atlas-page-head">
@@ -185,20 +199,20 @@ const Dashboard = () => {
                     <p className="atlas-kicker">Admin overview</p>
                     <h1>Dashboard</h1>
                 </div>
-                <a className="atlas-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer">View {siteName || 'site'} ↗</a>
             </header>
 
-            <section className="atlas-stat-grid" aria-label="Portfolio content">
-                {contentStats.map(stat => (
-                    <button key={stat.title} type="button" className="atlas-tile atlas-stat" onClick={() => navigate(stat.link)}>
-                        <span className="atlas-stat-icon" aria-hidden="true">{stat.icon}</span>
-                        <span className="atlas-kicker">{stat.title}</span>
-                        {loading ? <Skeleton.Button active size="small"/> : <span className="atlas-stat-number">{formatNumber(stat.number)}</span>}
-                    </button>
-                ))}
-            </section>
+            <section className="atlas-bento" aria-label="Overview">
+                <article className="atlas-tile atlas-welcome">
+                    <p className="atlas-kicker">{siteName || 'EdFolio'}</p>
+                    <h2>{greeting}.</h2>
+                    <p className="atlas-muted">Your portfolio runs on Atlas, the design shared by the portfolio, the blog and their admins. Install other looks from Themes.</p>
+                    <div className="atlas-actions">
+                        <a className="atlas-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer">View {siteName || 'site'} ↗</a>
+                        <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioThemes)}>Themes</button>
+                        <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioConfig)}>Site settings</button>
+                    </div>
+                </article>
 
-            <section className="atlas-bento">
                 <article className="atlas-tile atlas-activity atlas-span-2">
                     <div className="atlas-tile-head">
                         <span className="atlas-stat-icon" aria-hidden="true"><AiOutlineTeam/></span>
@@ -234,15 +248,8 @@ const Dashboard = () => {
                     </dl>
                 </article>
 
-                <article className="atlas-tile atlas-theme-tile">
-                    <p className="atlas-kicker">Site theme</p>
-                    <p className="atlas-theme-name">Atlas</p>
-                    <p className="atlas-muted">The built-in design shared by the portfolio, the blog and their admins.</p>
-                    <div className="atlas-actions">
-                        <button type="button" className="atlas-btn" onClick={() => navigate(Routes.web.admin.portfolioConfig)}>Site settings</button>
-                        <a className="atlas-btn ghost" href={Utils.storeUrl} target="_blank" rel="noreferrer">Theme store ↗</a>
-                    </div>
-                </article>
+                {statTile(leadStat, 'is-accent')}
+                {otherStats.map(stat => statTile(stat))}
             </section>
         </div>
     )
