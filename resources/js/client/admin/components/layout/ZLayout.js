@@ -56,26 +56,19 @@ const LayoutShell = styled.div`
         font-weight: 600;
     }
 
-    .ant-pro-sider-collapsed .ant-menu-item-icon,
-    .ant-pro-sider-collapsed .ant-menu-submenu-title .ant-menu-item-icon {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
+    /* Collapsed rail: antd fades out .ant-menu-title-content, but ProLayout renders the icon inside it,
+       so keep that visible, hide only the label and the submenu arrow, and centre the icon. */
+    .ant-pro-sider-collapsed .ant-menu-title-content {
         opacity: 1 !important;
-        visibility: visible !important;
-    }
-
-    .ant-pro-sider-collapsed .ant-menu,
-    .ant-pro-sider-collapsed .ant-menu-item,
-    .ant-pro-sider-collapsed .ant-menu-submenu,
-    .ant-pro-sider-collapsed .ant-menu-submenu-title {
+        flex: 1;
         display: flex !important;
-        opacity: 1 !important;
-        visibility: visible !important;
+        justify-content: center;
+        min-width: 0;
     }
 
-    .ant-pro-sider-collapsed .ant-menu {
-        flex-direction: column;
+    .ant-pro-sider-collapsed [class*="-item-text"],
+    .ant-pro-sider-collapsed .ant-menu-submenu-arrow {
+        display: none !important;
     }
 
     .ant-pro-sider-collapsed .ant-menu-item,
