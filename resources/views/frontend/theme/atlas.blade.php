@@ -28,16 +28,31 @@
         .wrap { width: min(1200px, 100% - 24px); margin-inline: auto; }
         .mono, .label { font: 500 12px 'JetBrains Mono', monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 
-        .top { position: sticky; top: 0; z-index: 20; padding: 12px 0; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); }
-        .top .wrap { display: flex; align-items: center; gap: 12px; }
-        .logo { width: 40px; height: 40px; border-radius: 12px; overflow: hidden; flex: none; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 800; text-decoration: none; letter-spacing: -.04em; }
-        .tabs { list-style: none; display: flex; gap: 4px; margin: 0 auto; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
-        .tabs a { display: block; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--muted); }
-        .tabs a:hover { background: var(--card-2); color: var(--text); }
+        /* Masthead and footer: shared with the blog and the store */
+        .masthead { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+        .mast-row { display: flex; align-items: center; gap: 20px; min-height: 68px; position: relative; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex: none; }
+        .logo { width: 36px; height: 36px; border-radius: 10px; overflow: hidden; flex: none; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 800; font-size: 14px; letter-spacing: -.04em; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .brand-text b { font-weight: 800; letter-spacing: -.02em; }
+        .brand-text small { font-size: 10px; }
+        .nav { list-style: none; flex: 1; display: flex; gap: 22px; margin: 0; padding: 0; }
+        .nav a { display: block; padding: 22px 0; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--muted); white-space: nowrap; }
+        .nav a:hover { color: var(--text); }
+        .nav-mobile-only { display: none; }
+        .top-actions { display: flex; align-items: center; gap: 8px; }
+        .top-actions .btn { padding: 8px 14px; border-radius: 10px; font-size: 14px; background: var(--card); }
+        .site-foot { margin-top: 48px; border-top: 1px solid var(--line); background: var(--card); }
+        .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 24px 0 28px; color: var(--muted); }
+        .foot-brand .logo { width: 28px; height: 28px; border-radius: 8px; font-size: 11px; }
+        .foot-links { display: flex; flex-wrap: wrap; gap: 6px 20px; font-weight: 600; font-size: 14px; }
+        .foot-links a { color: var(--muted); text-decoration: none; }
+        .foot-links a:hover { color: var(--accent); }
+        .foot-copy { font-size: 12px; }
         .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; display: grid; place-items: center; font-size: 16px; }
         .menu-btn { display: none; }
 
-        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 12px; padding: 12px 0 0; }
+        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 12px; padding: 24px 0 0; }
         .tile { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; }
         .tile:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
         .bento .tile::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(260px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%); }
@@ -124,7 +139,6 @@
         .contact { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
         .contact .cta { background: var(--accent-soft); }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
-        .signin { padding: 9px 14px; border-radius: 12px; font-size: 14px; }
         .contact .cta h2 { font-size: clamp(34px, 4vw, 52px); }
         .contact .cta a { color: inherit; }
         .contact-form { display: grid; gap: 10px; }
@@ -133,22 +147,25 @@
         input, textarea { width: 100%; font: 500 16px 'Manrope', sans-serif; color: var(--text); background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
         input:focus, textarea:focus, .btn:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
         .form-note { min-height: 1.5em; color: var(--muted); margin: 0; }
-        footer { padding: 40px 0; text-align: center; color: var(--muted); font-size: 14px; }
-        footer a { margin: 0 6px; }
 
         .reveal { opacity: 0; transform: translateY(16px) scale(.98); transition: opacity .6s, transform .6s; }
         .reveal.in { opacity: 1; transform: none; }
 
         @media (max-width: 1000px) {
+            .menu-btn { display: grid; }
+            .top-actions { margin-left: auto; }
+            .nav { display: none; position: absolute; top: 100%; left: -12px; right: -12px; flex-direction: column; gap: 0; padding: 8px 24px; background: var(--card); border-bottom: 1px solid var(--line); box-shadow: 0 16px 40px rgba(15,23,42,.12); }
+            .nav.open { display: flex; }
+            .nav a { padding: 12px 0; }
             .bento { grid-template-columns: repeat(2, 1fr); }
             .bento-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
             .bento-list > :first-child, .bento-list > :nth-child(even):last-child { grid-column: 1 / -1 !important; }
         }
         @media (max-width: 700px) {
-            .menu-btn { display: grid; margin-left: auto; }
-            .tabs { display: none; position: absolute; top: 64px; left: 12px; right: 12px; flex-direction: column; }
-            .tabs.open { display: flex; }
+            .hide-sm { display: none; }
+            .nav-mobile-only { display: block; }
+            .foot { flex-direction: column; align-items: flex-start; }
             .bento, .bento-list, .contact, .two { grid-template-columns: 1fr; }
             .intro, .stack, .now, .shipped, .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
             .photo { grid-row: auto; aspect-ratio: 4/5; }
@@ -157,21 +174,28 @@
     </style>
 </head>
 <body>
-    <header class="top">
-        <div class="wrap">
-            <a class="logo" href="#top" aria-label="{{ $about->name }}, home">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</a>
-            <ul class="tabs" id="menu">
+    <header class="masthead">
+        <div class="wrap mast-row">
+            <a class="brand" href="#top" aria-label="{{ $about->name }}, home">
+                <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
+                <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
+            </a>
+            <ul class="nav" id="menu">
                 @if ($visibility['experiences'] && count($experiences))<li><a href="#experience">Experience</a></li>@endif
                 @if ($visibility['education'] && count($education))<li><a href="#education">Education</a></li>@endif
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="#services">Services</a></li>@endif
-                @if ($blogUrl)<li><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
-                @if ($storeUrl)<li><a href="{{ $storeUrl }}">Store ↗</a></li>@endif
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
+                @if ($blogUrl)<li class="nav-mobile-only"><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
+                @if ($storeUrl)<li class="nav-mobile-only"><a href="{{ $storeUrl }}">Store ↗</a></li>@endif
             </ul>
-            <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
-            @include('frontend.theme.partials.theme-toggle')
-            <a class="btn signin" href="{{ url('/admin') }}">Sign in</a>
+            <div class="top-actions">
+                @if ($blogUrl)<a class="btn hide-sm" href="{{ $blogUrl }}">Blog ↗</a>@endif
+                @if ($storeUrl)<a class="btn hide-sm" href="{{ $storeUrl }}">Store ↗</a>@endif
+                @include('frontend.theme.partials.theme-toggle')
+                <a class="btn" href="{{ url('/admin') }}">Sign in</a>
+                <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
+            </div>
         </div>
     </header>
 
@@ -330,11 +354,22 @@
     </main>
 
     @if ($visibility['footer'])
-        <footer>
-            © {{ date('Y') }} {{ $about->name }} ·
-            @if ($blogUrl)<a href="{{ $blogUrl }}">Blog</a>@endif
-            @if ($storeUrl)<a href="{{ $storeUrl }}">Store</a>@endif
-            @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
+        <footer class="site-foot">
+            <div class="wrap foot">
+                <a class="brand foot-brand" href="#top">
+                    <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
+                    <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
+                </a>
+                <nav class="foot-links" aria-label="Footer">
+                    @if ($visibility['projects'] && count($projects))<a href="#work">Work</a>@endif
+                    @if ($visibility['services'] && count($services))<a href="#services">Services</a>@endif
+                    @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a>@endforeach
+                    @if ($blogUrl)<a href="{{ $blogUrl }}">Blog ↗</a>@endif
+                    @if ($storeUrl)<a href="{{ $storeUrl }}">Store ↗</a>@endif
+                    @if ($visibility['contact'])<a href="#contact">Contact</a>@endif
+                </nav>
+                <span class="foot-copy mono">© {{ date('Y') }} {{ $about->name }}</span>
+            </div>
         </footer>
     @endif
 
