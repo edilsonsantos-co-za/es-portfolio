@@ -210,6 +210,7 @@ const Dashboard = () => {
                         <a className="atlas-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer">View {siteName || 'site'} ↗</a>
                         <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioThemes)}>Themes</button>
                         <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioConfig)}>Site settings</button>
+                        {Utils.journalUrl && <a className="atlas-btn ghost" href={Utils.journalUrl} target="_blank" rel="noreferrer">ES Journal ↗</a>}
                     </div>
                 </article>
 

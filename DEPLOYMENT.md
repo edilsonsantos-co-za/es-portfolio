@@ -1,5 +1,16 @@
 # Deployment System
 
+## Push to main = live (current)
+
+Every push to `main` runs `.github/workflows/ci-deploy.yml`: validation, then the `deploy` job builds
+the frontend assets on the runner, ships the committed files plus `public/build` over SSH to
+`/workspace/edilsonsantos-co-za/edfolio` (or the `DEPLOY_PATH` secret) and runs
+`docker compose -f docker-compose.prod.yml up -d --build --wait` there. No image registry is involved,
+and env files are never shipped: `.env.prod` on the server is the one that counts.
+
+Secrets in the `production` environment: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY`
+(optional `DEPLOY_KNOWN_HOSTS`, `DEPLOY_PATH`). The sections below describe the older image-based flow.
+
 ## Overview
 
 Production deployment is now image-based and GitHub Actions-driven:

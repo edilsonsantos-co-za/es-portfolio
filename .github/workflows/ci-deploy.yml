@@ -5,9 +5,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  DOCKERHUB_NAMESPACE: datasparklab
-
 permissions:
   contents: read
 
@@ -43,51 +40,24 @@ jobs:
       - name: Run repository validation
         run: bash ./bin/validate.sh
 
-  # Production ships only when started by hand (Actions > CI and Deploy > Run workflow on main).
-  # Pushes to main run validation only, so work can land on main without going live.
-  build-and-publish:
+  # Every push to main goes live. Ships the committed files straight to the VPS and builds them there: no image registry.
+  # Same layout as `console vps:deploy` (linux-workspace): files land in APP_DIR with a
+  # .deploy-manifest, and server-only .env files are never shipped or overwritten.
+  # Secrets (environment "production"): DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_PRIVATE_KEY,
+  # optional DEPLOY_KNOWN_HOSTS (else ssh-keyscan) and DEPLOY_PATH (else APP_DIR below).
+  deploy:
     needs: validate
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.image.outputs.tag }}
+    environment: production
+    env:
+      APP_DIR: /workspace/edilsonsantos-co-za/edfolio
+      COMPOSE_FILE: docker-compose.prod.yml
+      REQUIRED_ENV_FILES: ".env.prod"
 
     steps:
-      - name: Validate Docker Hub publish configuration
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          missing=()
-
-          [[ -n "${DOCKERHUB_USERNAME}" ]] || missing+=("DOCKERHUB_USERNAME")
-          [[ -n "${DOCKERHUB_TOKEN}" ]] || missing+=("DOCKERHUB_TOKEN")
-
-          if [[ "${#missing[@]}" -gt 0 ]]; then
-            printf 'Missing required repository or organization secret(s): %s\n' "${missing[*]}" >&2
-            printf 'The build-and-publish job is not environment-scoped, so DOCKERHUB_* must be configured as repository or organization secrets.\n' >&2
-            printf 'Bootstrap them with ./bin/setup-github-secrets.sh or gh secret set before re-running this workflow.\n' >&2
-            exit 1
-          fi
-
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Derive image metadata
-        id: image
-        run: |
-          VERSION="$(tr -d '[:space:]' < VERSION)"
-          IMMUTABLE_TAG="sha-${GITHUB_SHA::12}"
-          IMAGE_NAME="${DOCKERHUB_NAMESPACE}/${GITHUB_REPOSITORY#*/}"
-
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            printf 'VERSION must use semantic version format X.Y.Z. Found: %s\n' "$VERSION" >&2
-            exit 1
-          fi
-
-          echo "name=$IMAGE_NAME" >> "$GITHUB_OUTPUT"
-          echo "tag=$IMMUTABLE_TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -100,148 +70,74 @@ jobs:
           npm ci --legacy-peer-deps --no-audit --no-fund
           NODE_OPTIONS="--max-old-space-size=768" npm run build
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ steps.image.outputs.name }}:${{ steps.image.outputs.tag }}
-            ${{ steps.image.outputs.name }}:latest
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ steps.image.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy-production:
-    needs: build-and-publish
-    if: needs.build-and-publish.result == 'success'
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-      - name: Validate production deploy configuration
+      - name: Set up SSH
         env:
-          APP_IMAGE: ${{ format('{0}/{1}', env.DOCKERHUB_NAMESPACE, github.event.repository.name) }}
-          APP_IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           missing=()
-
-          [[ -n "${APP_IMAGE}" ]] || missing+=("APP_IMAGE")
-          [[ -n "${APP_IMAGE_TAG}" ]] || missing+=("APP_IMAGE_TAG")
-          [[ -n "${DOCKERHUB_USERNAME}" ]] || missing+=("DOCKERHUB_USERNAME")
-          [[ -n "${DOCKERHUB_TOKEN}" ]] || missing+=("DOCKERHUB_TOKEN")
-          [[ -n "${DEPLOY_HOST}" ]] || missing+=("DEPLOY_HOST")
-          [[ -n "${DEPLOY_USER}" ]] || missing+=("DEPLOY_USER")
-          [[ -n "${DEPLOY_PATH}" ]] || missing+=("DEPLOY_PATH")
-          [[ -n "${DEPLOY_SSH_PRIVATE_KEY}" ]] || missing+=("DEPLOY_SSH_PRIVATE_KEY")
-
-          if [[ "${#missing[@]}" -gt 0 ]]; then
-            printf 'Missing required deploy secret(s): %s\n' "${missing[*]}" >&2
-            printf 'Create the production environment and configure its deploy secrets before re-running this workflow.\n' >&2
+          [[ -n "$DEPLOY_HOST" ]] || missing+=(DEPLOY_HOST)
+          [[ -n "$DEPLOY_USER" ]] || missing+=(DEPLOY_USER)
+          [[ -n "$DEPLOY_SSH_PRIVATE_KEY" ]] || missing+=(DEPLOY_SSH_PRIVATE_KEY)
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "::error::Missing deploy secret(s) in the production environment: ${missing[*]}"
             exit 1
           fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          if [[ -n "$DEPLOY_KNOWN_HOSTS" ]]; then
+            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -T 15 "$DEPLOY_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          fi
+          printf 'Host vps\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  BatchMode yes\n  ServerAliveInterval 30\n' "$DEPLOY_HOST" "$DEPLOY_USER" > ~/.ssh/config
+          echo "APP_DIR=${DEPLOY_PATH:-$APP_DIR}" >> "$GITHUB_ENV"
 
-      - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          APP_IMAGE: ${{ format('{0}/{1}', env.DOCKERHUB_NAMESPACE, github.event.repository.name) }}
-          APP_IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          script_stop: true
-          envs: APP_IMAGE,APP_IMAGE_TAG,DEPLOY_PATH,DOCKERHUB_TOKEN,DOCKERHUB_USERNAME
-          script: |
-            set -euo pipefail
-            compose_file="${DEPLOY_PATH}/.edfolio-deploy-compose.yml"
-            cleanup() {
-              rm -f "$compose_file"
-            }
-            trap cleanup EXIT
+      - name: Ship committed files
+        run: |
+          # Everything git tracks except env files (examples excepted): the server keeps its own .env*.
+          { git ls-files | grep -vE '(^|/)\.env' ; git ls-files | grep -E '(^|/)\.env[^/]*\.example$' ; find public/build -type f ; } | sort -u > .deploy-manifest.new
+          tar -czf - -T .deploy-manifest.new .deploy-manifest.new | ssh vps "set -e; mkdir -p '$APP_DIR'; tar -xzf - -C '$APP_DIR'"
+          ssh vps "APP_DIR='$APP_DIR' RELEASE='${GITHUB_SHA::12} ${GITHUB_REF_NAME}' REQUIRED_ENV_FILES='$REQUIRED_ENV_FILES' bash -s" <<'REMOTE'
+          set -euo pipefail
+          cd "$APP_DIR"
+          # Files an earlier deploy shipped that are gone in this one
+          if [ -f .deploy-manifest ]; then
+            comm -23 <(sort .deploy-manifest) <(sort .deploy-manifest.new) | while IFS= read -r f; do [ -n "$f" ] && rm -f -- "./$f"; done
+          fi
+          mv .deploy-manifest.new .deploy-manifest
+          echo "$RELEASE $(date -u +%FT%TZ)" > .deploy-release
+          missing=""
+          for f in $REQUIRED_ENV_FILES; do [ -f "$f" ] || missing="$missing $APP_DIR/$f"; done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing on the server:$missing. Create it from the repo's example env file, then re-run this workflow."
+            exit 1
+          fi
+          REMOTE
 
-            printf '%s\n' \
-              'name: edfolio' \
-              'services:' \
-              '  app:' \
-              '    container_name: edfolio-prod' \
-              "    image: ${APP_IMAGE}:${APP_IMAGE_TAG}" \
-              '    pull_policy: always' \
-              '    env_file:' \
-              "      - ${DEPLOY_PATH}/.env.prod" \
-              '    restart: on-failure:3' \
-              '    volumes:' \
-              '      - prod_backups:/var/www/html/storage/app/backups' \
-              '      - edfolio_storage:/var/www/html/storage/app/public' \
-              '    networks:' \
-              '      - milkyway' \
-               '    environment:' \
-               '      - SKIP_ASSET_BUILD=true' \
-               '      - FORCE_FRESH_DB=false' \
-               '      - CREATE_DB_BACKUP=true' \
-               '      - REQUIRE_DB_ON_BOOT=true' \
-               '    logging:' \
-              '      driver: "json-file"' \
-              '      options:' \
-              '        max-size: "10m"' \
-              '        max-file: "3"' \
-              '    healthcheck:' \
-              '      test: ["CMD", "curl", "-f", "http://localhost/ready"]' \
-              '      interval: 30s' \
-              '      timeout: 10s' \
-              '      retries: 3' \
-              '      start_period: 60s' \
-              '' \
-              'volumes:' \
-              '  prod_backups:' \
-              '  edfolio_storage:' \
-              '' \
-              'networks:' \
-              '  milkyway:' \
-              '    external: true' \
-              > "$compose_file"
-
-            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            cd "$DEPLOY_PATH"
-            docker compose -f "$compose_file" pull app
-            docker compose -f "$compose_file" up -d --remove-orphans app
-            docker ps --filter "name=^/edfolio-prod$" --format '{{.Names}} {{.Status}}'
-
-            if ! docker ps --filter "name=^/edfolio-prod$" --format '{{.Names}}' | grep -qx 'edfolio-prod'; then
-              printf 'Expected container edfolio-prod is not running after deployment.\n' >&2
-              docker compose -f "$compose_file" ps >&2 || true
-              docker logs edfolio-prod --tail 50 >&2 || true
-              exit 1
-            fi
-
-            docker image prune -f
+      - name: Build and start on the VPS
+        run: |
+          ssh vps "APP_DIR='$APP_DIR' COMPOSE_FILE='$COMPOSE_FILE' bash -s" <<'REMOTE'
+          set -euo pipefail
+          cd "$APP_DIR"
+          if ! docker compose -f "$COMPOSE_FILE" up -d --build --remove-orphans --wait --wait-timeout 300; then
+            docker compose -f "$COMPOSE_FILE" ps
+            docker compose -f "$COMPOSE_FILE" logs --tail 80
+            exit 1
+          fi
+          docker compose -f "$COMPOSE_FILE" ps
+          docker image prune -f >/dev/null
+          REMOTE
 
   notify-google-chat:
     needs:
       - validate
-      - build-and-publish
-      - deploy-production
-    if: always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+      - deploy
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       GOOGLE_CHAT_WEBHOOK_URL: ${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}
@@ -250,10 +146,8 @@ jobs:
       - name: Build Google Chat notification payload
         env:
           BEFORE_SHA: ${{ github.event.before }}
-          BUILD_RESULT: ${{ needs.build-and-publish.result }}
-          DEPLOY_RESULT: ${{ needs.deploy-production.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
           GITHUB_TOKEN: ${{ github.token }}
-          IMAGE_TAG: ${{ needs.build-and-publish.outputs.tag }}
           VALIDATE_RESULT: ${{ needs.validate.result }}
         run: |
           python3 - <<'PY'
@@ -269,11 +163,10 @@ jobs:
           run_url = f"{os.environ['GITHUB_SERVER_URL']}/{owner_repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
 
           validate_result = os.environ["VALIDATE_RESULT"]
-          build_result = os.environ["BUILD_RESULT"]
           deploy_result = os.environ["DEPLOY_RESULT"]
 
           overall_status = "SUCCESS" if all(
-              result == "success" for result in (validate_result, build_result, deploy_result)
+              result == "success" for result in (validate_result, deploy_result)
           ) else "FAILURE"
 
           headers = {
@@ -325,9 +218,7 @@ jobs:
               f"Author: {author_name}",
               f"Triggered by: {triggered_by}",
               f"Message: {commit_message}",
-              f"Image tag: {os.environ.get('IMAGE_TAG', 'n/a')}",
               f"Validate: {validate_result}",
-              f"Build and publish: {build_result}",
               f"Deploy production: {deploy_result}",
               f"Run: {run_url}",
               "Files changed:",

@@ -3,8 +3,12 @@ name: edfolio
 services:
   app:
     container_name: edfolio-prod
-    image: ${APP_IMAGE:-datasparklab/edfolio}:${APP_IMAGE_TAG:-latest}
-    pull_policy: always
+    # Built on the server from the deployed files (CI ships public/build with them); no registry.
+    image: edfolio:prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
     env_file:
       - .env.prod
     restart: on-failure:3

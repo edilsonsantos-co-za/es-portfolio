@@ -220,6 +220,7 @@ const Utils = {
     mediaUrl,
     templates,
     storeUrl: window.edfolioStoreUrl || 'https://store.edilsonsantos.co.za',
+    journalUrl: window.edfolioJournalUrl || '',
     setAntdInstances,
 }
 
