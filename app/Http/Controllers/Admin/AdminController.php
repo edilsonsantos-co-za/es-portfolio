@@ -53,6 +53,9 @@ class AdminController extends Controller
             ]);
         }
 
+        // Account menu picture: Gravatar of the signed-in admin
+        $settings['userAvatar'] = \App\Helpers\Utils::gravatarUrl(optional(auth()->user())->email, 64);
+
         return view('admin.app')->with([
             'settings' => $settings,
         ]);

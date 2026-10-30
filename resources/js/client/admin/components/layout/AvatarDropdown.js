@@ -6,6 +6,9 @@ import Routes from '../../../common/helpers/Routes';
 
 const AvatarDropdown = () => {
     let navigate = useNavigate();
+    // Gravatar of the signed-in admin, injected by AdminController into the page's settings
+    // eslint-disable-next-line no-undef
+    const userAvatar = typeof settings !== 'undefined' ? settings.userAvatar : null;
 
     const onMenuClick = ({ key }) => {
         if (key === 'logout') {
@@ -31,7 +34,7 @@ const AvatarDropdown = () => {
         <React.Fragment>
             <Dropdown menu={menuItems} trigger={['click']}>
                 <button type="button" className="atlas-icon-btn" aria-label="Account menu" title="Account">
-                    <Avatar icon={<UserOutlined />} size={26} alt="avatar" />
+                    <Avatar src={userAvatar || undefined} icon={<UserOutlined />} size={26} alt="avatar" />
                 </button>
             </Dropdown>
         </React.Fragment>

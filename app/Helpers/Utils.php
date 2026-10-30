@@ -68,6 +68,38 @@ class Utils
         }
     }
 
+    public const DEFAULT_AVATAR = 'assets/common/img/avatar/default.png';
+
+    /**
+     * Gravatar for an email (identicon when the email has none), matching the other ES apps.
+     *
+     * @param string|null $email
+     * @param int $size
+     * @return string|null
+     */
+    public static function gravatarUrl(?string $email, int $size = 300)
+    {
+        $email = strtolower(trim((string) $email));
+
+        return $email === '' ? null : sprintf('https://gravatar.com/avatar/%s?s=%d&d=identicon', hash('sha256', $email), $size);
+    }
+
+    /**
+     * Portrait URL: the uploaded avatar, otherwise the Gravatar for the About email
+     *
+     * @param object|null $about
+     * @param int $size
+     * @return string|null
+     */
+    public static function portraitUrl($about, int $size = 600)
+    {
+        if ($about && $about->avatar && $about->avatar !== self::DEFAULT_AVATAR) {
+            return media_url($about->avatar);
+        }
+
+        return self::gravatarUrl($about->email ?? null, $size);
+    }
+
     /**
      * Get the avatar path
      *

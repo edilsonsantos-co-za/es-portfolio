@@ -213,9 +213,10 @@
                     @foreach ($socials as $social)<a class="btn" href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
                 </div>
             </div>
-            @if ($about->avatar)
+            @php $portrait = \App\Helpers\Utils::portraitUrl($about); @endphp
+            @if ($portrait)
                 <div class="tile photo">
-                    <img src="{{ media_url($about->avatar) }}" alt="Portrait of {{ $about->name }}" width="300" height="400">
+                    <img src="{{ $portrait }}" alt="Portrait of {{ $about->name }}" width="300" height="400">
                     <span class="badge">👋 {{ explode(' ', $about->name)[0] }}</span>
                 </div>
             @endif
