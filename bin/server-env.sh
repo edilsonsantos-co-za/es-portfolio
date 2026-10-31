@@ -20,6 +20,11 @@ set_env() {
 [ -f "$ENV_FILE" ] || { echo "::error::$PWD/$ENV_FILE is missing on the server."; exit 1; }
 echo "Checking $ENV_FILE"
 
+# Behind the reverse proxy Laravel sees plain http; force https links (SSO redirect URIs, assets)
+if get_env "$ENV_FILE" APP_URL | grep -q '^https://' && [ -z "$(get_env "$ENV_FILE" FORCE_HTTPS)" ]; then
+  set_env FORCE_HTTPS true; echo "  set FORCE_HTTPS"
+fi
+
 var="SSO_APP_SECRET_$(printf '%s' "$SSO_APP_ID" | tr '[:lower:]-' '[:upper:]_')"
 secret="$( [ -r "$SSO_ENV" ] && get_env "$SSO_ENV" "$var" || true)"
 if [ -n "$secret" ] && [ -z "$(get_env "$ENV_FILE" LOGTO_APP_SECRET)" ]; then
