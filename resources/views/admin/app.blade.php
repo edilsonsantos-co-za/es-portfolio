@@ -20,5 +20,6 @@
         window.edfolioJournalUrl = @json(config('custom.journal_url'));
         window.edfolioThemes = @json(app(\App\Services\InstalledThemes::class)->all());
     </script>
+    <script src="{{ asset('assets/es-apps.js') }}?v={{ filemtime(public_path('assets/es-apps.js')) }}" defer></script>
     @vite('resources/js/client/admin/roots/app.js')
 @endsection

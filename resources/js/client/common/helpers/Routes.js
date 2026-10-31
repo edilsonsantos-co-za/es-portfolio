@@ -35,6 +35,7 @@ const api = {
         forgetPassword: Utils.backend+'/api/'+Utils.apiVersion+'/admin/forget-password',
         resetPassword: Utils.backend+'/api/'+Utils.apiVersion+'/admin/reset-password',
         refreshToken: Utils.backend+'/api/'+Utils.apiVersion+'/admin/refresh-token',
+        me: Utils.backend+'/api/'+Utils.apiVersion+'/admin/me',
         loginCredentials: Utils.backend+'/api/'+Utils.apiVersion+'/admin/login-credentials',
         settings: Utils.backend+'/api/'+Utils.apiVersion+'/admin/settings',
         logo: Utils.backend+'/api/'+Utils.apiVersion+'/admin/logo',

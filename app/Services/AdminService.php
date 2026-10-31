@@ -472,10 +472,12 @@ class AdminService implements AdminInterface
     public function me()
     {
         $me = $this->guard()->user();
+        // The account menu shows the Gravatar (identicon when the email has none)
+        $payload = $me ? array_merge($me->toArray(), ['avatar' => \App\Helpers\Utils::gravatarUrl($me->email, 128)]) : null;
 
         return [
             'message' => 'Admin found',
-            'payload' => $me,
+            'payload' => $payload,
             'status' => CoreConstants::STATUS_CODE_SUCCESS
         ];
     }

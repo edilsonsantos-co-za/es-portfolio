@@ -172,6 +172,7 @@
         }
         @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile:hover { transform: none; } html { scroll-behavior: auto; } }
     </style>
+    <script src="{{ asset('assets/es-apps.js') }}?v={{ filemtime(public_path('assets/es-apps.js')) }}" defer></script>
 </head>
 <body>
     <header class="masthead">
@@ -186,14 +187,11 @@
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="#services">Services</a></li>@endif
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
-                @if ($blogUrl)<li class="nav-mobile-only"><a href="{{ $blogUrl }}">Blog ↗</a></li>@endif
-                @if ($storeUrl)<li class="nav-mobile-only"><a href="{{ $storeUrl }}">Store ↗</a></li>@endif
             </ul>
             <div class="top-actions">
-                @if ($blogUrl)<a class="btn hide-sm" href="{{ $blogUrl }}">Blog ↗</a>@endif
-                @if ($storeUrl)<a class="btn hide-sm" href="{{ $storeUrl }}">Store ↗</a>@endif
                 @include('frontend.theme.partials.theme-toggle')
-                <a class="btn" href="{{ url('/admin') }}">Sign in</a>
+                {{-- The ES app launcher (Portfolio, Blog, Store) and Sign in, shared by every ES app --}}
+                <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}"></es-apps>
                 <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
             </div>
         </div>
