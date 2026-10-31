@@ -59,21 +59,19 @@ class SsoController extends Controller
         abort_unless($client->enabled(), 404);
 
         $pending = $request->session()->pull('sso');
-        $loginUrl = url('/admin/login');
 
         if (!is_array($pending) || !hash_equals($pending['state'], (string) $request->query('state', ''))) {
-            return redirect($loginUrl . '#sso_error=state');
+            return $this->refuse($client, 'state mismatch or expired');
         }
 
         if ($request->filled('error') || !$request->filled('code')) {
-            return redirect($loginUrl . '#sso_error=cancelled');
+            return $this->refuse($client, 'cancelled');
         }
 
         try {
             $claims = $client->exchangeCode((string) $request->query('code'), route('sso.callback'), $pending['verifier'], $pending['nonce']);
         } catch (Throwable $th) {
-            Log::warning('SSO sign-in failed: ' . $th->getMessage());
-            return redirect($loginUrl . '#sso_error=failed');
+            return $this->refuse($client, 'token exchange failed: ' . $th->getMessage());
         }
 
         $email = Str::lower((string) ($claims['email'] ?? ''));
@@ -82,13 +80,24 @@ class SsoController extends Controller
             : null;
 
         if (!$admin) {
-            return redirect($loginUrl . '#sso_error=not_authorised');
+            return $this->refuse($client, 'no admin with that verified email');
         }
 
         $handoff = Str::random(48);
         Cache::put('sso-handoff:' . hash('sha256', $handoff), $admin->getKey(), self::HANDOFF_TTL_SECONDS);
 
-        return redirect($loginUrl . '#sso=' . $handoff);
+        return redirect(url('/admin/login') . '#sso=' . $handoff);
+    }
+
+    /**
+     * No error screen of our own: end the SSO session (so another account can be used) and come
+     * back to /admin/login, which goes straight to the SSO sign-in page. The reason is only logged.
+     */
+    private function refuse(LogtoClient $client, string $reason): RedirectResponse
+    {
+        Log::notice('SSO sign-in refused: ' . $reason);
+
+        return redirect()->away($client->logoutUrl(url('/admin/login')));
     }
 
     public function exchange(Request $request): JsonResponse
