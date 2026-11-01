@@ -88,18 +88,24 @@ init_compose_command
 
 PHPUNIT_APP_KEY_FALLBACK='base64:4d6rBKspCmgDurgcdnb5KJ0QUgTefTgaEsqURDZpH0M='
 
-GENERATED_DEV_ENV=0
-if [[ ! -f .env.dev && -f .env.dev.example ]]; then
-  GENERATED_DEV_ENV=1
-  cp .env.dev.example .env.dev
-fi
-
-cleanup_generated_dev_env() {
-  if [[ "$GENERATED_DEV_ENV" == "1" ]]; then
-    rm -f -- .env.dev
+GENERATED_ENV_FILES=()
+create_env_from_example() {
+  local env_file="$1"
+  if [[ ! -f "$env_file" && -f "${env_file}.example" ]]; then
+    cp "${env_file}.example" "$env_file"
+    GENERATED_ENV_FILES+=("$env_file")
   fi
 }
-trap cleanup_generated_dev_env EXIT
+
+cleanup_generated_env_files() {
+  local env_file
+  for env_file in "${GENERATED_ENV_FILES[@]}"; do
+    rm -f -- "$env_file"
+  done
+}
+create_env_from_example .env.dev
+create_env_from_example .env.prod
+trap cleanup_generated_env_files EXIT
 
 printf '[validate] Checking Docker Compose config...\n'
 compose_config_check docker-compose.dev.yml
