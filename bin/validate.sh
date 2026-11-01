@@ -99,8 +99,10 @@ create_env_from_example() {
 
 cleanup_generated_env_files() {
   local env_file
-  for env_file in "${GENERATED_ENV_FILES[@]}"; do
-    rm -f -- "$env_file"
+  for env_file in "${GENERATED_ENV_FILES[@]-}"; do
+    if [[ -n "$env_file" ]]; then
+      rm -f -- "$env_file"
+    fi
   done
 }
 create_env_from_example .env.dev

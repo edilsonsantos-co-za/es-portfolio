@@ -343,6 +343,12 @@
                         <h2>Got a project or a role?</h2>
                         <p style="opacity:.8">Contract, part-time or full-time remote. I usually reply within a day.</p>
                         @if ($about->email)<p><a href="mailto:{{ $about->email }}">{{ $about->email }}</a></p>@endif
+                        @if ($upworkUrl || $supportUrl)
+                            <div class="actions">
+                                @if ($upworkUrl)<a class="btn" href="{{ $upworkUrl }}" target="_blank" rel="noopener noreferrer">Hire me on Upwork ↗</a>@endif
+                                @if ($supportUrl)<a class="btn" href="{{ $supportUrl }}" target="_blank" rel="noopener noreferrer">Support ↗</a>@endif
+                            </div>
+                        @endif
                     </div>
                     <div class="tile" data-reveal>@include('frontend.theme.partials.contact-form')</div>
                 </div>

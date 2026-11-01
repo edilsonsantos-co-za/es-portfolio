@@ -19,7 +19,7 @@ class ThemeContext
      *
      * @param object $about
      * @param iterable $experiences
-     * @return array{taglines: array, socials: array, blogUrl: ?string, storeUrl: ?string, years: ?int, availability: ?string, timezone: string, timezoneCity: string, utcOffset: string, timeNote: ?string}
+     * @return array{taglines: array, socials: array, blogUrl: ?string, storeUrl: ?string, upworkUrl: ?string, supportUrl: ?string, years: ?int, availability: ?string, timezone: string, timezoneCity: string, utcOffset: string, timeNote: ?string}
      */
     public static function make($about, $experiences): array
     {
@@ -34,10 +34,32 @@ class ThemeContext
             'socials' => $about->social_links ? (array) safe_json_decode($about->social_links) : [],
             'blogUrl' => config('custom.blog_url'),
             'storeUrl' => config('custom.store_url'),
+            'upworkUrl' => self::publicHttpUrl(config('custom.upwork_url')),
+            'supportUrl' => self::publicHttpUrl(config('custom.support_url')),
             'years' => $years,
             'availability' => config('custom.availability') ?: null,
             'timeNote' => config('custom.time_note') ?: null,
         ] + self::timezone((string) config('custom.timezone', 'UTC'));
+    }
+
+    private static function publicHttpUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+        $parts = parse_url($url);
+
+        if (
+            $url === ''
+            || filter_var($url, FILTER_VALIDATE_URL) === false
+            || !is_array($parts)
+            || !isset($parts['host'], $parts['scheme'])
+            || isset($parts['user'])
+            || isset($parts['pass'])
+            || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+        ) {
+            return null;
+        }
+
+        return $url;
     }
 
     /**

@@ -84,6 +84,18 @@ The shared ES apps account menu and sign-out marker keep account state aligned a
 - ES Blog navigation link controlled by `BLOG_URL`
 - Responsive, mobile-first layouts
 
+### ES personal-project catalogue
+
+```bash
+php artisan es:projects:sync --dry-run
+php artisan es:projects:sync --developers-url=https://developers.edilsonsantos.co.za
+```
+
+The idempotent command adds ES Portfolio, Blog, Journal, Developers and Labs to Personal projects, renames the old
+Portfolio card and preserves professional projects and existing custom descriptions/images. Marketplace is
+deliberately excluded. Developers/Labs remain coming-soon without explicit verified URL options; never advertise
+an unverified endpoint as live. ES Journal is an authenticated private application, not a public journal archive.
+
 ## Tech stack
 
 | Layer | Tools |
@@ -192,6 +204,8 @@ STORE_URL=                          # Store link; defaults to https://store.edil
 PORTFOLIO_AVAILABILITY=             # Atlas availability tile text, e.g. "Open to remote contract work"; empty hides the tile
 PORTFOLIO_TIMEZONE=UTC              # Timezone for the Atlas local-time clock, e.g. Africa/Johannesburg
 PORTFOLIO_TIME_NOTE=                # Short note under the clock, e.g. "overlaps UK and EU"
+UPWORK_URL=                         # Optional public Upwork CTA in the contact section; blank hides it
+SUPPORT_URL=                        # Optional public support CTA in the contact section; blank hides it
 LOGTO_ENDPOINT=                     # e.g. https://auth.example.com (enables SSO with the two below)
 LOGTO_APP_ID=
 LOGTO_APP_SECRET=
@@ -202,6 +216,10 @@ To set up SSO, create a **Traditional web** application in Logto with the redire
 `<APP_URL>/auth/sso/callback` and the post sign-out redirect URI `<APP_URL>/`.
 
 Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated with a valid HTTPS certificate and your proxy forwards the usual `X-Forwarded-*` headers. Leaving it `false` prevents Laravel from rewriting every asset URL to `https://` on hosts that are still serving plain HTTP or have incomplete TLS setup.
+
+`UPWORK_URL` and `SUPPORT_URL` are optional public frontend links. Set each to a complete `http://` or `https://`
+URL; invalid or unset values are omitted from the rendered contact section. No profile or support account URL is
+assumed by default.
 
 ## Common Development Tasks
 
@@ -413,6 +431,9 @@ es-portfolio/
 ```
 
 ## Documentation
+
+See [ES Developers](https://developers.edilsonsantos.co.za) for public developer documentation for the ES apps.
+Repository access and deployment availability may be required.
 
 Additional documentation is available in the following files:
 
