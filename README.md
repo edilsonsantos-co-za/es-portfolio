@@ -6,12 +6,12 @@
     <th align="center">ES Portfolio (ours)</th>
   </tr>
   <tr>
-    <td><img src="docs/readme/original.jpg" alt="ezfolio original" width="420"></td>
-    <td><img src="docs/readme/es.jpg" alt="ES Portfolio" width="420"></td>
+    <td><img src="docs/readme/original.jpg" alt="Original ezfolio admin dashboard" width="420"></td>
+    <td><img src="docs/readme/es.jpg" alt="ES Portfolio Atlas admin dashboard with demo data" width="420"></td>
   </tr>
   <tr>
-    <td colspan="2" align="center"><img src="docs/readme/compare.gif" alt="Slider comparing ezfolio with ES Portfolio" width="840"><br>
-    <sub>Before/after slider: ezfolio on the left, ES Portfolio on the right. Original image: ezfolio demo screenshot (Procyon theme), from the ezfolio project site (ezfolio is MIT licensed).</sub></td>
+    <td colspan="2" align="center"><img src="docs/readme/compare.gif" alt="Before/after slider comparing the ezfolio and ES Portfolio admin dashboards" width="840"><br>
+    <sub>Admin dashboard comparison: ezfolio on the left, ES Portfolio on the right. Before: <a href="https://arifszn.github.io/ezfolio/img/assets/screenshots/dashboard.png">upstream ezfolio dashboard screenshot</a> (MIT licensed). After: the local ES Portfolio dashboard rendered with demo data.</sub></td>
   </tr>
 </table>
 
