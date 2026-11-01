@@ -28,6 +28,14 @@ const SingleSignOut = {
         } catch { /* private mode */ }
         return true;
     },
+
+    // Signed out in another ES app: end the SSO session too, or the admin's automatic SSO sign-in
+    // would sign straight back in. Without SSO, start over at the admin sign-in.
+    endSession(fallback) {
+        const sso = window.edfolioSso || {};
+        window.esSigningOut = true;
+        window.location.replace(sso.enabled && sso.logoutUrl ? sso.logoutUrl : fallback);
+    },
 };
 
 export default SingleSignOut;

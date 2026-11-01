@@ -27,10 +27,10 @@ import LazyLoadingFallbackUi from '../../common/components/lazyLoadingFallbackUi
 import { setupInterceptors } from '../../common/helpers/HTTP';
 import Utils from '../../common/helpers/Utils';
 import SingleSignOut from '../../common/helpers/SingleSignOut';
-// Coming back to an open admin tab after signing out in another ES app: start over at the SSO sign-in
+// Coming back to an open admin tab after signing out in another ES app: sign out here too
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && localStorage.getItem('apiToken') && SingleSignOut.enforce()) {
-        window.location.replace(Routes.web.admin.admin);
+        SingleSignOut.endSession(Routes.web.admin.admin);
     }
 });
 const NotFound = loadable(() => import('../components/Notfound'));
@@ -118,10 +118,10 @@ const App = () => {
     // eslint-disable-next-line no-undef
     let mySettings = settings;
 
-    // Signed out in another ES app: drop the token, so this opens on the SSO sign-in
-    // (not on the sign-out page itself, which still has to end the SSO session)
-    if (window.location.pathname !== Routes.web.admin.logout) {
-        SingleSignOut.enforce();
+    // Signed out in another ES app: drop the token and end the SSO session too
+    // (not on the sign-out page itself, which already ends the SSO session)
+    if (window.location.pathname !== Routes.web.admin.logout && SingleSignOut.enforce()) {
+        SingleSignOut.endSession(Routes.web.admin.login);
     }
     const apiToken = (localStorage.getItem("apiToken") !== 'undefined' && localStorage.getItem("apiToken") !== null) ? localStorage.getItem("apiToken") : null;
     

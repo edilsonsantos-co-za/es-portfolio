@@ -54,7 +54,7 @@ class LogtoClient
             'nonce' => $nonce,
             'code_challenge' => $challenge,
             'code_challenge_method' => 'S256',
-        ]);
+        ] + self::themeParam());
 
         return compact('url', 'state', 'nonce', 'verifier');
     }
@@ -93,6 +93,19 @@ class LogtoClient
         }
 
         return $claims;
+    }
+
+    /**
+     * Open the Logto page in the light/dark mode picked in the ES apps (the shared, unencrypted
+     * `es-theme` cookie; read from $_COOKIE because EncryptCookies drops it from the request).
+     *
+     * @return array<string, string>
+     */
+    private static function themeParam(): array
+    {
+        $mode = $_COOKIE['es-theme'] ?? null;
+
+        return $mode === 'dark' || $mode === 'light' ? ['theme' => $mode] : [];
     }
 
     public function logoutUrl(string $postLogoutRedirectUri): string
