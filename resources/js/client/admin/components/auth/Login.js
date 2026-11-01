@@ -6,6 +6,7 @@ import Utils from '../../../common/helpers/Utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveApiToken } from '../../redux/ActionCreators';
+import SingleSignOut from '../../../common/helpers/SingleSignOut';
 
 const sso = window.edfolioSso || { enabled: false };
 
@@ -38,6 +39,7 @@ const Login = () => {
             .then(response => {
                 Utils.handleSuccessResponse(response, () => {
                     dispatch(saveApiToken({ apiToken: response.data.payload.token.access_token }));
+                    SingleSignOut.remember();
                 });
             })
             // An expired or reused code: start a fresh SSO sign-in
