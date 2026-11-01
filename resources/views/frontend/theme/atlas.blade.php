@@ -187,6 +187,7 @@
                 @if ($visibility['projects'] && count($projects))<li><a href="#work">Work</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="#services">Services</a></li>@endif
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
+                @if ($developersUrl)<li><a href="{{ $developersUrl }}">Developers</a></li>@endif
             </ul>
             <div class="top-actions">
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
@@ -368,6 +369,7 @@
                     @if ($visibility['services'] && count($services))<a href="#services">Services</a>@endif
                     @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a>@endforeach
                     @if ($blogUrl)<a href="{{ $blogUrl }}">Blog ↗</a>@endif
+                    @if ($developersUrl)<a href="{{ $developersUrl }}">Developers ↗</a>@endif
                     @if ($storeUrl)<a href="{{ $storeUrl }}">Store ↗</a>@endif
                     @if ($visibility['contact'])<a href="#contact">Contact</a>@endif
                 </nav>

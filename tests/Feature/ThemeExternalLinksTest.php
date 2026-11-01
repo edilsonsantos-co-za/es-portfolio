@@ -11,12 +11,14 @@ class ThemeExternalLinksTest extends TestCase
     {
         config([
             'custom.upwork_url' => 'javascript:alert(1)',
+            'custom.developers_url' => 'javascript:alert(1)',
             'custom.support_url' => 'https://support.example.invalid/help',
         ]);
 
         $context = ThemeContext::make((object) ['taglines' => null, 'social_links' => null], []);
 
         $this->assertNull($context['upworkUrl']);
+        $this->assertNull($context['developersUrl']);
         $this->assertSame('https://support.example.invalid/help', $context['supportUrl']);
     }
 
@@ -37,12 +39,14 @@ class ThemeExternalLinksTest extends TestCase
     {
         config([
             'custom.upwork_url' => 'http://profile.example.invalid/contact',
+            'custom.developers_url' => 'https://docs.example.invalid',
             'custom.support_url' => null,
         ]);
 
         $context = ThemeContext::make((object) ['taglines' => null, 'social_links' => null], []);
 
         $this->assertSame('http://profile.example.invalid/contact', $context['upworkUrl']);
+        $this->assertSame('https://docs.example.invalid', $context['developersUrl']);
         $this->assertNull($context['supportUrl']);
     }
 }

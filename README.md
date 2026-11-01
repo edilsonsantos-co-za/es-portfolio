@@ -82,6 +82,7 @@ The shared ES apps account menu and sign-out marker keep account state aligned a
 - Contact form with an inbox in the admin, and visitor analytics
 - Admin accent colour, logo and favicon set from the settings screen
 - ES Blog navigation link controlled by `BLOG_URL`
+- Developers navigation/footer link controlled by `ES_DEVELOPERS_URL` (blank hides it)
 - Responsive, mobile-first layouts
 
 ### ES personal-project catalogue
