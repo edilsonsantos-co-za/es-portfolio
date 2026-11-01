@@ -203,7 +203,7 @@ const Dashboard = () => {
 
             <section className="atlas-bento" aria-label="Overview">
                 <article className="atlas-tile atlas-welcome">
-                    <p className="atlas-kicker">{siteName || 'EdFolio'}</p>
+                    <p className="atlas-kicker">{siteName || 'ES Portfolio'}</p>
                     <h2>{greeting}.</h2>
                     <p className="atlas-muted">Your portfolio runs on Atlas, the design shared by the portfolio, the blog and their admins. Install other looks from Themes.</p>
                     <div className="atlas-actions">

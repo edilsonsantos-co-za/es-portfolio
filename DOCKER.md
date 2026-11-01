@@ -1,6 +1,9 @@
-# Docker Configuration Guide
+# ES Portfolio Docker Configuration Guide
 
-This application supports both development and production Docker environments with automatic asset compilation.
+ES Portfolio supports both development and production Docker environments with automatic asset compilation.
+
+Product names are display labels only: existing `edfolio-*` containers, image names and volumes
+are unchanged for deployment and data compatibility.
 
 ## Environment Configurations
 
@@ -27,28 +30,24 @@ docker-compose -f docker-compose.dev.yml up -d --build
 Use `docker-compose.prod.yml` for production:
 
 ```bash
-# Pull the published image and start production
-docker-compose -f docker-compose.prod.yml pull
-docker-compose -f docker-compose.prod.yml up
+# Build the local production image and start production
+docker-compose -f docker-compose.prod.yml up --build
 
 # Or run in background
-docker-compose -f docker-compose.prod.yml pull
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
 **Features:**
 - Uses `APP_ENV=production`
-- Uses the published Docker image with precompiled assets
+- Builds the local production image with assets precompiled by CI before deployment
 - Runs from the built image with no full-repo bind mount
-- Keeps only explicit named volumes for backups and local media storage
+- Keeps explicit named volumes for backups, local media and installed themes
 - Debug mode disabled
 
 ## Asset Compilation
 
-Assets are automatically compiled in both scenarios:
-
-1. **During Docker image build** - Assets are compiled based on `APP_ENV` build argument
-2. **During container startup** - Assets are rebuilt to ensure they're current
+Development builds assets during startup. CI builds production assets before shipping them to the VPS;
+production startup keeps those assets with `SKIP_ASSET_BUILD=true`.
 
 ### Manual Asset Building
 
@@ -115,10 +114,9 @@ If admin JS files return 404 errors:
    npm run build
    ```
 
-4. Pull and restart production containers:
+4. Rebuild and recreate production containers:
    ```bash
-   docker compose -f docker-compose.prod.yml pull
-   docker compose -f docker-compose.prod.yml up -d
+   docker compose -f docker-compose.prod.yml up -d --build
    ```
 
 5. Check app container logs:
@@ -147,7 +145,6 @@ To switch from development to production:
 ├── docker-compose.prod.yml     # Production configuration
 ├── Dockerfile                  # Multi-environment Dockerfile
 ├── bin/start-apache.sh            # Startup script with asset building
-├── scripts/build.js           # Cross-platform build script
 └── .dockerignore              # Docker ignore file
 ```
 

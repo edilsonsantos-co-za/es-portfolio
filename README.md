@@ -1,49 +1,87 @@
-# EdFolio
+# ES Portfolio
 
-A self-hosted developer portfolio with a content admin panel, built with Laravel 12 and React 19.
+<table>
+  <tr>
+    <th align="center"><a href="https://github.com/arifszn/ezfolio">ezfolio</a> (original)</th>
+    <th align="center">ES Portfolio (ours)</th>
+  </tr>
+  <tr>
+    <td><img src="docs/readme/original.jpg" alt="ezfolio original" width="420"></td>
+    <td><img src="docs/readme/es.jpg" alt="ES Portfolio" width="420"></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="docs/readme/compare.gif" alt="Slider comparing ezfolio with ES Portfolio" width="840"><br>
+    <sub>Before/after slider: ezfolio on the left, ES Portfolio on the right. Original image: ezfolio demo screenshot (Procyon theme), from the ezfolio project site (ezfolio is MIT licensed).</sub></td>
+  </tr>
+</table>
 
-> EdFolio is a maintained fork of [ezfolio](https://github.com/arifszn/ezfolio) by [Ariful Alam (arifszn)](https://github.com/arifszn).
-> The original gave it its shape: a Laravel API, a React admin and Blade portfolio themes. This fork brings the stack
-> up to date, hardens it for production and adds a new design and single sign-on. Credit for the original design and
-> idea goes to the upstream project.
+A self-hosted developer portfolio with a dark Atlas bento design and a React content admin panel.
+Part of the ES apps family alongside ES Blog, ES Store (the ES Marketplace) and ES Journal.
 
-## What this fork adds
+> **Origin:** ES Portfolio is a maintained fork of [ezfolio](https://github.com/arifszn/ezfolio)
+> by [Ariful Alam (arifszn)](https://github.com/arifszn), licensed under MIT. The original portfolio
+> CMS, Laravel API, React admin and Blade templates remain the foundation; upstream copyright
+> is preserved in [LICENSE](LICENSE).
 
-**A current stack, upgraded step by step**
-- Laravel 12 on PHP 8.2, reached through Laravel 10 and 11 one release at a time
-- React 19, Ant Design 6, React Router 7 and Redux 5; Laravel Mix replaced by Vite
-- Node 20 toolchain, ESLint and pinned dependency audits
+## ES Portfolio vs ezfolio
 
-**Production hardening**
-- Docker images for development and production, with health and readiness endpoints
-- Operational routes locked down (the bundled log viewer is removed), native CORS middleware
-- Database readiness probe, additive indexes, JSON shadow columns, and production data that is never reseeded on container restart
-- A pre-push validation hook (lint, build, compose checks) and feature tests for the hardened routes
+The original column describes upstream's [README](https://github.com/arifszn/ezfolio#readme),
+[Composer manifest](https://github.com/arifszn/ezfolio/blob/main/composer.json) and
+[frontend manifest](https://github.com/arifszn/ezfolio/blob/main/package.json), not every ezfolio fork.
+The ES Portfolio column reflects this repository's current code and development history.
 
-**One design: Atlas**
-- The portfolio, the admin panel and its sign-in page share one look: a bento grid with a live local clock, an
-  availability tile and stack meters on the public page, in dark-only mode with `prefers-reduced-motion` support
-- Other themes (the original Azure, Rigel, Vega and Procyon, and the Orion family) moved to the separate ES
-  Marketplace repository. The public site links to the store with `STORE_URL`.
-- Themes install from Admin → Portfolio → Themes: pick one from the store or upload a downloaded package. No
-  unzipping, copying or code. Packages must be signed by a key in `config/theme-keys/` (every file is checked
-  against the signed manifest) and land in `storage/app/themes/<id>/`, a volume in production so installs survive
-  redeploys. An unknown or removed theme falls back to Atlas. `THEME_STORE_URL` sets the store;
-  `THEMES_ALLOW_UNSIGNED=true` allows unsigned packages (not recommended: Blade views are code).
+| Area | ezfolio (original) | ES Portfolio |
+|---|---|---|
+| Backend | Laravel 8; PHP `^7.3` or `^8.0` | Laravel 12; PHP `^8.2`, upgraded incrementally through Laravel 10 and 11 |
+| React | React 17 | React 19 with the current root API |
+| Admin UI libraries | Ant Design 4 and Pro Layout 6 | Ant Design 6 and Pro Layout 7 |
+| Routing and state | React Router 5, Redux 4, React Redux 7 | React Router 7, Redux 5, React Redux 9 and styled-components 6 |
+| Asset toolchain | Laravel Mix 6 / webpack | Vite 8; Node 20.20.x and npm 10 runtime constraints |
+| Public design | Multiple bundled templates: Azure, Rigel, Vega and Procyon | Atlas is the built-in default: flatter, tighter bento hero and bento experience, education, work and service sections |
+| Atlas live tiles | No Atlas template | Local-time clock with seconds ring, availability tile, project counts, animated skill meters and company ticker; environment-configurable availability/timezone |
+| Appearance and motion | Template/theme colour customization | Dark-only public Atlas and admin, no light/dark toggle; reduced-motion handling in Atlas |
+| Admin layout | Minimal Ant Design portfolio CMS interface | Atlas/Manrope styling, ES mark identity, persistent collapsible sidebar and a bento dashboard with welcome, activity and content-count tiles |
+| Visitor analytics UI | Visitor and location tracking already provided | Redesigned KPIs, daily new/returning chart, top locations and readable device/browser/platform donuts |
+| Account portraits | Uploaded images | Gravatar for the admin menu and public portrait fallback when no portrait is uploaded |
+| SSO | Local JWT/password authentication | Optional Logto integration for DataSparkLab SSO using OIDC authorization code + PKCE; state, nonce, issuer, audience and expiry checks; verified email must match an existing admin |
+| Sign-in experience | Application password form | With SSO configured, admin login redirects directly to Logto with dark sign-in styling; password UI remains available on non-SSO installs |
+| Shared account state | No ES apps integration | Signed-in admin/account menu on public pages; shared Logto sign-in and an `es-signout` marker that invalidates stale local admin tokens across ES apps |
+| App navigation | Standalone portfolio | ES apps launcher on public/admin pages, shared masthead/footer styling, ES Blog and ES Store links, and an optional ES Journal dashboard link |
+| Theme distribution | Templates bundled in the portfolio | Original templates and Orion-family variants distributed through ES Marketplace; unknown/removed installed themes fall back to Atlas |
+| Theme installation | Bundled template selection | Admin → Portfolio → Themes installs from the store catalogue or an uploaded ZIP; persistent `storage/app/themes/<id>/` installs |
+| Theme package trust | No signed marketplace installer | Ed25519-signed manifests, per-file SHA-256 checks, app/version constraints, allowed-path and size/file-count limits; unsigned packages rejected by default |
+| Operational security | Public log viewer and `/optimize`; non-production arbitrary-command route | Log viewer removed, arbitrary-command route absent, guarded operational web routes and authenticated admin API optimization; native Laravel CORS |
+| Health monitoring | No equivalent health/readiness routes | `/health` reports app/version status; `/ready` checks the DB and returns 503 when unavailable |
+| Database/startup safety | Standard migrations and seeding setup | Database readiness probe, additive indexes and JSON shadow columns; production startup preserves JWT secrets and does not reseed or fresh-reset existing data |
+| Media handling | Portfolio media uploads | Public/S3-compatible storage selection, normalized uploaded media URLs and startup creation of upload directories |
+| Docker | Laravel Sail development setup | Apache/PHP development and production images/Compose configs, external `milkyway` services, health checks and persistent media/theme/backup volumes |
+| CI and deployment | README describes local installation with Sail or Composer/npm | GitHub Actions validates pushes/PRs; pushes to `main` ship files and Vite assets over SSH to a fixed VPS path, then build/recreate production there (no registry in the current workflow) |
+| Validation and tests | PHPUnit 9 with starter example tests; ESLint 7 dependency | PHPUnit 11 tests for health, operational routes, media, URL/version metadata, Logto and theme validation; ESLint 10, production builds and Compose checks in the pre-push validation path |
+| Maintenance tooling | Older frontend dependency set | Audit-only npm/Composer scripts, Node engine constraints and removal of unused count-up/Reddit-image and incompatible queue-animation dependencies |
 
-**Single sign-on (optional)**
-- Admin sign-in through [Logto](https://logto.io) using OpenID Connect (authorization code + PKCE), with no extra packages
-- Only existing admins can sign in: the verified email must match an admin account. Accounts are never created automatically.
-- With SSO configured, `/admin/login` goes straight to the SSO sign-in page and signing out also ends the SSO session.
-  The password form is only shown on installs without SSO.
-- Enabled by setting `LOGTO_ENDPOINT`, `LOGTO_APP_ID` and `LOGTO_APP_SECRET`. Password login keeps working alongside it.
+Core CMS capabilities—projects, experience, education, skills/services, contact inbox, visitor tracking,
+Google Analytics, SEO, maintenance mode and section visibility—come from ezfolio, not new features
+invented by this fork.
+
+## Themes and single sign-on
+
+Atlas is built in. Install additional signed ES Marketplace themes in **Admin → Portfolio → Themes**,
+from the store or a downloaded package. Trusted public keys live in `config/theme-keys/`; installs live
+in `storage/app/themes/<id>/` and persist in a production volume. `THEME_STORE_URL` sets the catalogue
+URL. `THEMES_ALLOW_UNSIGNED=true` bypasses signature enforcement and is not recommended: Blade views
+are executable code.
+
+SSO uses [Logto](https://logto.io) without extra client packages. Set `LOGTO_ENDPOINT`, `LOGTO_APP_ID`
+and `LOGTO_APP_SECRET` to enable it. Only existing admins with matching verified email addresses may
+sign in; accounts are never automatically provisioned. Without SSO, the password form remains available.
+The shared ES apps account menu and sign-out marker keep account state aligned across the family.
 
 ## Features
 
 - Projects, experience, education, skills and services, all managed from the admin panel
 - Contact form with an inbox in the admin, and visitor analytics
 - Admin accent colour, logo and favicon set from the settings screen
-- Blog link in the navigation when `BLOG_URL` is set
+- ES Blog navigation link controlled by `BLOG_URL`
 - Responsive, mobile-first layouts
 
 ## Tech stack
@@ -66,8 +104,8 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/edilsonsantos/edfolio.git
-   cd edfolio
+   git clone https://github.com/edilsonsantos-co-za/es-portfolio.git
+   cd es-portfolio
    ```
 
 2. **Set up development environment**
@@ -81,27 +119,26 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
    ```
 
 4. **Access the application**
-   - **Portfolio**: http://localhost:8080
-   - **Admin Panel**: http://localhost:8080/admin
-   - **phpMyAdmin**: http://localhost:8081
-   - **MailHog**: http://localhost:8025
+   - Use the hostname configured by your local reverse proxy (this workspace uses http://edilsonsantos.local/).
+   - The admin is at `/admin` on the same host. The container serves HTTP on port 80; the checked-in
+     Compose file does not publish a host port.
 
-5. **Default admin credentials**
+5. **Default admin credentials (seeded development installs without SSO)**
    - Email: `admin@admin.com`
    - Password: `12345`
 
-   **Important:** Change these credentials immediately after first login!
+   Change these credentials immediately. With SSO enabled, the Logto account's verified email must
+   match an existing admin instead.
 
 ### What Happens on First Start
 
-The development environment automatically:
-- Creates and configures MySQL database
-- Runs database migrations
-- Seeds initial data (admin user, sample content)
-- Installs PHP dependencies via Composer
-- Installs Node dependencies via npm
-- Builds frontend assets
-- Configures Redis for caching
+The development container installs dependencies, builds assets, waits for the configured database,
+runs migrations and seeds sample content. The checked-in Compose file starts **only the app** on the
+external `milkyway` network: provide the configured MySQL/Redis services and reverse proxy separately.
+It does not create MySQL, Redis, phpMyAdmin or MailHog containers.
+
+Development Compose currently enables `FORCE_FRESH_DB=true`: use an isolated development database,
+never production data. Production disables fresh resets and does not automatically seed existing data.
 
 ## Environment Configuration
 
@@ -134,6 +171,7 @@ Key configuration options:
 
 ```env
 # Application
+APP_NAME="ES Portfolio"
 APP_ENV=local|production
 APP_DEBUG=true|false
 APP_URL=http://localhost:8080
@@ -149,7 +187,7 @@ CREATE_DB_BACKUP=true               # Backup before migrations
 SKIP_ASSET_BUILD=false              # Skip frontend asset building
 
 # Optional integrations
-BLOG_URL=                           # Adds a Blog link to the public site
+BLOG_URL=                           # ES Blog link; defaults to https://blog.edilsonsantos.co.za when unset
 STORE_URL=                          # Store link; defaults to https://store.edilsonsantos.co.za when unset, empty hides it
 PORTFOLIO_AVAILABILITY=             # Atlas availability tile text, e.g. "Open to remote contract work"; empty hides the tile
 PORTFOLIO_TIMEZONE=UTC              # Timezone for the Atlas local-time clock, e.g. Africa/Johannesburg
@@ -198,6 +236,9 @@ What it currently checks:
 - `npm run lint`
 - `npm run build`
 
+To run these checks in the existing development container instead, use `docker exec edfolio-dev ./bin/validate.sh`
+and run Compose config checks on the host if Docker is not available in the container.
+
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to make missing Compose a hard failure.
 
 Dependency audits are intentionally audit-only and are not part of the blocking validation path while current advisories are being triaged:
@@ -212,43 +253,40 @@ The older `security-check` and `security-check-force` npm scripts run `npm audit
 
 `npm run audit:composer` requires Composer 2.4 or newer.
 
-Production deployments are image-based and manual: every push validates the repo, and running the `CI and Deploy` workflow by hand on `main` (Actions → Run workflow) publishes a Docker Hub image that the VPS then pulls via `docker-compose.prod.yml`. Work is committed straight to `main`, which never deploys on its own.
+Production deployment runs automatically after validation on pushes to `main` (and can be triggered
+manually). CI ships tracked files and built Vite assets over SSH, preserves server-only environment
+files and builds the production image on the VPS. There is no image-registry publish job in the
+current workflow. The fixed server path remains `/workspace/edilsonsantos-co-za/edfolio` even though
+the GitHub repository is now [es-portfolio](https://github.com/edilsonsantos-co-za/es-portfolio).
 
-Repository-wide Docker Hub credentials can be set with `gh secret set`, while production VPS values are best stored as `production` environment secrets. The `build-and-publish` job is not environment-scoped, so `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and the optional `GOOGLE_CHAT_WEBHOOK_URL` notification secret must exist as repository or organization secrets rather than only as environment secrets. `DOCKERHUB_USERNAME` is only used for Docker Hub login; published images are pushed to the `datasparklab` organization namespace. See `DEPLOYMENT.md` and `./bin/setup-github-secrets.sh` for the exact bootstrap flow.
+Configure the `production` environment's `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_PRIVATE_KEY`
+secrets; `DEPLOY_KNOWN_HOSTS` and `DEPLOY_PATH` are optional. See `.github/workflows/ci-deploy.yml`
+for the current deployment contract. `DEPLOYMENT.md` also contains historical registry-based instructions.
 
-Application versioning comes from the root `VERSION` file. The Laravel app exposes both the raw version (for example `0.0.9`) and the release tag (`v0.0.9`) to views. The deployment workflow publishes Docker images with an immutable `sha-<commit>` tag plus mutable `latest`, and production deploys use the immutable tag so previous images remain available for rollback.
+The root `VERSION` file remains the application version source; Laravel exposes the raw version
+and release tag to views. See [UPGRADE_PATH.md](UPGRADE_PATH.md) for completed modernization phases
+and remaining work.
 
-## Modernization Snapshot
+### Naming compatibility
 
-Current baseline:
+ES Portfolio is the display name; deployment and integration identifiers are unchanged. Keep
+`edfolio-dev`, `edfolio-prod`, image/volume/network names, server/backup paths, database identifiers,
+SSO client IDs, browser storage keys and the signed theme manifest app ID `edfolio-portfolio` intact.
+The store catalogue still uses `app=portfolio` and `install=admin`.
 
-- Laravel `12.x`
-- PHP Composer constraint `^8.2`
-- PHPUnit `11.5+`
-- Node `20.20.x` LTS for Vite asset builds
-- React `18`
-- Vite `5`
-- GitHub Actions now updated to Node 24-compatible action majors
-
-Recommended upgrade path:
-
-See [`UPGRADE_PATH.md`](UPGRADE_PATH.md) for the phased production-safe upgrade plan covering the completed Laravel `9 -> 10 -> 11 -> 12` backend phases plus remaining frontend modernization, database migrations, deployment safety, validation, rollback, and post-upgrade feature ideas.
-
-High-level sequence:
-
-1. Keep docs and validation scripts accurate
-2. Add missing security, health-check, and deployment safeguards
-3. Keep Laravel 12 backend validation green
-4. Keep the Vite frontend build stable on Node LTS
-5. Modernize React Router, Redux, styled-components, Ant Design, then React
-6. Apply database improvements with zero-downtime expand/contract migrations
-7. Split CI into reusable `validate`, `build-image`, and `deploy` workflows for cross-project reuse
+Laravel derives session/cache/Redis names from `APP_NAME` when no explicit value is configured.
+Legacy application/mail display names are normalized without changing the source environment.
+The environment templates pin their existing `SESSION_COOKIE`, `CACHE_PREFIX` and `REDIS_PREFIX`
+values so this display rename does not reset sessions or change key namespaces. When updating an
+existing server environment, preserve its current effective values **before** changing `APP_NAME`
+(the usual legacy values are `edfolio_session`, `edfolio_cache` and `edfolio_database_`). Custom
+site titles/SEO content stored by an administrator are not overwritten.
 
 ### Working with the Application
 
 ```bash
 # View application logs
-docker-compose -f docker-compose.dev.yml logs -f edfolio-dev
+docker-compose -f docker-compose.dev.yml logs -f app
 
 # Access application container shell
 docker exec -it edfolio-dev bash
@@ -280,31 +318,19 @@ docker exec edfolio-dev npm run production
 ### Database Management
 
 ```bash
-# Access MySQL CLI
-docker exec -it edfolio-db-dev mysql -u edfolio_user -p
-
-# Create database backup
+# Back up the configured database through the app container
 docker exec edfolio-dev ./bin/backup-manager.sh backup
-
-# View database via phpMyAdmin
-# Open http://localhost:8081 in browser
 ```
+
+Manage the external MySQL/Redis services with your workspace tooling, not nonexistent bundled
+Compose services. See [DOCKER.md](DOCKER.md) for persistent media and theme storage.
 
 ## Docker Configuration
 
-### Available Compose Files
-
-- `docker-compose.dev.yml` - Development stack with all services
-- `docker-compose.prod.yml` - Production configuration
-
-### Development Services
-
-The development environment includes:
-- **App Container** (`edfolio-dev`) - Laravel application
-- **MySQL** (`edfolio-db-dev`) - Database server
-- **Redis** (`edfolio-redis-dev`) - Cache and sessions
-- **phpMyAdmin** (`edfolio-phpmyadmin-dev`) - Database GUI
-- **MailHog** (`edfolio-mailhog-dev`) - Email testing
+- `docker-compose.dev.yml`: app container `edfolio-dev`, source bind mount and Node modules volume;
+  shared external `milkyway` network.
+- `docker-compose.prod.yml`: app container `edfolio-prod`, server-built image, readiness health check
+  and named volumes for backups, media and installed themes; same external network.
 
 ## Troubleshooting
 
@@ -328,16 +354,9 @@ docker exec edfolio-dev chown -R www-data:www-data storage bootstrap/cache
 ```
 
 **Database connection issues:**
-```bash
-# Verify database is running
-docker-compose -f docker-compose.dev.yml ps
-
-# Check database logs
-docker logs edfolio-db-dev
-
-# Restart database
-docker-compose -f docker-compose.dev.yml restart edfolio-db-dev
-```
+Verify the configured external DB is reachable on `milkyway`; review `DB_HOST`, `DB_DATABASE` and
+credentials without changing the database name. `docker logs edfolio-dev --tail=100` shows startup
+readiness failures.
 
 **Asset compilation failures:**
 ```bash
@@ -363,7 +382,7 @@ docker-compose -f docker-compose.dev.yml up -d --build
 ## Project Structure
 
 ```
-edfolio/
+es-portfolio/
 ├── app/                          # Laravel application code
 │   ├── Console/                  # Artisan commands
 │   ├── Http/
@@ -413,7 +432,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Support
 
 For issues, questions, or contributions:
-- Open an issue in the [GitHub repository](https://github.com/edilsonsantos/edfolio/issues)
+- Open an issue in the [GitHub repository](https://github.com/edilsonsantos-co-za/es-portfolio/issues)
 - Check existing documentation in the repository
 - Review the [original ezfolio project](https://github.com/arifszn/ezfolio) for additional resources
 

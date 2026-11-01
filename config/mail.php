@@ -85,7 +85,7 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'name' => str_ireplace('EdFolio', 'ES Portfolio', env('MAIL_FROM_NAME', 'ES Portfolio')),
     ],
 
     /*

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# EdFolio Backup Manager
+# ES Portfolio Backup Manager
 # Usage: ./backup-manager.sh [list|download|restore|cleanup]
 
 PROJECT_DIR="/var/www/html/edfolio"  # Update this path

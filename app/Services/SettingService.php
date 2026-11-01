@@ -168,7 +168,7 @@ class SettingService implements SettingInterface
             }
 
             //get site name
-            $data['siteName'] = env('APP_NAME', 'edfolio'); // TODO: Replace DotenvEditor
+            $data['siteName'] = config('app.name', 'ES Portfolio');
 
             //get logo
             $result = $this->getSettingByKey(CoreConstants::SETTING__LOGO, ['setting_value']);

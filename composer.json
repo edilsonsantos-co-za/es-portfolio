@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "edilsonsantos/es-portfolio",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "ES Portfolio: a self-hosted developer portfolio and admin panel, maintained from ezfolio.",
     "keywords": [
         "framework",
         "laravel"

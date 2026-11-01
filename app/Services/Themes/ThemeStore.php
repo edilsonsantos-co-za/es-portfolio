@@ -49,7 +49,7 @@ class ThemeStore
     {
         $item = collect($this->catalogue())->firstWhere('id', $id);
         if ($item === null || !is_string($item['download'] ?? null) || !is_string($item['sha256'] ?? null)) {
-            throw new ThemePackageException('The store does not offer that theme for EdFolio.');
+            throw new ThemePackageException('The store does not offer that theme for ES Portfolio.');
         }
 
         $tmp = tempnam(sys_get_temp_dir(), 'theme-');

@@ -41,7 +41,7 @@ class AdminSeeder extends Seeder
                         $settingService = resolve(SettingInterface::class);
                         //site name
                         // TODO: Replace DotenvEditor with custom env file management
-                        // $file = DotenvEditor::setKey('APP_NAME', 'edfolio');
+                        // $file = DotenvEditor::setKey('APP_NAME', 'ES Portfolio');
                         // $file = DotenvEditor::save();
 
                         //accent color

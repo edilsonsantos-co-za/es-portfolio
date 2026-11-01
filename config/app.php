@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => str_ireplace('EdFolio', 'ES Portfolio', env('APP_NAME', 'ES Portfolio')),
 
     /*
     |--------------------------------------------------------------------------

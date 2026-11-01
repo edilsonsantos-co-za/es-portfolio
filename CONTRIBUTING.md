@@ -1,6 +1,6 @@
 # How to Contribute
 
-Thank you for considering contributing to edfolio.
+Thank you for considering contributing to ES Portfolio.
 
 ## Getting Started
 

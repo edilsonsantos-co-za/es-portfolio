@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for edfolio assets
+# Build script for ES Portfolio assets
 
 echo "Installing npm dependencies..."
 npm ci

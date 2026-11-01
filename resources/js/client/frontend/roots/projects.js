@@ -42,7 +42,7 @@ function App() {
                 description: <React.Fragment>
                     <Space direction="vertical" size="middle">
                         <div className="text-center">
-                            Welcome to edfolio!
+                            Welcome to ES Portfolio!
                         </div>
                         <div className="text-center">
                             <a href={Routes.web.admin.dashboard} target="_blank" rel="noreferrer">Visit Admin Panel</a>

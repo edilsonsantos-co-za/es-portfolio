@@ -1,4 +1,4 @@
-# EdFolio Development Environment
+# ES Portfolio Development Environment
 
 Complete Docker-based development setup with all required services.
 
@@ -22,7 +22,7 @@ Complete Docker-based development setup with all required services.
 
 ## Services Included
 
-### 🚀 **EdFolio App** (`edfolio-dev`)
+### 🚀 **ES Portfolio App** (`edfolio-dev`)
 - **Port**: 8080
 - **Container**: Full Laravel application with automatic asset building
 - **Features**: Hot reload, persistent storage, automatic migrations

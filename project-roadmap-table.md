@@ -1,4 +1,4 @@
-# EdFolio Project Roadmap & Development Tracker
+# ES Portfolio Project Roadmap & Development Tracker
 
 ## Current Project Overview
 - **Tech Stack**: Laravel 12 + React 18 + Ant Design 5 + Docker

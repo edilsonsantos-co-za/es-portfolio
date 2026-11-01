@@ -10,7 +10,7 @@ import '../../../common/assets/css/atlas-auth.css';
  */
 const AuthLayout = ({ children, title = null, chip = 'Admin workspace', subtitle = null }) => {
     const { logo, siteName } = useSelector(state => state.globalState);
-    const name = siteName || 'EdFolio';
+    const name = siteName || 'ES Portfolio';
 
     return (
         <div className="atlas-auth">

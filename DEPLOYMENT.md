@@ -1,5 +1,12 @@
 # Deployment System
 
+> **Current workflow:** pushes to `main` validate, ship files/assets over SSH and build the production
+> image on the VPS; there is no registry publish step now. See [README.md](README.md#common-development-tasks)
+> and `.github/workflows/ci-deploy.yml`. Registry-based sections below describe the historical deployment
+> setup. The repo is `edilsonsantos-co-za/es-portfolio`; the server path and `edfolio-*` infrastructure
+> identifiers intentionally remain unchanged.
+
+
 ## Push to main = live (current)
 
 Every push to `main` runs `.github/workflows/ci-deploy.yml`: validation, then the `deploy` job builds
@@ -276,7 +283,7 @@ Only switch `APP_URL` to `https://...` and set `FORCE_HTTPS=true` after the publ
 You can set the required secrets for this repository with:
 
 ```bash
-./bin/setup-github-secrets.sh edilsonsantos-co-za/edfolio \
+./bin/setup-github-secrets.sh edilsonsantos-co-za/es-portfolio \
   --dockerhub-username YOUR_DOCKERHUB_USERNAME \
   --dockerhub-token YOUR_DOCKERHUB_TOKEN \
   --google-chat-webhook-url YOUR_GOOGLE_CHAT_WEBHOOK_URL \

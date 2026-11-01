@@ -1,6 +1,6 @@
-# EdFolio Upgrade Path
+# ES Portfolio Upgrade Path
 
-This document defines the phased upgrade path for EdFolio from the historical Laravel 9 / React 18 baseline to the current Laravel 12 / React 19 / Vite 8 stack.
+This document defines the phased upgrade path for ES Portfolio from the historical Laravel 9 / React 18 baseline to the current Laravel 12 / React 19 / Vite 8 stack.
 
 The production database is active, so every phase must be reversible, observable, and safe for zero-downtime or near-zero-downtime deployment.
 

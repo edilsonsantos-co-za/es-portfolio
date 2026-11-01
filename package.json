@@ -1,4 +1,6 @@
 {
+    "name": "es-portfolio",
+    "description": "ES Portfolio frontend and admin panel, maintained from ezfolio.",
     "private": true,
     "engines": {
         "node": ">=20.20.2 <21",

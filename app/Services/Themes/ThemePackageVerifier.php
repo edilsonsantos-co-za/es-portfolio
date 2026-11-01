@@ -98,7 +98,7 @@ class ThemePackageVerifier
             throw new ThemePackageException('The manifest has an invalid theme id.');
         }
         if (($m['app'] ?? null) !== self::APP) {
-            throw new ThemePackageException(sprintf('This theme is for "%s", not the EdFolio portfolio.', is_string($m['app'] ?? null) ? $m['app'] : 'another app'));
+            throw new ThemePackageException(sprintf('This theme is for "%s", not ES Portfolio.', is_string($m['app'] ?? null) ? $m['app'] : 'another app'));
         }
         if (!is_string($m['name'] ?? null) || $m['name'] === '' || mb_strlen($m['name']) > 80) {
             throw new ThemePackageException('The manifest has no theme name.');
@@ -107,7 +107,7 @@ class ThemePackageVerifier
             throw new ThemePackageException('The manifest has an invalid version.');
         }
         if (!self::satisfies($this->appVersion->version(), (string) ($m['requires'] ?? ''))) {
-            throw new ThemePackageException(sprintf('This theme needs EdFolio %s; this site runs %s.', $m['requires'], $this->appVersion->version()));
+            throw new ThemePackageException(sprintf('This theme needs ES Portfolio %s; this site runs %s.', $m['requires'], $this->appVersion->version()));
         }
         if (!is_array($m['files'] ?? null) || !isset($m['files']['views/theme.blade.php'])) {
             throw new ThemePackageException('The package has no theme view.');
