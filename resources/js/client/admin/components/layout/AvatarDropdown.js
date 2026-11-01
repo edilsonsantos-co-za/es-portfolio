@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 
@@ -9,17 +10,22 @@ import Routes from '../../../common/helpers/Routes';
  */
 const AvatarDropdown = () => {
     const [me, setMe] = useState(null);
+    const apiToken = useSelector(state => state.globalState.apiToken);
 
+    // Ask again whenever the sign-in token changes (it can arrive after the layout first renders)
     useEffect(() => {
+        if (!apiToken) {
+            return;
+        }
         HTTP.get(Routes.api.admin.me)
             .then(response => setMe(response.data.payload || null))
             .catch(() => setMe(null));
-    }, []);
+    }, [apiToken]);
 
     return (
         <es-apps
             current="portfolio"
-            signed-in=""
+            signed-in="true"
             user-name={me?.name || ''}
             user-email={me?.email || ''}
             avatar={me?.avatar || ''}
