@@ -225,9 +225,8 @@
             @endif
             @if ($years)
                 <div class="tile">
-                    <span class="mono">In production</span>
+                    <span class="mono">Years of experience</span>
                     <span class="big"><span data-count="{{ $years }}">{{ $years }}</span>+</span>
-                    <span class="mono">years</span>
                 </div>
             @endif
             <div class="tile clock">
@@ -263,7 +262,7 @@
             @endif
             @if ($companies->count() > 1)
                 <div class="tile shipped">
-                    <span class="mono">Shipped at</span>
+                    <span class="mono">Worked at</span>
                     <div class="track"><div class="ticker">@foreach ([1, 2] as $copy)@foreach ($companies as $company)<span @if ($copy === 2) aria-hidden="true" @endif>{{ $company }}</span>@endforeach @endforeach</div></div>
                 </div>
             @endif
