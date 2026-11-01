@@ -71,5 +71,8 @@
         "redux-thunk": "^3.1.0",
         "styled-components": "^6.4.2",
         "typed.js": "^3.0.0"
+    },
+    "overrides": {
+        "path-to-regexp": "8.4.2"
     }
 }

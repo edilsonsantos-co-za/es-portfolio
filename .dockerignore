@@ -11,9 +11,8 @@ public/mix-manifest.json
 .git/
 .gitignore
 README.md
+# Secrets are injected at runtime via env_file, never baked into the image
 .env*
-!.env.dev
-!.env.prod
 
 # IDE files
 .vscode/

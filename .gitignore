@@ -79,3 +79,8 @@ docker-compose.override.yml
 /public/build/
 /public/mix-manifest.json
 /storage
+
+# Real environment files carry secrets; commit the *.example templates only
+.env.dev
+.env.prod
+.env.development

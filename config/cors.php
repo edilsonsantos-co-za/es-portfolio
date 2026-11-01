@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // The SPA calls the API same-origin; only list extra origins explicitly.
+    'allowed_origins' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('CORS_ALLOWED_ORIGINS', env('APP_URL', '')))
+    ))),
 
     'allowed_origins_patterns' => [],
 
