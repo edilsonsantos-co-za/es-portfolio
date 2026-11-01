@@ -88,6 +88,19 @@ init_compose_command
 
 PHPUNIT_APP_KEY_FALLBACK='base64:4d6rBKspCmgDurgcdnb5KJ0QUgTefTgaEsqURDZpH0M='
 
+GENERATED_DEV_ENV=0
+if [[ ! -f .env.dev && -f .env.dev.example ]]; then
+  GENERATED_DEV_ENV=1
+  cp .env.dev.example .env.dev
+fi
+
+cleanup_generated_dev_env() {
+  if [[ "$GENERATED_DEV_ENV" == "1" ]]; then
+    rm -f -- .env.dev
+  fi
+}
+trap cleanup_generated_dev_env EXIT
+
 printf '[validate] Checking Docker Compose config...\n'
 compose_config_check docker-compose.dev.yml
 compose_config_check docker-compose.prod.yml
