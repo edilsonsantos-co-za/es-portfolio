@@ -192,7 +192,7 @@
             <div class="top-actions">
                 @include('frontend.theme.partials.theme-toggle')
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
-                <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}"></es-apps>
+                <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}" dashboard-url="{{ url('/admin/dashboard') }}"></es-apps>
                 <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
             </div>
         </div>
