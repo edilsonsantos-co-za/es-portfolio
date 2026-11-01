@@ -52,13 +52,14 @@
         .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; display: grid; place-items: center; font-size: 16px; }
         .menu-btn { display: none; }
 
-        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 12px; padding: 24px 0 0; }
-        .tile { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; position: relative; overflow: hidden; transition: transform .25s, box-shadow .25s; }
-        .tile:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,.08); }
+        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 10px; padding: 24px 0 0; }
+        /* Flat tiles: gutters and card colour separate them; hover shows the cursor spotlight and an accent edge, no lift. */
+        .tile { background: var(--card); border: 1px solid transparent; border-radius: 20px; padding: 24px; position: relative; overflow: hidden; transition: border-color .2s; }
+        .tile:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
         .bento .tile::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(260px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%); }
         .bento .tile:not(.photo) > * { position: relative; }
         .intro { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
-        .intro h1 { font-size: clamp(40px, 5.4vw, 68px); line-height: .98; letter-spacing: -.045em; margin: 10px 0 14px; font-weight: 800; }
+        .intro h1 { font-size: clamp(42px, 6vw, 80px); line-height: .94; letter-spacing: -.055em; margin: 10px 0 14px; font-weight: 800; }
         .intro .role { font-size: 20px; margin: 0; color: var(--muted); }
         .intro .role b { color: var(--text); }
         #tagline { display: inline-block; transition: opacity .22s; }
@@ -102,7 +103,7 @@
         h2 { font-size: clamp(30px, 4vw, 48px); letter-spacing: -.045em; margin: 6px 0 0; line-height: 1; font-weight: 800; }
 
         /* Bento lists: the first item leads as a 2x2 tile and the last one widens so a row never ends in a hole. */
-        .bento-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .bento-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
         .bento-list > :first-child { grid-column: span 2; grid-row: span 2; }
         .bento-list > :only-child { grid-column: 1 / -1; grid-row: auto; }
         .bento-list > :nth-child(3n+1):last-child { grid-column: 1 / -1; }
@@ -136,7 +137,7 @@
         .svc h3 { margin: 16px 0 6px; font-size: 19px; }
         .svc p { margin: 0; color: var(--muted); font-size: 15px; }
 
-        .contact { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+        .contact { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
         .contact .cta { background: var(--accent-soft); }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
         .contact .cta h2 { font-size: clamp(34px, 4vw, 52px); }
@@ -164,13 +165,15 @@
         }
         @media (max-width: 700px) {
             .hide-sm { display: none; }
+            .mast-row { gap: 0; }
+            .top-actions { gap: 6px; }
             .nav-mobile-only { display: block; }
             .foot { flex-direction: column; align-items: flex-start; }
             .bento, .bento-list, .contact, .two { grid-template-columns: 1fr; }
             .intro, .stack, .now, .shipped, .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
             .photo { grid-row: auto; aspect-ratio: 4/5; }
         }
-        @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile:hover { transform: none; } html { scroll-behavior: auto; } }
+        @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile { transition: none; } html { scroll-behavior: auto; } }
     </style>
     <script src="{{ asset('assets/es-apps.js') }}?v={{ filemtime(public_path('assets/es-apps.js')) }}" defer></script>
     <script src="{{ asset('assets/es-account.js') }}?v={{ filemtime(public_path('assets/es-account.js')) }}" defer></script>
