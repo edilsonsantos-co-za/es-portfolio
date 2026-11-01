@@ -96,8 +96,6 @@ const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
     const location = useLocation();
     const globalState = useSelector(state => state.globalState);
-    const logo = globalState.logo;
-    const siteName = globalState.siteName;
     const palette = ATLAS_PALETTE[useThemeMode()];
     const layout = normalizeMenuLayout(globalState.menuLayout);
     const [collapsed, setCollapsed] = useState(() => !isMobile && readSidebarPreference() === true);
@@ -142,7 +140,8 @@ const ZLayout = ({ children }) => {
     }
 
     const defaultProps = {
-        title: siteName,
+        // The ES app identity (ES mark, "ES Portfolio"), shared with ES Blog, ES Journal and ES Marketplace
+        title: 'ES Portfolio',
         navTheme: 'light',
         token: {
             bgLayout: palette.bg,
@@ -182,7 +181,7 @@ const ZLayout = ({ children }) => {
         onCollapse: (_collapsed) => {
             setCollapsed(_collapsed)
         },
-        logo: Utils.mediaUrl(logo),
+        logo: '/assets/brand/es-mark.svg',
         menu: {
             hideMenuWhenCollapsed: false,
         },

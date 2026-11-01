@@ -90,7 +90,6 @@ const General = (props) => {
                 favicon: file
             });
         }, 2000);
-        document.getElementById("favicon").href = Utils.mediaUrl(file);
     }
 
     const changeLogo = (

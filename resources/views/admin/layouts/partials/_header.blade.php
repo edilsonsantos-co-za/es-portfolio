@@ -2,9 +2,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <script src="{{ asset('theme-mode.js') }}?v={{ filemtime(public_path('theme-mode.js')) }}"></script>
 
-<!-- Favicon -->
-<link rel="shortcut icon" id="favicon" type="image/x-icon" href="{{\Utils::getFavicon()}}">
-<title>{{Config::get('app.name')}}</title>
+<!-- The admin carries the ES app identity (ES mark, "ES Portfolio") like the other ES apps;
+     the favicon and logo set in Settings brand the public portfolio. -->
+<link rel="icon" id="favicon" type="image/svg+xml" href="{{ asset('assets/brand/es-mark.svg') }}">
+<link rel="alternate icon" type="image/png" sizes="32x32" href="{{ asset('assets/brand/es-icon-32.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('assets/brand/es-icon-180.png') }}">
+<title>ES Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
