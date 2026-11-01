@@ -19,14 +19,17 @@ const SingleSignOut = {
         try { return localStorage.getItem(SEEN_KEY) !== now; } catch { return false; }
     },
 
-    // Drop the admin token when another ES app signed out; true when it did
+    // Drop the admin token when another ES app signed out; true when there was one to drop
+    // (no token: nothing to end, and the SSO sign-in callback must be left alone)
     enforce() {
         if (!SingleSignOut.signedOutElsewhere()) return false;
+        let hadToken = false;
         try {
+            hadToken = !!localStorage.getItem('apiToken');
             localStorage.removeItem('apiToken');
             localStorage.removeItem(SEEN_KEY);
         } catch { /* private mode */ }
-        return true;
+        return hadToken;
     },
 
     // Signed out in another ES app: end the SSO session too, or the admin's automatic SSO sign-in
