@@ -61,8 +61,6 @@ class CoreConstants
     const SETTING__FAVICON = 5;
     const SETTING__COVER = 6;
     const SETTING__MENU_LAYOUT = 7;
-    const SETTING__MENU_COLOR = 8;
-    const SETTING__NAV_COLOR = 9;
 
     #endregion
 }

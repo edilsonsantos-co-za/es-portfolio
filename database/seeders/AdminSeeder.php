@@ -68,22 +68,6 @@ class AdminSeeder extends Seeder
                         ];
                         $settingService->insertOrUpdate($data);
 
-                        //menu color
-                        $data = [
-                            'setting_key' => CoreConstants::SETTING__MENU_COLOR,
-                            'setting_value' => 'light',
-                            'default_value' => 'light',
-                        ];
-                        $settingService->insertOrUpdate($data);
-
-                        //menu color
-                        $data = [
-                            'setting_key' => CoreConstants::SETTING__NAV_COLOR,
-                            'setting_value' => 'light',
-                            'default_value' => 'light',
-                        ];
-                        $settingService->insertOrUpdate($data);
-
                         //logo
                         try {
                             if (is_dir('public/assets/common/img/logo')) {

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import Utils from '../../../common/helpers/Utils';
 import Routes from '../../../common/helpers/Routes';
-import ThemeToggle from '../../../common/components/ThemeToggle';
 import '../../../common/assets/css/atlas-auth.css';
 
 /**
@@ -28,7 +27,6 @@ const AuthLayout = ({ children, title = null, chip = 'Admin workspace', subtitle
                     </span>
                 </a>
                 <div className="atlas-auth-actions">
-                    <ThemeToggle/>
                     <a className="atlas-auth-link-btn" href={Routes.web.frontend.home}>← <span>Back to site</span></a>
                 </div>
             </header>

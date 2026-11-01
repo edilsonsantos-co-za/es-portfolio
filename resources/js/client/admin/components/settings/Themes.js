@@ -10,7 +10,6 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import CoreConstants from '../../../common/helpers/CoreConstants';
 import PropTypes from 'prop-types';
-import { useIsMobile } from '../../../common/hooks/IsMobile';
 
 const { Item } = List;
 
@@ -21,7 +20,6 @@ padding: 16px 0px !important;
 const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
 
 const Themes = (props) => {
-    const isMobile = useIsMobile();
     const [loading, setLoading] = useState(false);
     const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [currentSettingToChange, setCurrentSettingToChange] = useState(null);
@@ -101,28 +99,6 @@ const Themes = (props) => {
         submitData(CoreConstants.settings.SHORT_MENU, value, callback);
     }
 
-    const menuColorChangeHandle = (e) => {
-        const value = e.target.value;
-
-        const callback = () => {
-            props.setGlobalState({
-                menuColor: value
-            });
-        }
-        submitData(CoreConstants.settings.MENU_COLOR, value, callback);
-    }
-
-    const navColorChangeHandle = (e) => {
-        const value = e.target.value;
-
-        const callback = () => {
-            props.setGlobalState({
-                navColor: value
-            });
-        }
-        submitData(CoreConstants.settings.NAV_COLOR, value, callback);
-    }
-
     return (
         <React.Fragment>
             <PageHeader
@@ -192,54 +168,6 @@ const Themes = (props) => {
                                     ]
                                 }>
                                     <Item.Meta title={'Menu Size'} description={'Change default menu size.'} />
-                                </StyledListItem>
-                            </Spin>
-                        )
-                    }
-                    <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.settings.MENU_COLOR}>
-                        <StyledListItem actions={
-                            [
-                                <Radio.Group
-                                    key="change-menu-color"
-                                    size="small"
-                                    options={
-                                        [
-                                            { label: 'Dark', value: 'dark' },
-                                            { label: 'Light', value: 'light' },
-                                        ]
-                                    }
-                                    onChange={menuColorChangeHandle}
-                                    value={props.globalState.menuColor}
-                                    optionType="button"
-                                    buttonStyle="solid"
-                                />
-                            ]
-                        }>
-                            <Item.Meta title={'Menu Layout'} description={'Change menu color.'} />
-                        </StyledListItem>
-                    </Spin>
-                    {
-                       ( isMobile || (currentMenuLayout === 'side')) && (
-                            <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.settings.NAV_COLOR}>
-                                <StyledListItem actions={
-                                    [
-                                        <Radio.Group
-                                            key="change-nav-color"
-                                            size="small"
-                                            options={
-                                                [
-                                                    { label: 'Dark', value: 'dark' },
-                                                    { label: 'Light', value: 'light' },
-                                                ]
-                                            }
-                                            onChange={navColorChangeHandle}
-                                            value={props.globalState.navColor}
-                                            optionType="button"
-                                            buttonStyle="solid"
-                                        />
-                                    ]
-                                }>
-                                    <Item.Meta title={'Nav Bar Color'} description={'Change nav color.'} />
                                 </StyledListItem>
                             </Spin>
                         )

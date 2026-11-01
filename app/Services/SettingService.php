@@ -167,24 +167,6 @@ class SettingService implements SettingInterface
                 $data['menuLayout'] = 'side';
             }
 
-            //get menu color
-            $result = $this->getSettingByKey(CoreConstants::SETTING__MENU_COLOR, ['setting_value']);
-
-            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                $data['menuColor'] = $result['payload']->setting_value;
-            } else {
-                $data['menuColor'] = 'light';
-            }
-
-            //get nav color
-            $result = $this->getSettingByKey(CoreConstants::SETTING__NAV_COLOR, ['setting_value']);
-
-            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                $data['navColor'] = $result['payload']->setting_value;
-            } else {
-                $data['navColor'] = 'light';
-            }
-
             //get site name
             $data['siteName'] = env('APP_NAME', 'edfolio'); // TODO: Replace DotenvEditor
 

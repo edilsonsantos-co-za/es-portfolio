@@ -18,13 +18,6 @@ body { margin: 0; color: var(--text); font-family: 'Manrope', system-ui, -apple-
 .atlas-icon-btn { width: 38px; height: 38px; padding: 0; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); display: inline-grid; place-items: center; cursor: pointer; text-decoration: none; }
 .atlas-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 .atlas-icon-btn svg { display: block; }
-.atlas-icon-btn .i-sun, :root[data-theme="dark"] .atlas-icon-btn .i-moon { display: none; }
-:root[data-theme="dark"] .atlas-icon-btn .i-sun { display: block; }
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .atlas-icon-btn .i-moon { display: none; }
-    :root:not([data-theme="light"]) .atlas-icon-btn .i-sun { display: block; }
-}
-
 /* Buttons and links */
 .atlas-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink) !important; font: 700 14px 'Manrope', system-ui, sans-serif; text-decoration: none; cursor: pointer; white-space: nowrap; }
 .atlas-btn:hover { filter: brightness(1.06); }

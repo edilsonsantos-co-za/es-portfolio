@@ -15,11 +15,7 @@
 <head>
     @include('frontend.theme.partials.head')
     <style>
-        :root { --bg: #eef1f6; --card: #ffffff; --card-2: #f5f7fb; --text: #0f172a; --muted: #5b6478; --line: #dde3ee; --accent: #2563eb; --accent-ink: #ffffff; --accent-soft: #e6eeff; --dark: #0f172a; --on-dark: #f1f5f9; }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; }
-        }
-        :root[data-theme="dark"] { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; }
+        :root { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; color-scheme: dark; }
         *, *::before, *::after { box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: 90px; }
         body { margin: 0; background: var(--bg); color: var(--text); font: 500 16px/1.6 'Manrope', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -193,7 +189,6 @@
                 @if ($visibility['contact'])<li><a href="#contact">Contact</a></li>@endif
             </ul>
             <div class="top-actions">
-                @include('frontend.theme.partials.theme-toggle')
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
                 <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}" dashboard-url="{{ url('/admin/dashboard') }}"></es-apps>
                 <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>

@@ -1,15 +1,10 @@
 {{--
-    Shared behaviour for the Orion family: colour theme toggle (#theme-btn), mobile menu (#menu-btn / #menu),
+    Shared behaviour for the Orion family: mobile menu (#menu-btn / #menu),
     rotating tagline (#tagline), reveal-on-scroll ([data-reveal]) and the contact form. Expects $taglines.
 --}}
 <script>
     (function () {
         var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        var themeBtn = document.getElementById('theme-btn');
-        if (themeBtn) {
-            themeBtn.addEventListener('click', window.esTheme.toggle);
-        }
 
         var menu = document.getElementById('menu');
         var menuBtn = document.getElementById('menu-btn');

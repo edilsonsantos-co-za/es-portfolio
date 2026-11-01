@@ -1,6 +1,6 @@
 <meta charset="utf-8">
+<style>:root { color-scheme: dark; background: #090b10; }</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<script src="{{ asset('theme-mode.js') }}?v={{ filemtime(public_path('theme-mode.js')) }}"></script>
 
 <!-- The admin carries the ES app identity (ES mark, "ES Portfolio") like the other ES apps;
      the favicon and logo set in Settings brand the public portfolio. -->

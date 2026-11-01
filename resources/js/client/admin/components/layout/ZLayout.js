@@ -19,7 +19,7 @@ import NavContent from './NavContent';
 import { useIsMobile } from '../../../common/hooks/IsMobile';
 import HTTP from '../../../common/helpers/HTTP';
 import styled from 'styled-components';
-import { ATLAS_PALETTE, useThemeMode } from '../../../common/helpers/ThemeMode';
+import { ATLAS_PALETTE } from '../../../common/helpers/AtlasPalette';
 
 const normalizeMenuLayout = (value) => (value === 'top' ? 'top' : 'side');
 
@@ -96,7 +96,7 @@ const ZLayout = ({ children }) => {
     const isMobile = useIsMobile();
     const location = useLocation();
     const globalState = useSelector(state => state.globalState);
-    const palette = ATLAS_PALETTE[useThemeMode()];
+    const palette = ATLAS_PALETTE;
     const layout = normalizeMenuLayout(globalState.menuLayout);
     const [collapsed, setCollapsed] = useState(() => !isMobile && readSidebarPreference() === true);
     let navigate = useNavigate();

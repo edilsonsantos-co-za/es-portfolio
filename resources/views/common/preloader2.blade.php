@@ -8,7 +8,7 @@
             bottom: 0;
             z-index: 9999;
             overflow: hidden;
-            background: #fff;
+            background: #090b10;
         }
 
         #szn-preloader:before {

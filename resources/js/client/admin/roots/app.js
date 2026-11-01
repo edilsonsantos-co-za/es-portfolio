@@ -15,7 +15,7 @@ import {ErrorBoundaryFallbackUI} from '../../common/components/ErrorBoundaryFall
 import '../../common/assets/css/app.css';
 import '../../common/assets/css/atlas-auth.css';
 import '../../common/assets/css/atlas-admin.css';
-import { ATLAS_PALETTE, useThemeMode } from '../../common/helpers/ThemeMode';
+import { ATLAS_PALETTE } from '../../common/helpers/AtlasPalette';
 import ReactRoutes from '../../common/helpers/ReactRoutes';
 import { Provider, useDispatch } from 'react-redux';
 import { initializeGlobalState } from '../redux/ActionCreators';
@@ -130,8 +130,6 @@ const App = () => {
         accentColor: mySettings.accentColor,
         shortMenu: mySettings.shortMenu,
         menuLayout: mySettings.menuLayout,
-        menuColor: mySettings.menuColor,
-        navColor: mySettings.navColor,
         siteName: mySettings.siteName,
         logo: mySettings.logo,
         favicon: mySettings.favicon,
@@ -153,10 +151,9 @@ const App = () => {
         setupInterceptors(store);
     }, []);
 
-    const mode = useThemeMode();
-    const palette = ATLAS_PALETTE[mode];
+    const palette = ATLAS_PALETTE;
     const atlasTheme = {
-        algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        algorithm: antdTheme.darkAlgorithm,
         token: {
             colorPrimary: palette.accent,
             colorLink: palette.accent,

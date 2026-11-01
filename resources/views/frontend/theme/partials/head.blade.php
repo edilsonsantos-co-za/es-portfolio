@@ -21,6 +21,3 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?{{ $fonts }}&display=swap" rel="stylesheet">
-
-{{-- Applies the saved colour theme before first paint; shared with the blog, store and admins. --}}
-<script src="{{ asset('theme-mode.js') }}?v={{ filemtime(public_path('theme-mode.js')) }}"></script>

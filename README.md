@@ -22,7 +22,7 @@ A self-hosted developer portfolio with a content admin panel, built with Laravel
 
 **One design: Atlas**
 - The portfolio, the admin panel and its sign-in page share one look: a bento grid with a live local clock, an
-  availability tile and stack meters on the public page, with light and dark modes and `prefers-reduced-motion` support
+  availability tile and stack meters on the public page, in dark-only mode with `prefers-reduced-motion` support
 - Other themes (the original Azure, Rigel, Vega and Procyon, and the Orion family) moved to the separate ES
   Marketplace repository. The public site links to the store with `STORE_URL`.
 - Themes install from Admin → Portfolio → Themes: pick one from the store or upload a downloaded package. No
