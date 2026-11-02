@@ -286,7 +286,7 @@ const Project = (props) => {
                         ]}
                     >
                         <Upload
-                            accept={['image/png', 'image/jpeg', 'image/jpg']}
+                            accept="image/png,image/jpeg,image/jpg"
                             listType="picture-card"
                             fileList={imageFileList}
                             beforeUpload={
