@@ -41,6 +41,28 @@ class FrontendController extends Controller
      */
     public function index(Request $request)
     {
+        return $this->render('home');
+    }
+
+    /**
+     * Full project listing. Only Atlas has a dedicated page; other themes fall back to their #work section.
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    public function projects(Request $request)
+    {
+        return $this->render('projects');
+    }
+
+    /**
+     * Render the active theme for a page ('home' or 'projects').
+     *
+     * @param string $page
+     * @return mixed
+     */
+    private function render(string $page)
+    {
         $data = $this->frontend->getAllData();
 
         if ($data['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
@@ -50,7 +72,7 @@ class FrontendController extends Controller
         }
 
         $data['demoMode'] = Config::get('custom.demo_mode');
-        
+
         if (empty($data['about'])) {
             return view('errors.custom', ['message' => 'Database has not propagated properly. Try running migration with seed.']);
         }
@@ -59,7 +81,18 @@ class FrontendController extends Controller
             return view('frontend.maintenance', $data);
         }
 
-        return view(app(InstalledThemes::class)->view($data['portfolioConfig']['template'] ?? null), $data);
+        $view = app(InstalledThemes::class)->view($data['portfolioConfig']['template'] ?? null);
+
+        if ($page === 'projects') {
+            $projectsVisible = !empty($data['portfolioConfig']['visibility']['projects']) && count($data['projects'] ?? []);
+            if ($view !== 'frontend.theme.' . InstalledThemes::DEFAULT || !$projectsVisible) {
+                return redirect(url('/') . '#work');
+            }
+        }
+
+        $data['page'] = $page;
+
+        return view($view, $data);
     }
 
     /**

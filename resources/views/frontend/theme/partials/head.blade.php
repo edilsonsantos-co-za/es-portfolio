@@ -9,7 +9,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ $portfolioConfig['seo']['title'] ?: $about->name }}</title>
+<title>@isset($pageTitle){{ $pageTitle }} · @endisset{{ $portfolioConfig['seo']['title'] ?: $about->name }}</title>
 <meta name="description" content="{{ $portfolioConfig['seo']['description'] }}">
 <meta name="author" content="{{ $portfolioConfig['seo']['author'] }}">
 <meta property="og:title" content="{{ $portfolioConfig['seo']['title'] }}">

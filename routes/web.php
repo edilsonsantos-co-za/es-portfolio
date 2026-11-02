@@ -63,6 +63,7 @@ Route::get('/themes/{id}/{path}', 'App\Http\Controllers\Frontend\ThemeAssetContr
     ->name('theme.asset');
 
 Route::get('/', ['App\Http\Controllers\Frontend\FrontendController', 'index'])->name('frontend');
+Route::get('/projects', ['App\Http\Controllers\Frontend\FrontendController', 'projects'])->name('frontend.projects');
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');
 
 #endregion
