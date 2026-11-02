@@ -110,6 +110,8 @@
         .bento-list.wide-lead > :nth-child(n+2):last-child { grid-column: auto; grid-row: auto; }
         .bento-list.wide-lead > :nth-child(3n):last-child { grid-column: 1 / -1; }
         .bento-list.wide-lead > :nth-child(3n+1):last-child { grid-column: span 2; }
+        /* Project cards keep their one-third size even when the last one sits alone on its row. */
+        .bento-list.works > :last-child:not(:first-child) { grid-column: auto; grid-row: auto; }
         .jobs > :first-child h3 { font-size: 30px; }
         .job h3 { margin: 10px 0 0; font-size: 22px; letter-spacing: -.02em; }
         .job .pos { margin: 0 0 10px; color: var(--muted); }
@@ -158,6 +160,7 @@
             .bento-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
             .bento-list > :first-child, .bento-list > :nth-child(even):last-child { grid-column: 1 / -1 !important; }
+            .bento-list.works > :nth-child(even):last-child:not(:first-child) { grid-column: auto !important; }
         }
         @media (max-width: 700px) {
             .hide-sm { display: none; }

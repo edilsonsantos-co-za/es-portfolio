@@ -1,0 +1,81 @@
+name: Project screenshots
+
+# Captures the live ES apps as project thumbnails (public/assets/projects/<slug>.jpg), commits any
+# change to main and starts the deploy. Run it by hand whenever an app's look changes.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: project-screenshots
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright@1.48.2
+          npx playwright install --with-deps chromium
+
+      - name: Capture live sites
+        run: |
+          mkdir -p public/assets/projects
+          cat > "$RUNNER_TEMP/pw/capture.js" <<'JS'
+          const { chromium } = require('playwright');
+          const out = process.argv[2];
+          // slug -> live URL; a site that does not answer 2xx is skipped and keeps its current image.
+          const sites = {
+            'es-portfolio': 'https://edilsonsantos.co.za/',
+            'es-blog': 'https://blog.edilsonsantos.co.za/',
+            'es-journal': 'https://journal.edilsonsantos.co.za/',
+            'es-developers': 'https://developers.edilsonsantos.co.za/',
+            'es-labs': 'https://labs.edilsonsantos.co.za/',
+          };
+          (async () => {
+            const browser = await chromium.launch();
+            for (const [slug, url] of Object.entries(sites)) {
+              const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, colorScheme: 'light' });
+              try {
+                const res = await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+                if (!res || !res.ok()) throw new Error('HTTP ' + (res ? res.status() : 'none'));
+                await page.waitForTimeout(2500); // let reveal/count-up animations settle
+                await page.screenshot({ path: `${out}/${slug}.jpg`, type: 'jpeg', quality: 82 });
+                console.log(`captured ${slug} <- ${page.url()}`);
+              } catch (e) {
+                console.log(`::warning::skipped ${slug} (${url}): ${e.message}`);
+              }
+              await page.close();
+            }
+            await browser.close();
+          })();
+          JS
+          NODE_PATH="$RUNNER_TEMP/pw/node_modules" node "$RUNNER_TEMP/pw/capture.js" "$PWD/public/assets/projects"
+          ls -la public/assets/projects
+
+      - name: Commit and deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add public/assets/projects
+          if git diff --cached --quiet; then echo "No screenshot changes"; exit 0; fi
+          git -c user.name="Edilson Santos" -c user.email="yec.santos@gmail.com" commit -m "chore: refresh live project screenshots"
+          git push origin HEAD:main
+          # Pushes made with GITHUB_TOKEN do not start workflows, so start the deploy explicitly.
+          gh workflow run ci-deploy.yml --ref main
