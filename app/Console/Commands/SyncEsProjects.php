@@ -5,12 +5,29 @@ namespace App\Console\Commands;
 use App\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SyncEsProjects extends Command
 {
     protected $signature = 'es:projects:sync {--dry-run : Show intended updates without writing} {--developers-url= : Verified live developer docs URL} {--labs-url= : Verified live Labs URL}';
 
     protected $description = 'Add the ES launch catalog under Personal without resetting other portfolio data';
+
+    public const PLACEHOLDER = 'assets/brand/es-mark.svg';
+
+    /** Live screenshot committed at public/assets/projects/<slug>.jpg, if there is one. */
+    public static function screenshotFor(string $title): ?string
+    {
+        $path = 'assets/projects/' . Str::slug($title) . '.jpg';
+
+        return is_file(public_path($path)) ? $path : null;
+    }
+
+    /** Empty, or only the ES mark placeholder (as a thumbnail path or a JSON image list). */
+    public static function isPlaceholder(?string $value): bool
+    {
+        return in_array($value, [null, '', '[]', self::PLACEHOLDER, json_encode([self::PLACEHOLDER]), '["' . self::PLACEHOLDER . '"]'], true);
+    }
 
     public function handle(): int
     {
@@ -42,13 +59,16 @@ class SyncEsProjects extends Command
                 $categories = json_decode($project->categories ?? '[]', true);
                 $categories = is_array($categories) ? $categories : [];
                 $categories = array_values(array_unique(array_merge($categories, ['Personal'])));
+                // A captured live screenshot (see the Project screenshots workflow) replaces the placeholder mark,
+                // never a custom image chosen in the admin.
+                $image = self::screenshotFor($title) ?? self::PLACEHOLDER;
                 $project->fill([
                     'title' => $title,
                     'categories' => json_encode($categories, JSON_THROW_ON_ERROR),
                     'link' => $link,
                     'details' => $project->details ?: $details,
-                    'thumbnail' => $project->thumbnail ?: 'assets/brand/es-mark.svg',
-                    'images' => $project->images ?: json_encode(['assets/brand/es-mark.svg']),
+                    'thumbnail' => self::isPlaceholder($project->thumbnail) ? $image : $project->thumbnail,
+                    'images' => self::isPlaceholder($project->images) ? json_encode([$image]) : $project->images,
                 ])->save();
             }
         });

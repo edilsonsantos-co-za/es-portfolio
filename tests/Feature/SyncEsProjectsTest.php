@@ -52,4 +52,24 @@ class SyncEsProjectsTest extends TestCase
         $this->artisan('es:projects:sync', ['--developers-url' => 'javascript:alert(1)'])->assertFailed();
         $this->assertSame(0, Project::count());
     }
+
+    public function testCommittedScreenshotReplacesOnlyThePlaceholder(): void
+    {
+        $dir = public_path('assets/projects');
+        $made = !is_dir($dir) && mkdir($dir, 0777, true);
+        $file = $dir . '/es-labs.jpg';
+        $existed = is_file($file);
+        $existed || touch($file);
+        try {
+            Project::create(['title' => 'ES Labs', 'categories' => '["Personal"]', 'thumbnail' => 'assets/brand/es-mark.svg', 'images' => json_encode(['assets/brand/es-mark.svg'])]);
+            Project::create(['title' => 'ES Blog', 'categories' => '["Personal"]', 'thumbnail' => 'custom.png', 'images' => '["custom.png"]']);
+            $this->artisan('es:projects:sync')->assertSuccessful();
+            $this->assertSame('assets/projects/es-labs.jpg', Project::where('title', 'ES Labs')->value('thumbnail'));
+            $this->assertSame(['assets/projects/es-labs.jpg'], json_decode(Project::where('title', 'ES Labs')->value('images'), true));
+            $this->assertSame('custom.png', Project::where('title', 'ES Blog')->value('thumbnail'));
+        } finally {
+            $existed || unlink($file);
+            $made && rmdir($dir);
+        }
+    }
 }

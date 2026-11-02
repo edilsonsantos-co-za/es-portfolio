@@ -51,7 +51,7 @@ jobs:
           (async () => {
             const browser = await chromium.launch();
             for (const [slug, url] of Object.entries(sites)) {
-              const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, colorScheme: 'light' });
+              const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' });
               try {
                 const res = await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
                 if (!res || !res.ok()) throw new Error('HTTP ' + (res ? res.status() : 'none'));
