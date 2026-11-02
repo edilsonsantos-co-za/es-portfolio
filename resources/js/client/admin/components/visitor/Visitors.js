@@ -35,14 +35,15 @@ const topWithOther = (items, limit = MAX_SLICES) => {
     return [...sorted.slice(0, limit), { name: 'Other', value: other }];
 };
 
-const donutConfig = (data, colors) => ({
+const donutConfig = (data, colors, ink) => ({
     data,
+    theme: chartTheme(ink),
     angleField: 'value',
     colorField: 'name',
     height: 240,
     innerRadius: 0.64,
     scale: { color: { range: colors } },
-    legend: { color: { position: 'right', rowPadding: 6, itemMarker: 'circle' } },
+    legend: { color: { position: 'right', rowPadding: 6, itemMarker: 'circle', itemLabelFill: ink.text } },
     label: false,
     tooltip: { title: 'name', items: [{ field: 'value', name: 'Visits' }] },
     annotations: [{
@@ -54,8 +55,18 @@ const donutConfig = (data, colors) => ({
             textAlign: 'center',
             fontSize: 22,
             fontWeight: 700,
+            fill: ink.text,
         },
     }],
+});
+
+// The admin is dark (antd darkAlgorithm); the charts' default light theme draws black text on it.
+const chartTheme = (ink) => ({
+    type: 'classicDark',
+    view: { viewFill: 'transparent' },
+    axis: { labelFill: ink.muted, titleFill: ink.muted, gridStroke: ink.line, lineStroke: ink.line, tickStroke: ink.line },
+    legendCategory: { itemLabelFill: ink.text },
+    label: { fill: ink.text },
 });
 
 const emptyVisitorsPayload = {
@@ -120,6 +131,7 @@ small { color: var(--kpi-muted); font-size: 12px; }
 
 const Visitors = () => {
     const { token } = theme.useToken();
+    const ink = { text: token.colorText, muted: token.colorTextSecondary, line: token.colorBorderSecondary };
     const palette = [token.colorPrimary, '#22c55e', '#f59e0b', '#a855f7', '#ef4444', '#94a3b8'];
     const isMounted = useIsMounted();
     const { demoMode } = useSelector(state => state.globalState);
@@ -350,10 +362,11 @@ const Visitors = () => {
                             yField="value"
                             colorField="type"
                             stack
+                            theme={chartTheme(ink)}
                             height={300}
                             scale={{ color: { range: [token.colorPrimary, '#22c55e'] } }}
                             axis={{ x: { labelAutoHide: true, labelAutoRotate: false }, y: { title: false, gridLineDash: [4, 4] } }}
-                            legend={{ color: { position: 'top', layout: { justifyContent: 'flex-end' } } }}
+                            legend={{ color: { position: 'top', layout: { justifyContent: 'flex-end' }, itemLabelFill: ink.text } }}
                             style={{ radiusTopLeft: 4, radiusTopRight: 4, maxWidth: 28 }}
                             interaction={{ tooltip: { shared: true } }}
                         />
@@ -369,21 +382,22 @@ const Visitors = () => {
                             xField="name"
                             yField="value"
                             height={Math.max(220, topLocations.length * 34)}
+                            theme={chartTheme(ink)}
                             style={{ fill: token.colorPrimary, radiusTopRight: 4, radiusBottomRight: 4, maxWidth: 22 }}
                             axis={{ x: { title: false }, y: { title: false, gridLineDash: [4, 4] } }}
-                            label={{ text: 'value', position: 'right', dx: 6 }}
+                            label={{ text: 'value', position: 'right', dx: 6, fill: ink.text }}
                             tooltip={{ title: 'name', items: [{ field: 'value', name: 'Visits' }] }}
                         />
                     ) : empty, locationData.length > TOP_LOCATIONS ? `${locationData.length} countries` : null)}
                 </Col>
                 <Col xl={12} xs={24}>
-                    {card('Device', deviceData.length ? <Pie {...donutConfig(deviceData, palette)} /> : empty)}
+                    {card('Device', deviceData.length ? <Pie {...donutConfig(deviceData, palette, ink)} /> : empty)}
                 </Col>
                 <Col xl={12} xs={24}>
-                    {card('Browser', browserData.length ? <Pie {...donutConfig(topWithOther(browserData), palette)} /> : empty)}
+                    {card('Browser', browserData.length ? <Pie {...donutConfig(topWithOther(browserData), palette, ink)} /> : empty)}
                 </Col>
                 <Col xl={12} xs={24}>
-                    {card('Platform', platformData.length ? <Pie {...donutConfig(topWithOther(platformData), palette)} /> : empty)}
+                    {card('Platform', platformData.length ? <Pie {...donutConfig(topWithOther(platformData), palette, ink)} /> : empty)}
                 </Col>
             </Row>
         </React.Fragment>
