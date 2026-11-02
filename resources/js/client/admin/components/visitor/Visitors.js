@@ -61,11 +61,12 @@ const donutConfig = (data, colors, ink) => ({
 });
 
 // The admin is dark (antd darkAlgorithm); the charts' default light theme draws black text on it.
+// No `legendCategory` here: a theme override replaces that component's defaults (itemSpacing, …) and the
+// legend layout then crashes ("reading '0'"), blanking every chart with a legend. Legend colours are set per chart.
 const chartTheme = (ink) => ({
     type: 'classicDark',
     view: { viewFill: 'transparent' },
     axis: { labelFill: ink.muted, titleFill: ink.muted, gridStroke: ink.line, lineStroke: ink.line, tickStroke: ink.line },
-    legendCategory: { itemLabelFill: ink.text },
     label: { fill: ink.text },
 });
 
@@ -384,7 +385,7 @@ const Visitors = () => {
                             height={Math.max(220, topLocations.length * 34)}
                             theme={chartTheme(ink)}
                             style={{ fill: token.colorPrimary, radiusTopRight: 4, radiusBottomRight: 4, maxWidth: 22 }}
-                            axis={{ x: { title: false }, y: { title: false, gridLineDash: [4, 4] } }}
+                            axis={{ x: { title: false, labelAutoRotate: false, labelAutoHide: false, labelTransform: 'rotate(0)', labelFill: ink.text }, y: { title: false, gridLineDash: [4, 4] } }}
                             label={{ text: 'value', position: 'right', dx: 6, fill: ink.text }}
                             tooltip={{ title: 'name', items: [{ field: 'value', name: 'Visits' }] }}
                         />
