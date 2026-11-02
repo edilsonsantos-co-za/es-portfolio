@@ -19,7 +19,7 @@ class ThemeContext
      *
      * @param object $about
      * @param iterable $experiences
-     * @return array{taglines: array, socials: array, blogUrl: ?string, developersUrl: ?string, storeUrl: ?string, upworkUrl: ?string, supportUrl: ?string, years: ?int, availability: ?string, timezone: string, timezoneCity: string, utcOffset: string, timeNote: ?string}
+     * @return array{taglines: array, socials: array, blogUrl: ?string, developersUrl: ?string, storeUrl: ?string, upworkUrl: ?string, supportUrl: ?string, coffeeUrl: ?string, years: ?int, availability: ?string, timezone: string, timezoneCity: string, utcOffset: string, timeNote: ?string}
      */
     public static function make($about, $experiences): array
     {
@@ -37,6 +37,7 @@ class ThemeContext
             'storeUrl' => config('custom.store_url'),
             'upworkUrl' => self::publicHttpUrl(config('custom.upwork_url')),
             'supportUrl' => self::publicHttpUrl(config('custom.support_url')),
+            'coffeeUrl' => self::publicHttpUrl(config('custom.coffee_url')),
             'years' => $years,
             'availability' => config('custom.availability') ?: null,
             'timeNote' => config('custom.time_note') ?: null,

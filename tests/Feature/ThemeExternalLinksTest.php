@@ -49,4 +49,13 @@ class ThemeExternalLinksTest extends TestCase
         $this->assertSame('https://docs.example.invalid', $context['developersUrl']);
         $this->assertNull($context['supportUrl']);
     }
+
+    public function testCoffeeLinkDefaultsToBuyMeACoffeeAndCanBeHidden(): void
+    {
+        $about = (object) ['taglines' => null, 'social_links' => null];
+        $this->assertSame('https://buymeacoffee.com/edilsonsantos', ThemeContext::make($about, [])['coffeeUrl']);
+
+        config(['custom.coffee_url' => '']);
+        $this->assertNull(ThemeContext::make($about, [])['coffeeUrl']);
+    }
 }

@@ -207,6 +207,7 @@ PORTFOLIO_TIMEZONE=UTC              # Timezone for the Atlas local-time clock, e
 PORTFOLIO_TIME_NOTE=                # Short note under the clock, e.g. "overlaps UK and EU"
 UPWORK_URL=                         # Optional public Upwork CTA in the contact section; blank hides it
 SUPPORT_URL=                        # Optional public support CTA in the contact section; blank hides it
+COFFEE_URL=https://buymeacoffee.com/edilsonsantos  # Buy Me a Coffee header button + footer link; blank hides them
 LOGTO_ENDPOINT=                     # e.g. https://auth.example.com (enables SSO with the two below)
 LOGTO_APP_ID=
 LOGTO_APP_SECRET=

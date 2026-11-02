@@ -9,6 +9,8 @@ return [
     'journal_url' => env('JOURNAL_URL', 'https://journal.edilsonsantos.co.za'),
     'upwork_url' => env('UPWORK_URL'),
     'support_url' => env('SUPPORT_URL'),
+    // Buy Me a Coffee: header button and footer link on the public site; blank hides both
+    'coffee_url' => env('COFFEE_URL', 'https://buymeacoffee.com/edilsonsantos'),
     // Portfolio -> Themes: where the catalogue and packages are fetched from (server side),
     // where installed themes live (a volume in production), and whether unsigned packages install.
     'theme_store_url' => env('THEME_STORE_URL', env('STORE_URL', 'https://store.edilsonsantos.co.za')),

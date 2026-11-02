@@ -38,6 +38,7 @@
         .nav-mobile-only { display: none; }
         .top-actions { display: flex; align-items: center; gap: 8px; }
         .top-actions .btn { padding: 8px 14px; border-radius: 10px; font-size: 14px; background: var(--card); }
+        .top-actions .coffee { padding: 7px 12px; background: #ffdd00; color: #0d0c22; border-color: #ffdd00; white-space: nowrap; }
         .site-foot { margin-top: 48px; border-top: 1px solid var(--line); background: var(--card); }
         .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; padding: 24px 0 28px; color: var(--muted); }
         .foot-brand .logo { width: 28px; height: 28px; border-radius: 8px; font-size: 11px; }
@@ -194,6 +195,7 @@
             </ul>
             <div class="top-actions">
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
+                @if ($coffeeUrl)<a class="btn coffee" href="{{ $coffeeUrl }}" target="_blank" rel="noopener" aria-label="Buy me a coffee">☕<span class="hide-sm">Buy me a coffee</span></a>@endif
                 <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}" dashboard-url="{{ url('/admin/dashboard') }}"></es-apps>
                 <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
             </div>
@@ -374,6 +376,7 @@
                     @if ($blogUrl)<a href="{{ $blogUrl }}">Blog ↗</a>@endif
                     @if ($developersUrl)<a href="{{ $developersUrl }}">Developers ↗</a>@endif
                     @if ($storeUrl)<a href="{{ $storeUrl }}">Store ↗</a>@endif
+                    @if ($coffeeUrl)<a href="{{ $coffeeUrl }}" target="_blank" rel="noopener">☕ Buy me a coffee ↗</a>@endif
                     @if ($visibility['contact'])<a href="#contact">Contact</a>@endif
                 </nav>
                 <span class="foot-copy mono">© {{ date('Y') }} {{ $about->name }}</span>

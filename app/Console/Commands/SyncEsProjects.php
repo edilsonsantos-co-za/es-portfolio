@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class SyncEsProjects extends Command
@@ -27,6 +28,36 @@ class SyncEsProjects extends Command
     public static function isPlaceholder(?string $value): bool
     {
         return in_array($value, [null, '', '[]', self::PLACEHOLDER, json_encode([self::PLACEHOLDER]), '["' . self::PLACEHOLDER . '"]'], true);
+    }
+
+    /** Swap the ES mark placeholder on existing ES catalogue cards for committed live screenshots (used by migrations). */
+    public static function applyScreenshots(): void
+    {
+        if (!Schema::hasTable('projects')) {
+            return;
+        }
+        $hasImagesJson = Schema::hasColumn('projects', 'images_json');
+        foreach (['ES Portfolio', 'ES Blog', 'ES Journal', 'ES Developers', 'ES Labs'] as $title) {
+            $screenshot = self::screenshotFor($title);
+            if (!$screenshot) {
+                continue;
+            }
+            foreach (DB::table('projects')->where('title', $title)->get() as $project) {
+                $changes = [];
+                if (self::isPlaceholder($project->thumbnail)) {
+                    $changes['thumbnail'] = $screenshot;
+                }
+                if (self::isPlaceholder($project->images)) {
+                    $changes['images'] = json_encode([$screenshot]);
+                    if ($hasImagesJson) {
+                        $changes['images_json'] = $changes['images'];
+                    }
+                }
+                if ($changes) {
+                    DB::table('projects')->where('id', $project->id)->update($changes);
+                }
+            }
+        }
     }
 
     public function handle(): int
