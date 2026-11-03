@@ -64,6 +64,11 @@ Route::get('/themes/{id}/{path}', 'App\Http\Controllers\Frontend\ThemeAssetContr
 
 Route::get('/', ['App\Http\Controllers\Frontend\FrontendController', 'index'])->name('frontend');
 Route::get('/projects', ['App\Http\Controllers\Frontend\FrontendController', 'projects'])->name('frontend.projects');
+// Each nav item is its own page in Atlas; other themes redirect to their one-page #section.
+foreach (['experience', 'education', 'services', 'contact'] as $section) {
+    Route::get('/' . $section, ['App\Http\Controllers\Frontend\FrontendController', 'section'])
+        ->defaults('section', $section)->name('frontend.' . $section);
+}
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');
 
 #endregion

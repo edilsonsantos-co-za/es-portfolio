@@ -54,19 +54,17 @@ class AtlasProjectsPageTest extends TestCase
         });
     }
 
-    public function testHomeLimitsProjectsAndLinksToTheProjectsPage(): void
+    public function testHomeIsTheHeroOnlyAndLinksToTheProjectsPage(): void
     {
         $this->fakeFrontend();
 
-        $response = $this->get('/')->assertOk();
-        $html = $response->getContent();
+        $html = $this->get('/')->assertOk()->getContent();
 
         $this->assertStringContainsString('href="' . route('frontend.projects') . '"', $html);
-        $this->assertStringContainsString('View all 8', $html);
-        $this->assertStringContainsString('data-filter="Professional"', $html);
-        $this->assertStringContainsString('data-filter="Personal"', $html);
-        $this->assertSame(8, preg_match_all('/class="tile work"/', $html));
-        $this->assertSame(2, preg_match_all('/class="tile work"[^>]*\shidden\b/', $html));
+        $this->assertStringContainsString('id="clock"', $html);
+        $this->assertStringNotContainsString('class="tile work"', $html);
+        $this->assertStringNotContainsString('id="contact"', $html);
+        $this->assertStringNotContainsString('id="services"', $html);
     }
 
     public function testProjectsPageListsEveryProjectWithFilters(): void
@@ -80,7 +78,7 @@ class AtlasProjectsPageTest extends TestCase
         $this->assertSame(8, substr_count($html, 'class="tile work"'));
         $this->assertSame(0, preg_match_all('/class="tile work"[^>]*\shidden\b/', $html));
         $this->assertStringNotContainsString('id="clock"', $html);
-        $this->assertStringContainsString('href="' . url('/') . '#contact"', $html);
+        $this->assertStringContainsString('href="' . route('frontend.contact') . '"', $html);
     }
 
     public function testProjectsPageRedirectsHomeWhenProjectsAreHidden(): void
@@ -88,5 +86,39 @@ class AtlasProjectsPageTest extends TestCase
         $this->fakeFrontend(['portfolioConfig' => ['visibility' => ['projects' => false]]]);
 
         $this->get('/projects')->assertRedirect(url('/') . '#work');
+    }
+
+    public function testEveryNavItemIsItsOwnPage(): void
+    {
+        $this->fakeFrontend([
+            'experiences' => [(object) ['id' => 1, 'company' => 'Acme', 'position' => 'Engineer', 'period' => '2024', 'details' => null]],
+            'education' => [(object) ['id' => 1, 'institution' => 'UCT', 'degree' => 'BSc', 'department' => null, 'period' => '2010', 'cgpa' => null, 'thesis' => null]],
+            'services' => [(object) ['title' => 'Web apps', 'details' => 'Built well']],
+        ]);
+
+        $home = $this->get('/')->assertOk()->getContent();
+        $this->assertStringNotContainsString('href="#', $home);
+        foreach (['experience', 'education', 'services', 'contact'] as $section) {
+            $this->assertStringContainsString('href="' . route('frontend.' . $section) . '"', $home);
+        }
+
+        $html = $this->get('/experience')->assertOk()->getContent();
+        $this->assertStringContainsString('<title>Experience · Jane Doe</title>', $html);
+        $this->assertStringContainsString('<h1>Where I\'ve worked</h1>', $html);
+        $this->assertStringContainsString('aria-current="page">Experience', $html);
+        $this->assertStringNotContainsString('id="services"', $html);
+        $this->assertStringNotContainsString('id="clock"', $html);
+
+        $this->get('/services')->assertOk()->assertSee('How I can help');
+        $this->get('/education')->assertOk()->assertSee('Where I studied');
+        $this->get('/contact')->assertOk()->assertSee('Got a project or a role?');
+    }
+
+    public function testHiddenSectionPageRedirectsToTheHomeAnchor(): void
+    {
+        $this->fakeFrontend(['portfolioConfig' => ['visibility' => ['services' => false]]]);
+
+        $this->get('/services')->assertRedirect(url('/') . '#services');
+        $this->get('/experience')->assertRedirect(url('/') . '#experience');
     }
 }

@@ -56,7 +56,19 @@ class FrontendController extends Controller
     }
 
     /**
-     * Render the active theme for a page ('home' or 'projects').
+     * One portfolio section on its own page (experience, education, services or contact).
+     *
+     * @param Request $request
+     * @param string $section
+     * @return mixed
+     */
+    public function section(Request $request, string $section)
+    {
+        return $this->render($section);
+    }
+
+    /**
+     * Render the active theme for a page ('home', 'projects' or a section page).
      *
      * @param string $page
      * @return mixed
@@ -83,10 +95,12 @@ class FrontendController extends Controller
 
         $view = app(InstalledThemes::class)->view($data['portfolioConfig']['template'] ?? null);
 
-        if ($page === 'projects') {
-            $projectsVisible = !empty($data['portfolioConfig']['visibility']['projects']) && count($data['projects'] ?? []);
-            if ($view !== 'frontend.theme.' . InstalledThemes::DEFAULT || !$projectsVisible) {
-                return redirect(url('/') . '#work');
+        if ($page !== 'home') {
+            // Only Atlas has dedicated pages; other themes, or a hidden/empty section, go to the one-page anchor.
+            $key = ['projects' => 'projects', 'experience' => 'experiences', 'education' => 'education', 'services' => 'services', 'contact' => 'contact'][$page];
+            $visible = !empty($data['portfolioConfig']['visibility'][$key]) && ($page === 'contact' || count($data[$key] ?? []));
+            if ($view !== 'frontend.theme.' . InstalledThemes::DEFAULT || !$visible) {
+                return redirect(url('/') . '#' . ($page === 'projects' ? 'work' : $page));
             }
         }
 

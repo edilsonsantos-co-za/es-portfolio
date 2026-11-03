@@ -2,24 +2,28 @@
 @php
     extract(\App\Helpers\ThemeContext::make($about, $experiences));
     $visibility = $portfolioConfig['visibility'];
-    $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500';
+    $fonts = 'family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800';
     $topSkills = collect($skills)->sortByDesc('proficiency')->take(5);
     $latest = collect($experiences)->sortByDesc('id')->first();
     $companies = collect($experiences)->sortByDesc('id')->pluck('company')->filter()->unique()->values();
     $education = $education ?? [];
     $logoUrl = \App\Helpers\Utils::getLogo();
     $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
-    // 'home' is the one-page portfolio; 'projects' is the full listing at /projects.
-    $onProjects = ($page ?? 'home') === 'projects';
-    $home = $onProjects ? url('/') : '';
+    // 'home' is the overview; every nav item is its own page: /projects, /experience, /education, /services, /contact.
+    $page = $page ?? 'home';
+    $onHome = $page === 'home';
+    // The home page is the hero bento only; each section lives on its own page.
+    $shows = fn (string $section) => $page === $section;
+    $home = url('/');
     $projectsUrl = route('frontend.projects');
-    $homeProjectLimit = 6;
+    $pageUrl = fn (string $section) => route('frontend.' . $section);
+    $here = fn (string $section) => $page === $section ? ' aria-current="page"' : '';
     $projectCategories = collect($projects)->map(function ($project) {
         $categories = $project->categories ? (array) safe_json_decode($project->categories) : [];
         return collect($categories)->map(fn ($c) => trim((string) $c))->filter()->unique()->values()->all();
     });
     $categoryFilters = $projectCategories->flatten()->countBy()->sortDesc()->keys();
-    if ($onProjects) $pageTitle = 'Projects';
+    $pageTitle = ['projects' => 'Projects', 'experience' => 'Experience', 'education' => 'Education', 'services' => 'Services', 'contact' => 'Contact'][$page] ?? null;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -140,7 +144,6 @@
         .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
         .chip[aria-pressed="true"] span { background: color-mix(in srgb, var(--accent-ink) 22%, transparent); }
         .chip:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
-        .more { margin: 16px 0 0; display: flex; justify-content: center; }
         section.page { padding-top: 40px; }
         section.page h1 { font-size: clamp(36px, 5vw, 60px); letter-spacing: -.05em; margin: 6px 0 0; line-height: 1; font-weight: 800; }
         .nav a[aria-current="page"] { color: var(--text); }
@@ -162,7 +165,7 @@
         .contact { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
         .contact .cta { background: var(--accent-soft); }
         .logo img { width: 100%; height: 100%; object-fit: cover; }
-        .contact .cta h2 { font-size: clamp(34px, 4vw, 52px); }
+        .contact .cta h2, .contact .cta h1 { font-size: clamp(34px, 4vw, 52px); line-height: 1.05; margin: 8px 0 12px; }
         .contact .cta a { color: inherit; }
         .contact-form { display: grid; gap: 10px; }
         .contact-form .label { display: block; margin-bottom: 4px; }
@@ -198,23 +201,24 @@
         }
         @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile { transition: none; } html { scroll-behavior: auto; } }
     </style>
+    {{-- Atlas 2 refresh layer (trial): remove this line to go back to plain Atlas --}}
+    <link rel="stylesheet" href="{{ asset('themes/atlas/atlas-refresh.css') }}?v={{ filemtime(public_path('themes/atlas/atlas-refresh.css')) }}">
     <script src="{{ asset('assets/es-apps.js') }}?v={{ filemtime(public_path('assets/es-apps.js')) }}" defer></script>
     <script src="{{ asset('assets/es-account.js') }}?v={{ filemtime(public_path('assets/es-account.js')) }}" defer></script>
 </head>
 <body>
     <header class="masthead">
         <div class="wrap mast-row">
-            <a class="brand" href="{{ $onProjects ? url('/') : '#top' }}" aria-label="{{ $about->name }}, home">
+            <a class="brand" href="{{ $home }}" aria-label="{{ $about->name }}, home">
                 <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
                 <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
             </a>
             <ul class="nav" id="menu">
-                @if ($visibility['experiences'] && count($experiences))<li><a href="{{ $home }}#experience">Experience</a></li>@endif
-                @if ($visibility['education'] && count($education))<li><a href="{{ $home }}#education">Education</a></li>@endif
-                @if ($visibility['projects'] && count($projects))<li><a href="{{ $projectsUrl }}"@if ($onProjects) aria-current="page"@endif>Projects</a></li>@endif
-                @if ($visibility['services'] && count($services))<li><a href="{{ $home }}#services">Services</a></li>@endif
-                @if ($visibility['contact'])<li><a href="{{ $home }}#contact">Contact</a></li>@endif
-                @if ($developersUrl)<li><a href="{{ $developersUrl }}">Developers</a></li>@endif
+                @if ($visibility['experiences'] && count($experiences))<li><a href="{{ $pageUrl('experience') }}"{!! $here('experience') !!}>Experience</a></li>@endif
+                @if ($visibility['education'] && count($education))<li><a href="{{ $pageUrl('education') }}"{!! $here('education') !!}>Education</a></li>@endif
+                @if ($visibility['projects'] && count($projects))<li><a href="{{ $projectsUrl }}"{!! $here('projects') !!}>Projects</a></li>@endif
+                @if ($visibility['services'] && count($services))<li><a href="{{ $pageUrl('services') }}"{!! $here('services') !!}>Services</a></li>@endif
+                @if ($visibility['contact'])<li><a href="{{ $pageUrl('contact') }}"{!! $here('contact') !!}>Contact</a></li>@endif
             </ul>
             <div class="top-actions">
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
@@ -226,7 +230,7 @@
     </header>
 
     <main id="top" class="wrap">
-        @unless ($onProjects)
+        @if ($onHome)
         <div class="bento">
             <div class="tile intro">
                 <div>
@@ -235,7 +239,7 @@
                     @if (count($taglines))<p class="role">A <b id="tagline">{{ $taglines[0] }}</b> based in {{ $about->address }}.</p>@endif
                 </div>
                 <div class="actions">
-                    @if ($visibility['contact'])<a class="btn primary" href="{{ $home }}#contact">Hire me →</a>@endif
+                    @if ($visibility['contact'])<a class="btn primary" href="{{ $pageUrl('contact') }}">Hire me →</a>@endif
                     @if ($visibility['cv'] && $about->cv)<a class="btn" href="{{ media_url($about->cv) }}" download>CV</a>@endif
                     @foreach ($socials as $social)<a class="btn" href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
                 </div>
@@ -298,9 +302,11 @@
             @endif
         </div>
 
-        @if ($visibility['experiences'] && count($experiences))
-            <section class="block" id="experience">
-                <div class="head"><div><span class="mono">Experience</span><h2>Where I've worked</h2></div></div>
+        @endif
+
+        @if ($shows('experience') && $visibility['experiences'] && count($experiences))
+            <section class="block page" id="experience">
+                <div class="head"><div><span class="mono">Experience</span><h1>Where I've worked</h1></div></div>
                 <div class="bento-list wide-lead jobs">
                     @foreach (collect($experiences)->sortByDesc('id') as $experience)
                         <article class="tile job" data-reveal>
@@ -314,9 +320,9 @@
             </section>
         @endif
 
-        @if ($visibility['education'] && count($education))
-            <section class="block" id="education">
-                <div class="head"><div><span class="mono">Education</span><h2>Where I studied</h2></div></div>
+        @if ($shows('education') && $visibility['education'] && count($education))
+            <section class="block page" id="education">
+                <div class="head"><div><span class="mono">Education</span><h1>Where I studied</h1></div></div>
                 <div class="bento-list wide-lead jobs">
                     @foreach (collect($education)->sortByDesc('id') as $study)
                         <article class="tile job" data-reveal>
@@ -330,13 +336,11 @@
                 </div>
             </section>
         @endif
-        @endunless
 
-        @if ($visibility['projects'] && count($projects))
-            <section class="block{{ $onProjects ? ' page' : '' }}" id="work">
+        @if ($shows('projects') && $visibility['projects'] && count($projects))
+            <section class="block page" id="work">
                 <div class="head">
-                    <div><span class="mono">{{ $onProjects ? count($projects) . ' projects' : 'Work' }}</span>@if ($onProjects)<h1>All projects</h1>@else<h2>Selected projects</h2>@endif</div>
-                    @if (!$onProjects && count($projects) > $homeProjectLimit)<a class="btn" id="all-projects" href="{{ $projectsUrl }}">View all {{ count($projects) }} →</a>@endif
+                    <div><span class="mono">{{ count($projects) }} projects</span><h1>All projects</h1></div>
                 </div>
                 @if ($categoryFilters->count() > 1)
                     <div class="filters" role="group" aria-label="Filter projects by category">
@@ -346,10 +350,10 @@
                         @endforeach
                     </div>
                 @endif
-                <div class="bento-list works" id="works" data-limit="{{ $onProjects ? 0 : $homeProjectLimit }}">
+                <div class="bento-list works" id="works">
                     @foreach ($projects as $project)
                         @php $categories = $projectCategories[$loop->index]; @endphp
-                        <a class="tile work" data-reveal data-categories="{{ json_encode($categories) }}" @if (!$onProjects && $loop->index >= $homeProjectLimit) hidden @endif @if ($project->link) href="{{ $project->link }}" target="_blank" rel="noopener" @endif>
+                        <a class="tile work" data-reveal data-categories="{{ json_encode($categories) }}" @if ($project->link) href="{{ $project->link }}" target="_blank" rel="noopener" @endif>
                             @if ($project->thumbnail)<img src="{{ media_url($project->thumbnail) }}" alt="" loading="lazy" width="640" height="400">@endif
                             <div class="body">
                                 @foreach ($categories as $category)<span class="pill">{{ $category }}</span>@endforeach
@@ -359,16 +363,12 @@
                         </a>
                     @endforeach
                 </div>
-                @if (!$onProjects && count($projects) > $homeProjectLimit)
-                    <p class="more"><a class="btn" href="{{ $projectsUrl }}">See all projects →</a></p>
-                @endif
             </section>
         @endif
 
-        @unless ($onProjects)
-        @if ($visibility['services'] && count($services))
-            <section class="block" id="services">
-                <div class="head"><div><span class="mono">Services</span><h2>How I can help</h2></div></div>
+        @if ($shows('services') && $visibility['services'] && count($services))
+            <section class="block page" id="services">
+                <div class="head"><div><span class="mono">Services</span><h1>How I can help</h1></div></div>
                 <div class="bento-list svcs">
                     @foreach ($services as $service)
                         <div class="tile svc" data-reveal>
@@ -381,12 +381,12 @@
             </section>
         @endif
 
-        @if ($visibility['contact'])
-            <section class="block" id="contact">
+        @if ($shows('contact') && $visibility['contact'])
+            <section class="block page" id="contact">
                 <div class="contact">
                     <div class="tile cta" data-reveal>
                         <span class="mono" style="color:inherit;opacity:.65">Contact</span>
-                        <h2>Got a project or a role?</h2>
+                        <h1>Got a project or a role?</h1>
                         <p style="opacity:.8">Contract, part-time or full-time remote. I usually reply within a day.</p>
                         @if ($about->email)<p><a href="mailto:{{ $about->email }}">{{ $about->email }}</a></p>@endif
                         @if ($upworkUrl || $supportUrl)
@@ -400,25 +400,24 @@
                 </div>
             </section>
         @endif
-        @endunless
     </main>
 
     @if ($visibility['footer'])
         <footer class="site-foot">
             <div class="wrap foot">
-                <a class="brand foot-brand" href="{{ $onProjects ? url('/') : '#top' }}">
+                <a class="brand foot-brand" href="{{ $home }}">
                     <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
                     <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
                 </a>
                 <nav class="foot-links" aria-label="Footer">
                     @if ($visibility['projects'] && count($projects))<a href="{{ $projectsUrl }}">Projects</a>@endif
-                    @if ($visibility['services'] && count($services))<a href="{{ $home }}#services">Services</a>@endif
+                    @if ($visibility['services'] && count($services))<a href="{{ $pageUrl('services') }}">Services</a>@endif
                     @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a>@endforeach
                     @if ($blogUrl)<a href="{{ $blogUrl }}">Blog ↗</a>@endif
                     @if ($developersUrl)<a href="{{ $developersUrl }}">Developers ↗</a>@endif
                     @if ($storeUrl)<a href="{{ $storeUrl }}">Store ↗</a>@endif
                     @if ($coffeeUrl)<a href="{{ $coffeeUrl }}" target="_blank" rel="noopener">☕ Buy me a coffee ↗</a>@endif
-                    @if ($visibility['contact'])<a href="{{ $home }}#contact">Contact</a>@endif
+                    @if ($visibility['contact'])<a href="{{ $pageUrl('contact') }}">Contact</a>@endif
                 </nav>
                 <span class="foot-copy mono">© {{ date('Y') }} {{ $about->name }}</span>
             </div>
@@ -433,26 +432,19 @@
             if (!list) return;
             var cards = Array.prototype.slice.call(list.children);
             var chips = document.querySelectorAll('.filters .chip');
-            var limit = +list.getAttribute('data-limit') || 0;
-            var onPage = !limit;
-            var viewAll = document.getElementById('all-projects');
-            var base = viewAll ? viewAll.getAttribute('href') : null;
             function apply(filter, initial) {
                 var shown = cards.filter(function (card) {
                     return !filter || JSON.parse(card.getAttribute('data-categories') || '[]').indexOf(filter) !== -1;
                 });
-                if (limit) shown = shown.slice(0, limit);
                 cards.forEach(function (card) { card.hidden = shown.indexOf(card) === -1; if (card.parentNode) list.removeChild(card); });
                 // After a click, show newly revealed cards at once; the scroll reveal only runs for the first paint.
                 shown.forEach(function (card) { if (!initial) card.classList.add('in'); list.appendChild(card); });
                 chips.forEach(function (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('data-filter') === filter)); });
                 var query = filter ? '?category=' + encodeURIComponent(filter) : '';
-                if (viewAll) viewAll.setAttribute('href', base + query);
-                document.querySelectorAll('.more a').forEach(function (a) { a.setAttribute('href', base + query); });
-                if (onPage && history.replaceState) history.replaceState(null, '', location.pathname + query + location.hash);
+                if (history.replaceState) history.replaceState(null, '', location.pathname + query + location.hash);
             }
             chips.forEach(function (chip) { chip.addEventListener('click', function () { apply(chip.getAttribute('data-filter')); }); });
-            var start = onPage ? (new URLSearchParams(location.search).get('category') || '') : '';
+            var start = new URLSearchParams(location.search).get('category') || '';
             var known = Array.prototype.some.call(chips, function (chip) { return chip.getAttribute('data-filter') === start; });
             apply(known ? start : '', true);
         })();

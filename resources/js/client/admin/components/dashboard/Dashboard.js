@@ -206,12 +206,6 @@ const Dashboard = () => {
                     <p className="atlas-kicker">{siteName || 'ES Portfolio'}</p>
                     <h2>{greeting}.</h2>
                     <p className="atlas-muted">Your portfolio runs on Atlas, the design shared by the portfolio, the blog and their admins. Install other looks from Themes.</p>
-                    <div className="atlas-actions">
-                        <a className="atlas-btn" href={Routes.web.frontend.home} target="_blank" rel="noreferrer">View {siteName || 'site'} ↗</a>
-                        <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioThemes)}>Themes</button>
-                        <button type="button" className="atlas-btn ghost" onClick={() => navigate(Routes.web.admin.portfolioConfig)}>Site settings</button>
-                        {Utils.journalUrl && <a className="atlas-btn ghost" href={Utils.journalUrl} target="_blank" rel="noreferrer">ES Journal ↗</a>}
-                    </div>
                 </article>
 
                 <article className="atlas-tile atlas-activity atlas-span-2">
