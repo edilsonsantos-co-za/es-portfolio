@@ -403,23 +403,46 @@
     </main>
 
     @if ($visibility['footer'])
+        {{-- Same footer in every ES app: brand and one line, three short columns, then a thin bottom bar (atlas-refresh.css) --}}
         <footer class="site-foot">
             <div class="wrap foot">
-                <a class="brand foot-brand" href="{{ $home }}">
-                    <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
-                    <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
-                </a>
-                <nav class="foot-links" aria-label="Footer">
-                    @if ($visibility['projects'] && count($projects))<a href="{{ $projectsUrl }}">Projects</a>@endif
-                    @if ($visibility['services'] && count($services))<a href="{{ $pageUrl('services') }}">Services</a>@endif
-                    @foreach ($socials as $social)<a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a>@endforeach
-                    @if ($blogUrl)<a href="{{ $blogUrl }}">Blog ↗</a>@endif
-                    @if ($developersUrl)<a href="{{ $developersUrl }}">Developers ↗</a>@endif
-                    @if ($storeUrl)<a href="{{ $storeUrl }}">Store ↗</a>@endif
-                    @if ($coffeeUrl)<a href="{{ $coffeeUrl }}" target="_blank" rel="noopener">☕ Buy me a coffee ↗</a>@endif
-                    @if ($visibility['contact'])<a href="{{ $pageUrl('contact') }}">Contact</a>@endif
+                <div class="foot-about">
+                    <a class="brand foot-brand" href="{{ $home }}">
+                        <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
+                        <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
+                    </a>
+                    <p>Backend developer by day. The ES apps are my after-hours side project.</p>
+                </div>
+                <nav class="foot-cols" aria-label="Footer">
+                    <div class="foot-col">
+                        <h2>Portfolio</h2>
+                        <ul>
+                            @if ($visibility['experiences'] && count($experiences))<li><a href="{{ $pageUrl('experience') }}">Experience</a></li>@endif
+                            @if ($visibility['projects'] && count($projects))<li><a href="{{ $projectsUrl }}">Projects</a></li>@endif
+                            @if ($visibility['services'] && count($services))<li><a href="{{ $pageUrl('services') }}">Services</a></li>@endif
+                            @if ($visibility['contact'])<li><a href="{{ $pageUrl('contact') }}">Contact</a></li>@endif
+                        </ul>
+                    </div>
+                    <div class="foot-col">
+                        <h2>ES apps</h2>
+                        <ul>
+                            @if ($blogUrl)<li><a href="{{ $blogUrl }}">Blog</a></li>@endif
+                            @if ($developersUrl)<li><a href="{{ $developersUrl }}">Developers</a></li>@endif
+                            @if ($storeUrl)<li><a href="{{ $storeUrl }}">Store</a></li>@endif
+                        </ul>
+                    </div>
+                    <div class="foot-col">
+                        <h2>Connect</h2>
+                        <ul>
+                            @foreach ($socials as $social)<li><a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a></li>@endforeach
+                            @if ($coffeeUrl)<li><a href="{{ $coffeeUrl }}" target="_blank" rel="noopener">Buy me a coffee ↗</a></li>@endif
+                        </ul>
+                    </div>
                 </nav>
-                <span class="foot-copy mono">© {{ date('Y') }} {{ $about->name }}</span>
+                <div class="foot-bottom mono">
+                    <span>© {{ date('Y') }} {{ $about->name }}</span>
+                    <span>Made in Johannesburg</span>
+                </div>
             </div>
         </footer>
     @endif
