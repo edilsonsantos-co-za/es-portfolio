@@ -115,7 +115,9 @@ class FrontendController extends Controller
      */
     public function avatar()
     {
-        $url = \App\Helpers\Utils::portraitUrl(\App\Models\About::query()->first());
+        $data = $this->frontend->getAllData();
+        $about = $data['status'] === CoreConstants::STATUS_CODE_SUCCESS ? ($data['payload']['about'] ?? null) : null;
+        $url = \App\Helpers\Utils::portraitUrl($about);
 
         return redirect()->away($url)->header('Cache-Control', 'public, max-age=3600');
     }
