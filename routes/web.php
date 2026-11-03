@@ -69,6 +69,8 @@ foreach (['experience', 'education', 'services', 'contact'] as $section) {
     Route::get('/' . $section, ['App\Http\Controllers\Frontend\FrontendController', 'section'])
         ->defaults('section', $section)->name('frontend.' . $section);
 }
+// Stable portrait link for the other ES apps
+Route::get('/avatar', ['App\Http\Controllers\Frontend\FrontendController', 'avatar'])->name('frontend.avatar');
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');
 
 #endregion

@@ -110,6 +110,17 @@ class FrontendController extends Controller
     }
 
     /**
+     * A stable link to the current portrait, for the other ES apps (the blog's author card).
+     * The stored file name changes on every upload, so they link here instead.
+     */
+    public function avatar()
+    {
+        $url = \App\Helpers\Utils::portraitUrl(\App\Models\About::query()->first());
+
+        return redirect()->away($url)->header('Cache-Control', 'public, max-age=3600');
+    }
+
+    /**
      * Handle pixel tracker
      *
      * @param Request $request
