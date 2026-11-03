@@ -64,7 +64,9 @@
         .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; display: grid; place-items: center; font-size: 16px; }
         .menu-btn { display: none; }
 
-        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(150px, auto); gap: 10px; padding: 24px 0 0; }
+        .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: auto; gap: 10px; padding: 24px 0 0; }
+        .bento > .tile { min-height: 150px; }
+        .bento > .shipped { min-height: 0; }
         /* Flat tiles: gutters and card colour separate them; hover shows the cursor spotlight and an accent edge, no lift. */
         .tile { background: var(--card); border: 1px solid transparent; border-radius: 20px; padding: 24px; position: relative; overflow: hidden; transition: border-color .2s; }
         .tile:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
@@ -99,16 +101,18 @@
         .stack .meter { height: 8px; border-radius: 8px; background: var(--card-2); overflow: hidden; }
         .stack .meter i { display: block; height: 100%; border-radius: 8px; background: var(--accent); transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
         .stack.pending .meter i { width: 0 !important; }
-        .now { grid-column: span 2; background: var(--accent-soft); }
+        .now { grid-column: span 1; background: var(--accent-soft); display: flex; flex-direction: column; justify-content: space-between; }
         .now.solo { grid-column: 1 / -1; }
-        .shipped { grid-column: span 2; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
-        .shipped .track { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+        /* Worked at: a thin full-width band (same as the blog's "Writes about") */
+        .shipped { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center; gap: 24px; min-height: 0; padding: 18px 24px; }
+        .shipped > .mono { flex: none; }
+        .shipped .track { flex: 1; min-width: 0; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
         .ticker { display: flex; gap: 28px; width: max-content; white-space: nowrap; animation: tick 30s linear infinite; font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
         .ticker span::after { content: '·'; margin-left: 28px; color: var(--muted); }
         .shipped:hover .ticker { animation-play-state: paused; }
         @keyframes tick { to { transform: translateX(-50%); } }
         .now .mono { color: var(--muted); }
-        .now h3 { font-size: 26px; margin: 12px 0 2px; letter-spacing: -.02em; }
+        .now h3 { font-size: 22px; line-height: 1.2; margin: 12px 0 2px; letter-spacing: -.02em; }
 
         section.block { padding: 72px 0 12px; }
         .head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
@@ -196,7 +200,8 @@
             .nav-mobile-only { display: block; }
             .foot { flex-direction: column; align-items: flex-start; }
             .bento, .bento-list, .contact, .two { grid-template-columns: 1fr; }
-            .intro, .stack, .now, .shipped, .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
+            .intro, .stack, .now, .bento-list > * { grid-column: auto !important; grid-row: auto !important; }
+            .shipped { flex-direction: column; align-items: flex-start; } .shipped .track { width: 100%; }
             .photo { grid-row: auto; aspect-ratio: 4/5; }
         }
         @media (prefers-reduced-motion: reduce) { .dot, .ticker { animation: none; } .stack .meter i { transition: none; } .tile { transition: none; } html { scroll-behavior: auto; } }
