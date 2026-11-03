@@ -411,7 +411,7 @@
                         <span class="logo">@if ($hasLogo)<img src="{{ $logoUrl }}" alt="">@else{{ collect(explode(' ', $about->name))->map(fn ($p) => mb_substr($p, 0, 1))->implode('') }}@endif</span>
                         <span class="brand-text"><b>{{ $about->name }}</b><small class="mono">Portfolio</small></span>
                     </a>
-                    <p>Backend developer by day. The ES apps are my after-hours side project.</p>
+                    <p>Full-time professional software engineer, building cool projects in my spare time.</p>
                 </div>
                 <nav class="foot-cols" aria-label="Footer">
                     <div class="foot-col">
