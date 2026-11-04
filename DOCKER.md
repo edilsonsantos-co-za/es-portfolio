@@ -2,8 +2,8 @@
 
 ES Portfolio supports both development and production Docker environments with automatic asset compilation.
 
-Product names are display labels only: existing `edfolio-*` containers, image names and volumes
-are unchanged for deployment and data compatibility.
+Containers and images are `es-portfolio` (production) and `es-portfolio-dev`; the data volumes keep their
+original names so no deploy starts from empty storage.
 
 ## Environment Configurations
 
@@ -77,7 +77,7 @@ Key environment variables that affect asset compilation:
 
 Production no longer bind-mounts the repository into `/var/www/html`. This prevents `repo:upload` rsync operations from rewriting files inside the running container before a rebuild.
 
-- `MEDIA_DISK=public`: uploads stay on the `edfolio_storage` named volume.
+- `MEDIA_DISK=public`: uploads stay on the storage named volume.
 - `MEDIA_DISK=s3`: uploads are written to S3-compatible object storage instead of the container volume.
 
 For S3 mode, configure:
@@ -101,12 +101,12 @@ If admin JS files return 404 errors:
 
 1. Check if assets were compiled:
    ```bash
-   docker exec edfolio-prod ls -la /var/www/html/public/build/
+   docker exec es-portfolio ls -la /var/www/html/public/build/
    ```
 
 2. Confirm the image already contains built assets:
    ```bash
-   docker exec edfolio-prod ls -la /var/www/html/public/build/manifest.json
+   docker exec es-portfolio ls -la /var/www/html/public/build/manifest.json
    ```
 
 3. If the image is missing assets, rebuild locally to compare behavior:
@@ -121,7 +121,7 @@ If admin JS files return 404 errors:
 
 5. Check app container logs:
    ```bash
-   docker logs edfolio-prod --tail=200
+   docker logs es-portfolio --tail=200
    ```
 
 ### Switching Environments

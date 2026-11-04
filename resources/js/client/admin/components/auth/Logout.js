@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Routes from '../../../common/helpers/Routes';
 import { removeApiToken } from '../../redux/ActionCreators';
 
-const sso = window.edfolioSso || { enabled: false };
+const sso = window.esSso || { enabled: false };
 
 const Logout = () => {
     const dispatch = useDispatch();

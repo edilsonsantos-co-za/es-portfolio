@@ -199,7 +199,7 @@ const changeAccentColor = (color) => {
 /**
  * Portfolio templates
  */
-const templates = (window.edfolioThemes || [{ id: 'atlas', title: 'Atlas', image: 'assets/common/img/templates/atlas.png' }])
+const templates = (window.esThemes || [{ id: 'atlas', title: 'Atlas', image: 'assets/common/img/templates/atlas.png' }])
     .map(theme => ({ ...theme, image: window.location.origin + '/' + theme.image }));
 
 /**
@@ -219,8 +219,8 @@ const Utils = {
     changeAccentColor,
     mediaUrl,
     templates,
-    storeUrl: window.edfolioStoreUrl || 'https://store.edilsonsantos.co.za',
-    journalUrl: window.edfolioJournalUrl || '',
+    storeUrl: window.esStoreUrl || 'https://store.edilsonsantos.co.za',
+    journalUrl: window.esJournalUrl || '',
     setAntdInstances,
 }
 

@@ -16,7 +16,9 @@ use ZipArchive;
  */
 class ThemePackageVerifier
 {
-    public const APP = 'edfolio-portfolio';
+    public const APP = 'es-portfolio';
+    /** App ids of packages signed before the rename; they still install. */
+    public const LEGACY_APPS = ['edfolio-portfolio'];
     public const MAX_PACKAGE_BYTES = 20 * 1024 * 1024;
     private const MAX_UNPACKED_BYTES = 40 * 1024 * 1024;
     private const MAX_FILES = 500;
@@ -97,7 +99,7 @@ class ThemePackageVerifier
         if (!is_string($m['id'] ?? null) || !preg_match('/^[a-z0-9][a-z0-9-]{0,40}$/', $m['id']) || $m['id'] === InstalledThemes::DEFAULT) {
             throw new ThemePackageException('The manifest has an invalid theme id.');
         }
-        if (($m['app'] ?? null) !== self::APP) {
+        if (!in_array($m['app'] ?? null, [self::APP, ...self::LEGACY_APPS], true)) {
             throw new ThemePackageException(sprintf('This theme is for "%s", not ES Portfolio.', is_string($m['app'] ?? null) ? $m['app'] : 'another app'));
         }
         if (!is_string($m['name'] ?? null) || $m['name'] === '' || mb_strlen($m['name']) > 80) {

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { saveApiToken } from '../../redux/ActionCreators';
 import SingleSignOut from '../../../common/helpers/SingleSignOut';
 
-const sso = window.edfolioSso || { enabled: false };
+const sso = window.esSso || { enabled: false };
 
 /**
  * Sign-in happens only on the SSO page. This route shows nothing: it sends the browser to the SSO,

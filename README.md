@@ -273,7 +273,7 @@ What it currently checks:
 - `npm run lint`
 - `npm run build`
 
-To run these checks in the existing development container instead, use `docker exec edfolio-dev ./bin/validate.sh`
+To run these checks in the existing development container instead, use `docker exec es-portfolio-dev ./bin/validate.sh`
 and run Compose config checks on the host if Docker is not available in the container.
 
 If Docker Compose is not on `PATH`, the script warns and skips the Compose config check. Set `VALIDATE_REQUIRE_COMPOSE=1` to make missing Compose a hard failure.
@@ -293,31 +293,27 @@ The older `security-check` and `security-check-force` npm scripts run `npm audit
 Production deployment runs automatically after validation on pushes to `main` (and can be triggered
 manually). CI ships tracked files and built Vite assets over SSH, preserves server-only environment
 files and builds the production image on the VPS. There is no image-registry publish job in the
-current workflow. The fixed server path remains `/workspace/edilsonsantos-co-za/edfolio` even though
-the GitHub repository is now [es-portfolio](https://github.com/edilsonsantos-co-za/es-portfolio).
+current workflow. The app lives in `/workspace/edilsonsantos-co-za/es-portfolio` on the server; see
+[DEPLOYMENT.md](DEPLOYMENT.md).
 
 Configure the `production` environment's `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_PRIVATE_KEY`
 secrets; `DEPLOY_KNOWN_HOSTS` and `DEPLOY_PATH` are optional. See `.github/workflows/ci-deploy.yml`
-for the current deployment contract. `DEPLOYMENT.md` also contains historical registry-based instructions.
+for the current deployment contract.
 
 The root `VERSION` file remains the application version source; Laravel exposes the raw version
 and release tag to views. See [UPGRADE_PATH.md](UPGRADE_PATH.md) for completed modernization phases
 and remaining work.
 
-### Naming compatibility
+### Names
 
-ES Portfolio is the display name; deployment and integration identifiers are unchanged. Keep
-`edfolio-dev`, `edfolio-prod`, image/volume/network names, server/backup paths, database identifiers,
-SSO client IDs, browser storage keys and the signed theme manifest app ID `edfolio-portfolio` intact.
-The store catalogue still uses `app=portfolio` and `install=admin`.
+Containers, images and the compose project are `es-portfolio` (production) and `es-portfolio-dev`. A few
+identifiers that hold data keep their original values: the database name and user, the data volume names,
+and the SSO client ID registered in Logto. Signed theme packages use the app id `es-portfolio`; packages
+signed before the rename still install. The store catalogue uses `app=portfolio` and `install=admin`.
 
-Laravel derives session/cache/Redis names from `APP_NAME` when no explicit value is configured.
-Legacy application/mail display names are normalized without changing the source environment.
-The environment templates pin their existing `SESSION_COOKIE`, `CACHE_PREFIX` and `REDIS_PREFIX`
-values so this display rename does not reset sessions or change key namespaces. When updating an
-existing server environment, preserve its current effective values **before** changing `APP_NAME`
-(the usual legacy values are `edfolio_session`, `edfolio_cache` and `edfolio_database_`). Custom
-site titles/SEO content stored by an administrator are not overwritten.
+Laravel derives session/cache/Redis names from `APP_NAME` when no explicit value is configured, so an existing
+server keeps its `SESSION_COOKIE`, `CACHE_PREFIX` and `REDIS_PREFIX` values in `.env.prod`; changing them signs
+everyone out and empties the cache. Custom site titles/SEO content stored by an administrator are not overwritten.
 
 ### Working with the Application
 
@@ -326,37 +322,37 @@ site titles/SEO content stored by an administrator are not overwritten.
 docker-compose -f docker-compose.dev.yml logs -f app
 
 # Access application container shell
-docker exec -it edfolio-dev bash
+docker exec -it es-portfolio-dev bash
 
 # Run Laravel Artisan commands
-docker exec edfolio-dev php artisan list
-docker exec edfolio-dev php artisan migrate
-docker exec edfolio-dev php artisan db:seed
+docker exec es-portfolio-dev php artisan list
+docker exec es-portfolio-dev php artisan migrate
+docker exec es-portfolio-dev php artisan db:seed
 
 # Clear caches
-docker exec edfolio-dev php artisan cache:clear
-docker exec edfolio-dev php artisan config:clear
-docker exec edfolio-dev php artisan view:clear
+docker exec es-portfolio-dev php artisan cache:clear
+docker exec es-portfolio-dev php artisan config:clear
+docker exec es-portfolio-dev php artisan view:clear
 ```
 
 ### Frontend Development
 
 ```bash
 # Build assets for development
-docker exec edfolio-dev npm run dev
+docker exec es-portfolio-dev npm run dev
 
 # Watch for changes (hot reload)
-docker exec edfolio-dev npm run watch
+docker exec es-portfolio-dev npm run watch
 
 # Build for production
-docker exec edfolio-dev npm run production
+docker exec es-portfolio-dev npm run production
 ```
 
 ### Database Management
 
 ```bash
 # Back up the configured database through the app container
-docker exec edfolio-dev ./bin/backup-manager.sh backup
+docker exec es-portfolio-dev ./bin/backup-manager.sh backup
 ```
 
 Manage the external MySQL/Redis services with your workspace tooling, not nonexistent bundled
@@ -364,9 +360,9 @@ Compose services. See [DOCKER.md](DOCKER.md) for persistent media and theme stor
 
 ## Docker Configuration
 
-- `docker-compose.dev.yml`: app container `edfolio-dev`, source bind mount and Node modules volume;
+- `docker-compose.dev.yml`: app container `es-portfolio-dev`, source bind mount and Node modules volume;
   shared external `milkyway` network.
-- `docker-compose.prod.yml`: app container `edfolio-prod`, server-built image, readiness health check
+- `docker-compose.prod.yml`: app container `es-portfolio`, server-built image, readiness health check
   and named volumes for backups, media and installed themes; same external network.
 
 ## Troubleshooting
@@ -387,24 +383,24 @@ docker-compose -f docker-compose.dev.yml down
 **Permission errors:**
 ```bash
 # Fix storage and cache permissions
-docker exec edfolio-dev chown -R www-data:www-data storage bootstrap/cache
+docker exec es-portfolio-dev chown -R www-data:www-data storage bootstrap/cache
 ```
 
 **Database connection issues:**
 Verify the configured external DB is reachable on `milkyway`; review `DB_HOST`, `DB_DATABASE` and
-credentials without changing the database name. `docker logs edfolio-dev --tail=100` shows startup
+credentials without changing the database name. `docker logs es-portfolio-dev --tail=100` shows startup
 readiness failures.
 
 **Asset compilation failures:**
 ```bash
 # Clear npm cache
-docker exec edfolio-dev npm cache clean --force
+docker exec es-portfolio-dev npm cache clean --force
 
 # Reinstall dependencies
-docker exec edfolio-dev npm install
+docker exec es-portfolio-dev npm install
 
 # Rebuild assets
-docker exec edfolio-dev npm run dev
+docker exec es-portfolio-dev npm run dev
 ```
 
 **Fresh start (nuclear option):**

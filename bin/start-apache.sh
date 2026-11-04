@@ -219,7 +219,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
     chown -R www-data:www-data "$BACKUP_DIR"
     chmod -R 755 "$BACKUP_DIR"
     
-    BACKUP_FILE="$BACKUP_DIR/edfolio_backup_$(date +%Y%m%d_%H%M%S).sql"
+    BACKUP_FILE="$BACKUP_DIR/es_portfolio_backup_$(date +%Y%m%d_%H%M%S).sql"
     echo "[STARTUP] Creating backup at: $BACKUP_FILE"
     
     # --skip-ssl matches the mysqladmin checks above; the MariaDB client
@@ -239,7 +239,7 @@ if mysqladmin ping -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USERNAME" -p"$DB_PASSWORD" -
       
       # Keep only last 10 backups to prevent disk space issues
       echo "[STARTUP] Cleaning up old backups (keeping last 10)..."
-      find "$BACKUP_DIR" -name "edfolio_backup_*.sql" -type f | sort | head -n -10 | xargs rm -f || echo "[WARNING] Backup cleanup failed"
+      find "$BACKUP_DIR" -name "*_backup_*.sql" -type f | sort | head -n -10 | xargs rm -f || echo "[WARNING] Backup cleanup failed"
     else
       echo "[ERROR] Backup file creation failed or file is empty"
       BACKUP_FAILED=true

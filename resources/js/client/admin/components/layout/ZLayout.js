@@ -81,7 +81,7 @@ const LayoutShell = styled.div`
 
 // Same behaviour as the blog admin: a hamburger in the top bar folds the sidebar to icons,
 // and the choice is remembered per browser.
-const SIDEBAR_KEY = 'edfolio-admin-sidebar-collapsed';
+const SIDEBAR_KEY = 'es-portfolio-admin-sidebar-collapsed';
 
 const readSidebarPreference = () => {
     try {

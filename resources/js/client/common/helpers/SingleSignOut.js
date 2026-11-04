@@ -35,7 +35,7 @@ const SingleSignOut = {
     // Signed out in another ES app: end the SSO session too, or the admin's automatic SSO sign-in
     // would sign straight back in. Without SSO, start over at the admin sign-in.
     endSession(fallback) {
-        const sso = window.edfolioSso || {};
+        const sso = window.esSso || {};
         window.esSigningOut = true;
         window.location.replace(sso.enabled && sso.logoutUrl ? sso.logoutUrl : fallback);
     },

@@ -1,7 +1,7 @@
 services:
   app:
-    container_name: edfolio-dev
-    image: edfolio:latest
+    container_name: es-portfolio-dev
+    image: es-portfolio:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,7 +14,10 @@ services:
       # Explicit backup volume for easy access
       - ./storage/app/backups:/var/www/html/storage/app/backups
     networks:
-      - milkyway
+      milkyway:
+        # The local proxy host still forwards edilsonsantos.local to the old name; drop once it points at es-portfolio-dev
+        aliases:
+          - edfolio-dev
     environment:
       # Docker startup behavior for development
       - SKIP_ASSET_BUILD=false

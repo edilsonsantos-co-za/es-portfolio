@@ -1,10 +1,10 @@
-name: edfolio
+name: es-portfolio
 
 services:
   app:
-    container_name: edfolio-prod
+    container_name: es-portfolio
     # Built on the server from the deployed files (CI ships public/build with them); no registry.
-    image: edfolio:prod
+    image: es-portfolio:prod
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,13 +14,17 @@ services:
     restart: on-failure:3
     volumes:
       # Named volume for persistent backups
-      - prod_backups:/var/www/html/storage/app/backups
+      - backups:/var/www/html/storage/app/backups
       # Named volume for local-disk uploads when MEDIA_DISK=public
-      - edfolio_storage:/var/www/html/storage/app/public
+      - storage:/var/www/html/storage/app/public
       # Themes installed from Portfolio -> Themes; survives rebuilds and redeploys
-      - edfolio_themes:/var/www/html/storage/app/themes
+      - themes:/var/www/html/storage/app/themes
     networks:
-      - milkyway
+      milkyway:
+        # Nginx Proxy Manager still forwards edilsonsantos.co.za to the old container name; drop this
+        # alias once the proxy host points at es-portfolio:80.
+        aliases:
+          - edfolio-prod
     environment:
       # Docker startup behavior for production
       - SKIP_ASSET_BUILD=true
@@ -47,10 +51,15 @@ services:
       retries: 3
       start_period: 60s
 
+# The data volumes keep the names the first deploys created (compose project "edfolio"), so renaming
+# the project and container never starts from empty volumes.
 volumes:
-  prod_backups:
-  edfolio_storage:
-  edfolio_themes:
+  backups:
+    name: edfolio_prod_backups
+  storage:
+    name: edfolio_edfolio_storage
+  themes:
+    name: edfolio_edfolio_themes
 
 networks:
   milkyway:

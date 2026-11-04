@@ -3,7 +3,7 @@
 # ES Portfolio Backup Manager
 # Usage: ./backup-manager.sh [list|download|restore|cleanup]
 
-PROJECT_DIR="/var/www/html/edfolio"  # Update this path
+PROJECT_DIR="/var/www/html"  # Update this path
 BACKUP_DIR="$PROJECT_DIR/storage/app/backups"
 
 case "$1" in

@@ -69,7 +69,13 @@ class ThemePackageVerifierTest extends TestCase
     public function test_rejects_another_apps_package(): void
     {
         $this->expectExceptionMessage('not ES Portfolio');
-        $this->verifier()->verify($this->package(manifest: ['app' => 'edfolio-blog']));
+        $this->verifier()->verify($this->package(manifest: ['app' => 'es-blog']));
+    }
+
+    public function test_accepts_a_package_signed_before_the_rename(): void
+    {
+        $result = $this->verifier()->verify($this->package(manifest: ['app' => ThemePackageVerifier::LEGACY_APPS[0]]));
+        $this->assertSame('vega', $result['manifest']['id']);
     }
 
     public function test_rejects_an_incompatible_app_version(): void
@@ -98,7 +104,7 @@ class ThemePackageVerifierTest extends TestCase
     {
         $files += ['views/theme.blade.php' => '<html></html>', 'assets/css/styles.css' => 'body{}'];
         $json = json_encode($manifest + [
-            'schema' => 1, 'id' => 'vega', 'name' => 'Vega', 'version' => '1.0.0', 'app' => 'edfolio-portfolio',
+            'schema' => 1, 'id' => 'vega', 'name' => 'Vega', 'version' => '1.0.0', 'app' => 'es-portfolio',
             'requires' => '>=0.0.9 <1.0.0', 'files' => array_map(fn ($d) => 'sha256:' . hash('sha256', $d), $files),
         ]);
 
