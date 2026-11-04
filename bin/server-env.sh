@@ -2,13 +2,13 @@
 # Add what's missing to .env.prod on the VPS before a deploy. Run by .github/workflows/ci-deploy.yml as
 # the deploy user, from the app folder. Never overwrites a value that is already set (mail follows the SMTP_* secrets); prints no secret.
 #
-#   - LOGTO_* once the SSO deploy has registered edfolio-webapp (its secret is in the SSO env file)
+#   - LOGTO_* once the SSO deploy has registered es-portfolio-webapp (its secret is in the SSO env file)
 #   - mail from the SMTP_* secrets; the Mailtrap sandbox only while no mail is configured
 set -euo pipefail
 
 ENV_FILE=.env.prod
 SSO_ENV=/workspace/datasparklab/core-sso-webapp/.env.production
-SSO_APP_ID=edfolio-webapp
+SSO_APP_ID=es-portfolio-webapp
 
 get_env() { grep -E "^$2=" "$1" 2>/dev/null | tail -1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//' || true; }
 set_env() {
@@ -28,7 +28,8 @@ fi
 
 var="SSO_APP_SECRET_$(printf '%s' "$SSO_APP_ID" | tr '[:lower:]-' '[:upper:]_')"
 secret="$( [ -r "$SSO_ENV" ] && get_env "$SSO_ENV" "$var" || true)"
-if [ -n "$secret" ] && [ -z "$(get_env "$ENV_FILE" LOGTO_APP_SECRET)" ]; then
+# Also switches an env file still linked to another client (the app was renamed in Logto)
+if [ -n "$secret" ] && { [ -z "$(get_env "$ENV_FILE" LOGTO_APP_SECRET)" ] || [ "$(get_env "$ENV_FILE" LOGTO_APP_ID)" != "$SSO_APP_ID" ]; }; then
   set_env LOGTO_ENDPOINT https://sso.datasparklab.com
   set_env LOGTO_INTERNAL_ENDPOINT http://dsl-sso:3001
   set_env LOGTO_APP_ID "$SSO_APP_ID"
