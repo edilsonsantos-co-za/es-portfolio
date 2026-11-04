@@ -227,7 +227,7 @@
             </ul>
             <div class="top-actions">
                 {{-- The ES app launcher and Sign in, shared by every ES app; es-account.js swaps in the signed-in admin --}}
-                @if ($coffeeUrl)<a class="btn coffee" href="{{ $coffeeUrl }}" target="_blank" rel="noopener" aria-label="Buy me a coffee">☕<span class="hide-sm">Buy me a coffee</span></a>@endif
+                @if ($coffeeUrl)<a class="btn coffee" href="{{ $coffeeUrl }}" target="_blank" rel="noopener" aria-label="Buy me a coffee"><svg class="coffee-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3v3M12 3v3"/></svg><span class="hide-sm">Buy me a coffee</span></a>@endif
                 <es-apps current="portfolio" sign-in-url="{{ url('/admin') }}" dashboard-url="{{ url('/admin/dashboard') }}"></es-apps>
                 <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">☰</button>
             </div>

@@ -109,3 +109,6 @@ body { counter-reset: sec; }
     .bento > .tile:nth-child(n+5), .bento-list > :nth-child(n+5), .grid > :nth-child(n+5) { animation-delay: .24s; }
     @keyframes atlas-in { from { opacity: 0; transform: translateY(14px) scale(.985); } }
 }
+
+/* Buy me a coffee: a flat line icon in the button's text colour (no emoji) */
+.coffee-icon { flex: none; display: block; }
