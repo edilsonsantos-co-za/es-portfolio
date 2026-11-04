@@ -16,17 +16,22 @@ class Utils
      */
     public static function getFavicon()
     {
+        $default = asset('assets/brand/es-icon-32.png');
+
         try {
             $settingService = resolve(SettingInterface::class);
             $result = $settingService->getSettingByKey(CoreConstants::SETTING__FAVICON, ['setting_value']);
 
-            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
+            // The stock EdFolio default is replaced by the ES brand icon; only a custom upload wins.
+            if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS
+                && $result['payload']->setting_value
+                && $result['payload']->setting_value !== 'assets/common/img/favicon/default.png') {
                 return MediaStorage::url($result['payload']->setting_value);
-            } else {
-                return asset('assets/common/img/favicon/default.png');
             }
+
+            return $default;
         } catch (\Throwable $th) {
-            return asset('assets/common/img/favicon/default.png');
+            return $default;
         }
     }
     

@@ -16,7 +16,8 @@
 <meta property="og:description" content="{{ $portfolioConfig['seo']['description'] }}">
 <meta property="og:image" content="{{ media_url($portfolioConfig['seo']['image']) }}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="shortcut icon" type="image/x-icon" href="{{ Utils::getFavicon() }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ Utils::getFavicon() }}">
+<link rel="apple-touch-icon" href="{{ asset('assets/brand/es-icon-180.png') }}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
