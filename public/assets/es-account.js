@@ -47,6 +47,8 @@
             el.setAttribute('manage-url', '/admin/portfolio/about');
             el.setAttribute('sign-out-url', '/admin/logout');
             el.setAttribute('signed-in', '');
+            // Portfolio admins need the es-owner role to sign in (SsoController), so they see the private apps
+            el.setAttribute('owner', '');
         });
     }).catch(() => { /* offline or API down: keep "Sign in" */ });
 })();

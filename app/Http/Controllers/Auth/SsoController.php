@@ -82,6 +82,10 @@ class SsoController extends Controller
         if (!$admin) {
             return $this->refuse($client, 'no admin with that verified email');
         }
+        // Store customers sign in to the same Logto: an admin also needs the owner role there
+        if (!LogtoClient::isOwner($claims)) {
+            return $this->refuse($client, 'no ' . LogtoClient::OWNER_ROLE . ' role in Logto');
+        }
 
         $handoff = Str::random(48);
         Cache::put('sso-handoff:' . hash('sha256', $handoff), $admin->getKey(), self::HANDOFF_TTL_SECONDS);

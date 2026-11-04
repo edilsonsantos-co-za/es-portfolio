@@ -26,6 +26,7 @@ const AvatarDropdown = () => {
         <es-apps
             current="portfolio"
             signed-in="true"
+            owner="true"
             user-name={me?.name || ''}
             user-email={me?.email || ''}
             avatar={me?.avatar || ''}
