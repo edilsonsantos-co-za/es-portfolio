@@ -217,6 +217,23 @@ LOGTO_INTERNAL_ENDPOINT=            # Optional server-to-server URL, e.g. http:/
 To set up SSO, create a **Traditional web** application in Logto with the redirect URI
 `<APP_URL>/auth/sso/callback` and the post sign-out redirect URI `<APP_URL>/`.
 
+### Using your own Logto
+
+Sign-in goes through [Logto](https://logto.io/), an open-source identity service. You need your own Logto instance:
+either [Logto Cloud](https://cloud.logto.io/) (hosted, free tier available) or self-hosted Logto (open source, runs
+in Docker). The [Logto documentation](https://docs.logto.io/) covers both. Then, in the Logto console:
+
+1. **Applications → Create application → Traditional web.** Add the redirect URI `<APP_URL>/auth/sso/callback` and the post
+   sign-out redirect URI `<site>/`.
+2. Copy the endpoint, app ID and app secret into `.env` (`LOGTO_ENDPOINT`, `LOGTO_APP_ID`, `LOGTO_APP_SECRET`).
+   `LOGTO_INTERNAL_ENDPOINT` is optional, for when the app reaches Logto over a Docker network.
+3. **Authorization → Roles → Create role** named `es-owner`, and assign it to your user. ES Portfolio asks for the
+   `roles` scope and only lets in users who hold that role.
+4. Your Logto user's verified email must match the portfolio admin's email.
+
+Running several ES apps against the same Logto gives you single sign-on across them. Signing out in one app signs you
+out of the others on their next request.
+
 Set `FORCE_HTTPS=true` only when the deployed hostname is actually terminated with a valid HTTPS certificate and your proxy forwards the usual `X-Forwarded-*` headers. Leaving it `false` prevents Laravel from rewriting every asset URL to `https://` on hosts that are still serving plain HTTP or have incomplete TLS setup.
 
 `UPWORK_URL` and `SUPPORT_URL` are optional public frontend links. Set each to a complete `http://` or `https://`
