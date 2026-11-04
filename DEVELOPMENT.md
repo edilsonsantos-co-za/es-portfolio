@@ -22,7 +22,4 @@ docker exec es-portfolio-dev ./bin/validate.sh
 docker logs es-portfolio-dev --tail=100
 ```
 
-The container also answers on its old name on `milkyway`, so a local proxy host that still forwards there keeps
-working; point it at `es-portfolio-dev:80` and drop the alias from `docker-compose.dev.yml`.
-
 See [README.md](README.md) for the application itself and [DEPLOYMENT.md](DEPLOYMENT.md) for production.

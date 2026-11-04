@@ -20,11 +20,7 @@ services:
       # Themes installed from Portfolio -> Themes; survives rebuilds and redeploys
       - themes:/var/www/html/storage/app/themes
     networks:
-      milkyway:
-        # Nginx Proxy Manager still forwards edilsonsantos.co.za to the old container name; drop this
-        # alias once the proxy host points at es-portfolio:80.
-        aliases:
-          - edfolio-prod
+      - milkyway
     environment:
       # Docker startup behavior for production
       - SKIP_ASSET_BUILD=true

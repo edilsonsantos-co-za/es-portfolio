@@ -23,16 +23,9 @@ Every push to `main` goes live. `.github/workflows/ci-deploy.yml` runs the valid
 | Installed themes | volume mounted at `storage/app/themes` |
 | Database backups | volume mounted at `storage/app/backups` (a dump is taken on every start) |
 
-The three data volumes keep the names the first deploys gave them, so a rename never starts from empty
-volumes. Before replacing an older container, the deploy checks that those volumes exist and stops if one is
-missing, leaving the running site alone.
-
-### Rename from the old stack
-
-The first deploy after the rename moves the old server folder to `es-portfolio` (leaving a symlink at the old
-path), builds the new image, removes the old container and starts `es-portfolio`. The new container also
-answers on the old container name on `milkyway`, so the Nginx Proxy Manager host keeps working. Once
-the proxy host forwards to `es-portfolio:80`, drop that alias from `docker-compose.prod.yml`.
+The three data volumes keep the names the first deploys gave them, so the rename to `es-portfolio` (4 Nov 2026)
+kept every upload, theme and backup. The old server folder is a symlink to the new one, and a `DEPLOY_PATH` that
+points at such a symlink resolves to the real folder.
 
 ## Secrets
 

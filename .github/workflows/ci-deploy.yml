@@ -52,9 +52,6 @@ jobs:
     environment: production
     env:
       APP_DIR: /workspace/edilsonsantos-co-za/es-portfolio
-      # Where the app lived before the rename: moved to APP_DIR on the first deploy (a symlink stays behind)
-      LEGACY_APP_DIR: /workspace/edilsonsantos-co-za/edfolio
-      LEGACY_CONTAINER: edfolio-prod
       COMPOSE_FILE: docker-compose.prod.yml
       REQUIRED_ENV_FILES: ".env.prod"
 
@@ -104,17 +101,17 @@ jobs:
           # comes from APP_DIR, not the repo name, so renaming the repo never moves the app on the
           # server (a new folder would mean a new compose project with empty volumes).
           if [[ -n "$DEPLOY_PATH" ]]; then
-            case "$(basename "$DEPLOY_PATH")" in
-              "$(basename "$APP_DIR")")
-                APP_DIR="$DEPLOY_PATH"; LEGACY_APP_DIR="$(dirname "$DEPLOY_PATH")/$(basename "$LEGACY_APP_DIR")" ;;
-              "$(basename "$LEGACY_APP_DIR")")
-                LEGACY_APP_DIR="$DEPLOY_PATH"; APP_DIR="$(dirname "$DEPLOY_PATH")/$(basename "$APP_DIR")" ;;
-              *)
-                APP_DIR="${DEPLOY_PATH%/}/${APP_DIR#/workspace/}"; LEGACY_APP_DIR="${DEPLOY_PATH%/}/${LEGACY_APP_DIR#/workspace/}" ;;
-            esac
+            # A DEPLOY_PATH that is a symlink to this app's folder (left behind by a rename) counts as the app folder
+            real="$(ssh vps "readlink -f '$DEPLOY_PATH'" 2>/dev/null || true)"
+            if [[ "$(basename "$real")" == "$(basename "$APP_DIR")" ]]; then
+              APP_DIR="$real"
+            elif [[ "$(basename "$DEPLOY_PATH")" == "$(basename "$APP_DIR")" ]]; then
+              APP_DIR="$DEPLOY_PATH"
+            else
+              APP_DIR="${DEPLOY_PATH%/}/${APP_DIR#/workspace/}"
+            fi
           fi
           echo "APP_DIR=$APP_DIR" >> "$GITHUB_ENV"
-          echo "LEGACY_APP_DIR=$LEGACY_APP_DIR" >> "$GITHUB_ENV"
           # Earlier deploys left root-owned files: use passwordless sudo on the server when the user has it
           if ssh vps 'sudo -n true' 2>/dev/null; then echo "REMOTE_SUDO=sudo -n" >> "$GITHUB_ENV"; else echo "REMOTE_SUDO=" >> "$GITHUB_ENV"; fi
 
@@ -131,8 +128,6 @@ jobs:
           # Everything git tracks except env files (examples excepted): the server keeps its own .env*.
           # Each part ends in || true: the step runs with bash -e, and a grep that matches nothing would end the list early.
           { git ls-files | grep -vE '(^|/)\.env' || true ; git ls-files | grep -E '(^|/)\.env[^/]*\.example$' || true ; find public/build -type f || true ; } | sort -u > .deploy-manifest.new
-          # First deploy after the rename: move the old folder (server-only .env files included) and leave a symlink
-          ssh vps "set -e; if [ ! -e '$APP_DIR' ] && [ -d '$LEGACY_APP_DIR' ] && [ ! -L '$LEGACY_APP_DIR' ]; then $REMOTE_SUDO mv '$LEGACY_APP_DIR' '$APP_DIR'; $REMOTE_SUDO ln -s '$(basename "$APP_DIR")' '$LEGACY_APP_DIR'; echo 'moved $LEGACY_APP_DIR to $APP_DIR'; fi"
           tar -czf - -T .deploy-manifest.new .deploy-manifest.new | ssh vps "set -e; $REMOTE_SUDO mkdir -p '$APP_DIR'; $REMOTE_SUDO tar -xzf - -C '$APP_DIR'"
           # Real mail settings travel as one base64 value (nothing printed; quotes in a password can't break the command)
           SMTP_B64=""
@@ -161,18 +156,9 @@ jobs:
 
       - name: Build and start on the VPS
         run: |
-          ssh vps "$REMOTE_SUDO env APP_DIR='$APP_DIR' COMPOSE_FILE='$COMPOSE_FILE' LEGACY_CONTAINER='$LEGACY_CONTAINER' bash -s" <<'REMOTE'
+          ssh vps "$REMOTE_SUDO env APP_DIR='$APP_DIR' COMPOSE_FILE='$COMPOSE_FILE' bash -s" <<'REMOTE'
           set -euo pipefail
           cd "$APP_DIR"
-          if docker inspect "$LEGACY_CONTAINER" >/dev/null 2>&1; then
-            # Renamed stack: the new one must reuse the old data volumes, or stop before touching the live container
-            for v in $(docker compose -f "$COMPOSE_FILE" config | awk '/^volumes:/{f=1; next} f && /^[^ ]/{f=0} f && /^    name:/{print $2}'); do
-              docker volume inspect "$v" >/dev/null 2>&1 || { echo "::error::Volume $v not found; $LEGACY_CONTAINER keeps running"; exit 1; }
-            done
-            docker compose -f "$COMPOSE_FILE" build
-            docker rm -f "$LEGACY_CONTAINER" >/dev/null
-            echo "removed $LEGACY_CONTAINER (the new container answers on its name too)"
-          fi
           if ! docker compose -f "$COMPOSE_FILE" up -d --build --remove-orphans --wait --wait-timeout 300; then
             docker compose -f "$COMPOSE_FILE" ps
             docker compose -f "$COMPOSE_FILE" logs --tail 80
