@@ -64,7 +64,7 @@ class MediaStorage
         }
 
         if (Str::startsWith($path, 'assets/')) {
-            return asset($path);
+            return self::versionedAsset($path);
         }
 
         if (Str::startsWith($path, 'storage/')) {
@@ -80,6 +80,26 @@ class MediaStorage
         }
 
         return self::diskUrl(self::diskName(), ltrim($path, '/'));
+    }
+
+    /**
+     * Bundled asset URL with a content-hash query (?v=), so a file replaced in place under the same name
+     * (e.g. refreshed project screenshots) gets a new URL past browser, proxy and CDN caches.
+     *
+     * @param string $path
+     * @return string
+     */
+    public static function versionedAsset(string $path)
+    {
+        static $versions = [];
+
+        $file = public_path($path);
+        if (!array_key_exists($file, $versions)) {
+            $hash = is_file($file) ? @md5_file($file) : false;
+            $versions[$file] = $hash ? substr($hash, 0, 10) : null;
+        }
+
+        return asset($path) . ($versions[$file] ? '?v=' . $versions[$file] : '');
     }
 
     /**

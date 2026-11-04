@@ -40,10 +40,23 @@ class MediaStorageTest extends TestCase
 
     public function testMediaUrlKeepsBundledAssetsOnTheAppHost()
     {
-        $this->assertSame(
+        $this->assertStringStartsWith(
             asset('assets/common/img/avatar/default.png'),
             media_url('assets/common/img/avatar/default.png')
         );
+    }
+
+    public function testBundledAssetUrlCarriesAContentVersion()
+    {
+        $path = 'assets/projects/es-portfolio.jpg';
+        $version = substr(md5_file(public_path($path)), 0, 10);
+
+        $this->assertSame(asset($path) . '?v=' . $version, media_url($path));
+    }
+
+    public function testMissingBundledAssetHasNoVersion()
+    {
+        $this->assertSame(asset('assets/missing/none.jpg'), media_url('assets/missing/none.jpg'));
     }
 
     public function testMediaUrlUsesConfiguredMediaDiskForNewRelativePaths()
