@@ -7,19 +7,12 @@ import PropTypes from 'prop-types';
 import Utils from '../../../common/helpers/Utils';
 import {
   HomeOutlined,
+  ExperimentOutlined,
   ControlOutlined,
   TeamOutlined,
   MailOutlined,
   ThunderboltOutlined,
   MenuOutlined,
-  ToolOutlined,
-  BgColorsOutlined,
-  UserOutlined,
-  StarOutlined,
-  ReadOutlined,
-  SolutionOutlined,
-  ProjectOutlined,
-  AppstoreOutlined,
 } from '@ant-design/icons';
 import { message } from 'antd';
 import NavContent from './NavContent';
@@ -189,43 +182,88 @@ const ZLayout = ({ children }) => {
             setCollapsed(_collapsed)
         },
         logo: '/assets/brand/es-mark.svg',
-        // Bento side nav (es-labs/es-nav, side nav C): each group is its own card, the active item a lit tile.
         menu: {
-            type: 'group',
             hideMenuWhenCollapsed: false,
         },
         route: {
             routes: [
                 {
-                    path: 'workspace',
-                    name: 'Workspace',
-                    routes: [
-                        { path: Routes.web.admin.dashboard, key: Routes.web.admin.dashboard, name: 'Dashboard', icon: <HomeOutlined /> },
-                        { path: Routes.web.admin.visitors, key: Routes.web.admin.visitors, name: 'Visitor', icon: <TeamOutlined /> },
-                        { path: Routes.web.admin.messages, key: Routes.web.admin.messages, name: 'Message', icon: <MailOutlined /> },
-                    ],
+                    path: Routes.web.admin.dashboard,
+                    key: Routes.web.admin.dashboard,
+                    name: 'Dashboard',
+                    icon: <HomeOutlined />,
                 },
                 {
                     path: 'portfolio',
                     name: 'Portfolio',
+                    icon: <ExperimentOutlined />,
                     routes: [
-                        { path: Routes.web.admin.portfolioConfig, key: Routes.web.admin.portfolioConfig, name: 'Config', icon: <ToolOutlined /> },
-                        { path: Routes.web.admin.portfolioThemes, key: Routes.web.admin.portfolioThemes, name: 'Themes', icon: <BgColorsOutlined /> },
-                        { path: Routes.web.admin.portfolioAbout, key: Routes.web.admin.portfolioAbout, name: 'About', icon: <UserOutlined /> },
-                        { path: Routes.web.admin.portfolioSkills, key: Routes.web.admin.portfolioSkills, name: 'Skill', icon: <StarOutlined /> },
-                        { path: Routes.web.admin.portfolioEducation, key: Routes.web.admin.portfolioEducation, name: 'Education', icon: <ReadOutlined /> },
-                        { path: Routes.web.admin.portfolioExperiences, key: Routes.web.admin.portfolioExperiences, name: 'Experience', icon: <SolutionOutlined /> },
-                        { path: Routes.web.admin.portfolioProjects, key: Routes.web.admin.portfolioProjects, name: 'Project', icon: <ProjectOutlined /> },
-                        { path: Routes.web.admin.portfolioServices, key: Routes.web.admin.portfolioServices, name: 'Service', icon: <AppstoreOutlined /> },
+                        {
+                            path: Routes.web.admin.portfolioConfig,
+                            key: Routes.web.admin.portfolioConfig,
+                            name: 'Config',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioThemes,
+                            key: Routes.web.admin.portfolioThemes,
+                            name: 'Themes',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioAbout,
+                            key: Routes.web.admin.portfolioAbout,
+                            name: 'About',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioSkills,
+                            key: Routes.web.admin.portfolioSkills,
+                            name: 'Skill',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioEducation,
+                            key: Routes.web.admin.portfolioEducation,
+                            name: 'Education',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioExperiences,
+                            key: Routes.web.admin.portfolioExperiences,
+                            name: 'Experience',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioProjects,
+                            key: Routes.web.admin.portfolioProjects,
+                            name: 'Project',
+                        },
+                        {
+                            path: Routes.web.admin.portfolioServices,
+                            key: Routes.web.admin.portfolioServices,
+                            name: 'Service',
+                        },
                     ],
                 },
                 {
-                    path: 'system',
-                    name: 'System',
-                    routes: [
-                        { path: Routes.web.frontend.optimize, key: Routes.web.frontend.optimize, name: 'Optimize', onclickHandle: optimizeOnClick, icon: <ThunderboltOutlined /> },
-                        { path: Routes.web.admin.settings, key: Routes.web.admin.settings, name: 'Settings', icon: <ControlOutlined /> },
-                    ],
+                    path: Routes.web.admin.visitors,
+                    key: Routes.web.admin.visitors,
+                    name: 'Visitor',
+                    icon: <TeamOutlined/>,
+                },
+                {
+                    path: Routes.web.admin.messages,
+                    key: Routes.web.admin.messages,
+                    name: 'Message',
+                    icon: <MailOutlined/>,
+                },
+                {
+                    path: Routes.web.frontend.optimize,
+                    key: Routes.web.frontend.optimize,
+                    name: 'Optimize',
+                    onclickHandle: optimizeOnClick,
+                    icon: <ThunderboltOutlined/>,
+                },
+                {
+                    path: Routes.web.admin.settings,
+                    key: Routes.web.admin.settings,
+                    name: 'Settings',
+                    icon: <ControlOutlined />,
                 },
             ]
         },
@@ -263,19 +301,11 @@ const ZLayout = ({ children }) => {
                         </a>
                     )}
                     rightContentRender={!shouldRenderInlineTopBar ? () => <NavContent/> : false}
-                    menuFooterRender={() => (collapsed ? null : (
-                        <a className="atlas-nav-lead" href="/" target="_blank" rel="noopener noreferrer">
-                            <span className="atlas-kicker">Public site</span>
-                            <b>View the portfolio ↗</b>
-                            <span className="atlas-bars" aria-hidden="true">{[32, 56, 40, 72, 48, 88, 64].map((h) => <i key={h} style={{ height: `${h}%` }} />)}</span>
-                        </a>
-                    ))}
                     breadcrumbRender={() => ('')}
                     contentStyle={{ padding: 0 }}
                 >
                     {shouldRenderInlineTopBar && (
                         <div className="atlas-topbar">
-                          <div className="atlas-island">
                             <span className="atlas-topbar-start">
                                 <button
                                     type="button"
@@ -290,7 +320,6 @@ const ZLayout = ({ children }) => {
                                 <span className="atlas-kicker">Portfolio admin</span>
                             </span>
                             <NavContent/>
-                          </div>
                         </div>
                     )}
                     <div className="atlas-content">
