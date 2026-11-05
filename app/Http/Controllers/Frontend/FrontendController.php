@@ -126,7 +126,7 @@ class FrontendController extends Controller
      * Handle pixel tracker
      *
      * @param Request $request
-     * @return void
+     * @return \Illuminate\Http\Response
      */
     public function pixelTracker(Request $request)
     {
@@ -134,8 +134,11 @@ class FrontendController extends Controller
             FrontendVisited::dispatch($request->all());
         }
         
-        header('Content-type: image/gif');
-        echo base64_decode('R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
+        return response(base64_decode('R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='), 200, [
+            'Content-Type' => 'image/gif',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+        ]);
     }
 
 }

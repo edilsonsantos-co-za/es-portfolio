@@ -1,14 +1,13 @@
-<img id='pixel-tracking' style='display: none !important;' src=""/>
+{{-- Visit pixel. Plain JS: the Atlas theme does not load jQuery. --}}
 <script>
-    //place it after jquery loaded
-    $(function() {
-        trackingId = null;
-        if (!localStorage.getItem("pixel-tracking")) {
-            trackingId = '{{\Str::random(30)}}';
-            localStorage.setItem("pixel-tracking", trackingId);
-        } else {
-            trackingId = localStorage.getItem("pixel-tracking");
+    (function () {
+        var key = 'pixel-tracking';
+        var trackingId = null;
+        try { trackingId = localStorage.getItem(key); } catch (e) {}
+        if (!trackingId) {
+            trackingId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID().replace(/-/g, '') : @json(\Str::random(30));
+            try { localStorage.setItem(key, trackingId); } catch (e) {}
         }
-        $('#pixel-tracking').attr("src", "{{ route('pixel-tracker') }}?event=page_visit&tracking_id="+trackingId);         
-    });
+        new Image().src = @json(route('pixel-tracker')) + '?event=page_visit&tracking_id=' + encodeURIComponent(trackingId) + '&t=' + Date.now();
+    })();
 </script>
