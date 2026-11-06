@@ -438,9 +438,14 @@
                     </div>
                     <div class="foot-col">
                         <h2>Connect</h2>
-                        <ul>
-                            @foreach ($socials as $social)<li><a href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }} ↗</a></li>@endforeach
-                            @if ($coffeeUrl)<li><a href="{{ $coffeeUrl }}" target="_blank" rel="noopener">Buy me a coffee ↗</a></li>@endif
+                        {{-- Icons, not words: the name is in aria-label and the hover title; a social without an icon keeps its label --}}
+                        <ul class="connect">
+                            @foreach ($socials as $social)
+                                @php($label = \App\Helpers\ThemeContext::socialLabel($social->title))
+                                @php($iconKey = \App\Helpers\ConnectIcons::key($social->title))
+                                <li><a href="{{ $social->link }}" target="_blank" rel="noopener" aria-label="{{ $label }} (opens in a new tab)" title="{{ $label }}" @class(['text' => !$iconKey])>{!! $iconKey ? \App\Helpers\ConnectIcons::svg($iconKey) : e($label) !!}</a></li>
+                            @endforeach
+                            @if ($coffeeUrl)<li><a href="{{ $coffeeUrl }}" target="_blank" rel="noopener" aria-label="Buy me a coffee (opens in a new tab)" title="Buy me a coffee">{!! \App\Helpers\ConnectIcons::svg('coffee') !!}</a></li>@endif
                         </ul>
                     </div>
                 </nav>
