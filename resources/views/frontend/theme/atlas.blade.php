@@ -181,9 +181,10 @@
         .reveal { opacity: 0; transform: translateY(16px) scale(.98); transition: opacity .6s, transform .6s; }
         .reveal.in { opacity: 1; transform: none; }
 
+        /* Phones and tablets: the nav moves to the bottom tab bar (<es-tabbar>), so the actions keep to the right */
+        @media (max-width: 1024px) { .top-actions { margin-left: auto; } }
         @media (max-width: 1000px) {
             .menu-btn { display: grid; }
-            .top-actions { margin-left: auto; }
             .nav { display: none; position: absolute; top: 100%; left: -12px; right: -12px; flex-direction: column; gap: 0; padding: 8px 24px; background: var(--card); border-bottom: 1px solid var(--line); box-shadow: 0 16px 40px rgba(15,23,42,.12); }
             .nav.open { display: flex; }
             .nav a { padding: 12px 0; }
