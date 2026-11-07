@@ -233,6 +233,15 @@
             </div>
         </div>
     </header>
+    {{-- Phones and tablets: the app-style bottom tab bar every ES app shares (es-apps.js); it replaces the ☰ menu --}}
+    <es-tabbar hide=".menu-btn, #menu">
+        <a href="{{ $home }}" data-icon="home"{!! $page === 'home' ? ' aria-current="page"' : '' !!}>Home</a>
+        @if ($visibility['projects'] && count($projects))<a href="{{ $projectsUrl }}" data-icon="projects"{!! $here('projects') !!}>Projects</a>@endif
+        @if ($visibility['experiences'] && count($experiences))<a href="{{ $pageUrl('experience') }}" data-icon="experience"{!! $here('experience') !!}>Experience</a>@endif
+        @if ($visibility['contact'])<a href="{{ $pageUrl('contact') }}" data-icon="contact"{!! $here('contact') !!}>Contact</a>@endif
+        @if ($visibility['education'] && count($education))<a href="{{ $pageUrl('education') }}" data-icon="education"{!! $here('education') !!}>Education</a>@endif
+        @if ($visibility['services'] && count($services))<a href="{{ $pageUrl('services') }}" data-icon="services"{!! $here('services') !!}>Services</a>@endif
+    </es-tabbar>
 
     <main id="top" class="wrap">
         @if ($onHome)
