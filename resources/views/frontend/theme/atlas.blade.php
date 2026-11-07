@@ -28,6 +28,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {{-- es-boot.css: the splash shown while a page is still arriving; first, so it applies before anything paints --}}
+    <link rel="stylesheet" href="{{ asset('assets/es-boot.css') }}?v={{ filemtime(public_path('assets/es-boot.css')) }}">
     @include('frontend.theme.partials.head')
     <style>
         :root { --bg: #090b10; --card: #121620; --card-2: #181d29; --text: #e8edf6; --muted: #8f9ab0; --line: #232a38; --accent: #3b82f6; --accent-ink: #ffffff; --accent-soft: #15213a; --dark: #3b82f6; --on-dark: #ffffff; color-scheme: dark; }
