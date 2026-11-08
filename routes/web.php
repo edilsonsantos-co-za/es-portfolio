@@ -64,6 +64,9 @@ Route::get('/themes/{id}/{path}', 'App\Http\Controllers\Frontend\ThemeAssetContr
 
 Route::get('/', ['App\Http\Controllers\Frontend\FrontendController', 'index'])->name('frontend');
 Route::get('/projects', ['App\Http\Controllers\Frontend\FrontendController', 'projects'])->name('frontend.projects');
+// One project's detail page: /projects/<id>-<slug> (the slug is cosmetic; a stale or missing one redirects to the canonical URL)
+Route::get('/projects/{project}', ['App\Http\Controllers\Frontend\FrontendController', 'project'])
+    ->where('project', '[0-9]+(-[A-Za-z0-9-]*)?')->name('frontend.project');
 // Each nav item is its own page in Atlas; other themes redirect to their one-page #section.
 foreach (['experience', 'education', 'services', 'contact'] as $section) {
     Route::get('/' . $section, ['App\Http\Controllers\Frontend\FrontendController', 'section'])

@@ -24,6 +24,24 @@
     });
     $categoryFilters = $projectCategories->flatten()->countBy()->sortDesc()->keys();
     $pageTitle = ['projects' => 'Projects', 'experience' => 'Experience', 'education' => 'Education', 'services' => 'Services', 'contact' => 'Contact'][$page] ?? null;
+    $projectUrl = fn ($project) => \App\Http\Controllers\Frontend\FrontendController::projectUrl($project);
+    // The 'project' page: one project's details. The nav keeps Projects as the current page.
+    $detail = $page === 'project' ? ($project ?? null) : null;
+    if ($detail) {
+        $pageTitle = $detail->title;
+        $here = fn (string $section) => $section === 'projects' ? ' aria-current="page"' : '';
+        $projectIndex = collect($projects)->search(fn ($p) => (int) $p->id === (int) $detail->id);
+        $detailCategories = $projectCategories[$projectIndex] ?? [];
+        // Gallery: the uploaded images, else the thumbnail; placeholders and duplicates dropped.
+        $placeholder = fn ($path) => !$path || \Illuminate\Support\Str::contains((string) $path, ['logo/default', 'placeholder', 'brand/es-mark']);
+        $gallery = collect(!empty($detail->images) ? (array) safe_json_decode($detail->images) : [])
+            ->map(fn ($i) => is_string($i) ? trim($i) : null)->reject($placeholder)->unique()->values();
+        if ($gallery->isEmpty() && !$placeholder($detail->thumbnail)) {
+            $gallery = collect([$detail->thumbnail]);
+        }
+        $prevProject = $projects[($projectIndex - 1 + count($projects)) % count($projects)] ?? null;
+        $nextProject = $projects[($projectIndex + 1) % count($projects)] ?? null;
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -154,6 +172,31 @@
         section.page h1 { font-size: clamp(36px, 5vw, 60px); letter-spacing: -.05em; margin: 6px 0 0; line-height: 1; font-weight: 800; }
         .nav a[aria-current="page"] { color: var(--text); }
         .work .body { padding: 16px 20px 20px; }
+        a.work:hover h3 { color: var(--accent); }
+        a.work:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+        .work .more { display: inline-block; margin-top: 10px; font: 500 12px 'JetBrains Mono', monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+
+        /* Project detail page */
+        .crumb { display: inline-flex; gap: 6px; color: var(--muted); text-decoration: none; font-weight: 600; font-size: 14px; margin-bottom: 14px; }
+        .crumb:hover { color: var(--text); }
+        .project-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
+        .project-head .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .project-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        .project-detail { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 10px; align-items: start; }
+        .project-detail .shots { display: grid; gap: 10px; }
+        .project-detail .shots figure { margin: 0; padding: 0; overflow: hidden; }
+        .project-detail .shots img { width: 100%; height: auto; }
+        .project-detail .about-project { font-size: 17px; }
+        .project-detail .about-project p { margin: 0 0 1em; color: var(--muted); }
+        .project-detail .about-project p:last-child { margin-bottom: 0; }
+        .project-detail .facts { list-style: none; margin: 16px 0 0; padding: 16px 0 0; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 14px; }
+        .project-detail .facts a { color: var(--accent); word-break: break-all; }
+        .project-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .project-nav a { text-decoration: none; }
+        .project-nav a:last-child { text-align: right; }
+        .project-nav b { display: block; margin-top: 4px; font-size: 18px; letter-spacing: -.02em; }
+        .project-nav a:hover b { color: var(--accent); }
+        @media (max-width: 860px) { .project-detail { grid-template-columns: 1fr; } }
         .work h3 { margin: 6px 0 4px; font-size: 19px; }
         .work p { margin: 0; color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -370,16 +413,60 @@
                 <div class="bento-list works" id="works">
                     @foreach ($projects as $project)
                         @php $categories = $projectCategories[$loop->index]; @endphp
-                        <a class="tile work" data-reveal data-categories="{{ json_encode($categories) }}" @if ($project->link) href="{{ $project->link }}" target="_blank" rel="noopener" @endif>
+                        <a class="tile work" data-reveal data-categories="{{ json_encode($categories) }}" href="{{ $projectUrl($project) }}">
                             @if ($project->thumbnail)<img src="{{ media_url($project->thumbnail) }}" alt="" loading="lazy" width="640" height="400">@endif
                             <div class="body">
                                 @foreach ($categories as $category)<span class="pill">{{ $category }}</span>@endforeach
                                 <h3>{{ $project->title }}</h3>
                                 @if ($project->details)<p>{{ strip_tags($project->details) }}</p>@endif
+                                <span class="more">View details →</span>
                             </div>
                         </a>
                     @endforeach
                 </div>
+            </section>
+        @endif
+
+        @if ($detail && $visibility['projects'])
+            <section class="block page" id="project">
+                <a class="crumb" href="{{ $projectsUrl }}">← All projects</a>
+                <div class="project-head">
+                    <div>
+                        @if (count($detailCategories))<div class="pills">@foreach ($detailCategories as $category)<a class="pill" href="{{ $projectsUrl }}?category={{ urlencode($category) }}" style="text-decoration: none">{{ $category }}</a>@endforeach</div>@endif
+                        <h1>{{ $detail->title }}</h1>
+                    </div>
+                    @if ($detail->link)
+                        <div class="actions"><a class="btn primary" href="{{ $detail->link }}" target="_blank" rel="noopener">Visit project ↗</a></div>
+                    @endif
+                </div>
+                <div class="project-detail">
+                    @if ($gallery->count())
+                        <div class="shots">
+                            @foreach ($gallery as $image)
+                                <figure class="tile"><img src="{{ media_url($image) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first) loading="lazy" @endif width="1280" height="800"></figure>
+                            @endforeach
+                        </div>
+                    @endif
+                    <div class="tile about-project"@if (!$gallery->count()) style="grid-column: 1 / -1"@endif>
+                        <span class="mono">About this project</span>
+                        @if ($detail->details)
+                            @foreach (preg_split('/\R{2,}/', trim(strip_tags($detail->details))) as $paragraph)<p>{!! nl2br(e($paragraph)) !!}</p>@endforeach
+                        @else
+                            <p>More details coming soon.</p>
+                        @endif
+                        <ul class="facts">
+                            @if (count($detailCategories))<li><span class="mono">Category</span><br>{{ implode(', ', $detailCategories) }}</li>@endif
+                            <li><span class="mono">Status</span><br>{{ $detail->link ? 'Live' : 'Coming soon' }}</li>
+                            @if ($detail->link)<li><span class="mono">Link</span><br><a href="{{ $detail->link }}" target="_blank" rel="noopener">{{ preg_replace('#^https?://|/$#', '', $detail->link) }}</a></li>@endif
+                        </ul>
+                    </div>
+                </div>
+                @if (count($projects) > 1)
+                    <nav class="project-nav" aria-label="More projects">
+                        <a class="tile" href="{{ $projectUrl($prevProject) }}" rel="prev"><span class="mono">← Previous</span><b>{{ $prevProject->title }}</b></a>
+                        <a class="tile" href="{{ $projectUrl($nextProject) }}" rel="next"><span class="mono">Next →</span><b>{{ $nextProject->title }}</b></a>
+                    </nav>
+                @endif
             </section>
         @endif
 

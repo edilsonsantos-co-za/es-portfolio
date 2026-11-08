@@ -56,6 +56,31 @@ class FrontendController extends Controller
     }
 
     /**
+     * One project's detail page (Atlas only; other themes fall back to their #work section).
+     *
+     * @param Request $request
+     * @param string $project "<id>-<slug>" or just "<id>"
+     * @return mixed
+     */
+    public function project(Request $request, string $project)
+    {
+        return $this->render('project', (int) $project, $project);
+    }
+
+    /**
+     * Canonical detail URL for a project: /projects/<id>-<slug>.
+     *
+     * @param object $project
+     * @return string
+     */
+    public static function projectUrl($project): string
+    {
+        $slug = \Illuminate\Support\Str::slug((string) $project->title);
+
+        return route('frontend.project', $project->id . ($slug !== '' ? '-' . $slug : ''));
+    }
+
+    /**
      * One portfolio section on its own page (experience, education, services or contact).
      *
      * @param Request $request
@@ -68,12 +93,14 @@ class FrontendController extends Controller
     }
 
     /**
-     * Render the active theme for a page ('home', 'projects' or a section page).
+     * Render the active theme for a page ('home', 'projects', 'project' or a section page).
      *
      * @param string $page
+     * @param int|null $projectId the project shown on the 'project' page
+     * @param string|null $projectKey the requested "<id>-<slug>", to redirect stale slugs
      * @return mixed
      */
-    private function render(string $page)
+    private function render(string $page, ?int $projectId = null, ?string $projectKey = null)
     {
         $data = $this->frontend->getAllData();
 
@@ -97,11 +124,23 @@ class FrontendController extends Controller
 
         if ($page !== 'home') {
             // Only Atlas has dedicated pages; other themes, or a hidden/empty section, go to the one-page anchor.
-            $key = ['projects' => 'projects', 'experience' => 'experiences', 'education' => 'education', 'services' => 'services', 'contact' => 'contact'][$page];
+            $key = ['projects' => 'projects', 'project' => 'projects', 'experience' => 'experiences', 'education' => 'education', 'services' => 'services', 'contact' => 'contact'][$page];
             $visible = !empty($data['portfolioConfig']['visibility'][$key]) && ($page === 'contact' || count($data[$key] ?? []));
             if ($view !== 'frontend.theme.' . InstalledThemes::DEFAULT || !$visible) {
-                return redirect(url('/') . '#' . ($page === 'projects' ? 'work' : $page));
+                return redirect(url('/') . '#' . (in_array($page, ['projects', 'project'], true) ? 'work' : $page));
             }
+        }
+
+        if ($page === 'project') {
+            $project = collect($data['projects'])->first(fn ($p) => (int) $p->id === $projectId);
+            if (!$project) {
+                abort(404);
+            }
+            $canonical = self::projectUrl($project);
+            if ($projectKey !== basename(parse_url($canonical, PHP_URL_PATH))) {
+                return redirect($canonical, 301);
+            }
+            $data['project'] = $project;
         }
 
         $data['page'] = $page;

@@ -81,6 +81,44 @@ class AtlasProjectsPageTest extends TestCase
         $this->assertStringContainsString('href="' . route('frontend.contact') . '"', $html);
     }
 
+    public function testProjectCardsLinkToTheirDetailPage(): void
+    {
+        $this->fakeFrontend();
+
+        $html = $this->get('/projects')->assertOk()->getContent();
+
+        $this->assertStringContainsString('href="' . route('frontend.project', '3-project-3') . '"', $html);
+        $this->assertSame(8, substr_count($html, 'View details'));
+    }
+
+    public function testProjectDetailPageShowsTheProject(): void
+    {
+        $this->fakeFrontend(['projects' => [2 => (object) [
+            'id' => 3, 'title' => 'Project 3', 'categories' => json_encode(['Professional']), 'thumbnail' => null,
+            'images' => json_encode(['projects/shot.png']), 'details' => "First line.\n\nSecond <b>para</b>.", 'link' => 'https://example.invalid/app',
+        ]]]);
+
+        $html = $this->get('/projects/3-project-3')->assertOk()->getContent();
+
+        $this->assertStringContainsString('<title>Project 3 · Jane Doe</title>', $html);
+        $this->assertStringContainsString('<h1>Project 3</h1>', $html);
+        $this->assertStringContainsString('<p>First line.</p><p>Second para.</p>', $html);
+        $this->assertStringContainsString('href="https://example.invalid/app"', $html);
+        $this->assertStringContainsString('projects/shot.png', $html);
+        $this->assertStringContainsString('href="' . route('frontend.projects') . '"', $html);
+        $this->assertStringContainsString('rel="next"', $html);
+        $this->assertStringNotContainsString('class="tile work"', $html);
+    }
+
+    public function testProjectDetailRedirectsToTheCanonicalSlugAnd404sForUnknownIds(): void
+    {
+        $this->fakeFrontend();
+
+        $this->get('/projects/3')->assertRedirect(route('frontend.project', '3-project-3'));
+        $this->get('/projects/3-old-name')->assertRedirect(route('frontend.project', '3-project-3'));
+        $this->get('/projects/99-nope')->assertNotFound();
+    }
+
     public function testProjectsPageRedirectsHomeWhenProjectsAreHidden(): void
     {
         $this->fakeFrontend(['portfolioConfig' => ['visibility' => ['projects' => false]]]);
