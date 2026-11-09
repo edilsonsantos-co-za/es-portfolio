@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Input, Tag, Tooltip, Typography, theme } from 'antd';
+import { Table, Input, Tag, Tooltip, Typography, Switch, Space, theme } from 'antd';
 import { DesktopOutlined, MobileOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import HTTP from '../../../common/helpers/HTTP';
@@ -22,12 +22,13 @@ const VisitorIps = ({ startDate, endDate, refreshKey }) => {
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState([]);
     const [keyword, setKeyword] = useState('');
+    const [includePrivate, setIncludePrivate] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
 
     const load = (page = pagination.current, pageSize = pagination.pageSize) => {
         setLoading(true);
 
-        HTTP.get(Routes.api.admin.visitorsIps, { params: { page, pageSize, keyword, startDate, endDate } })
+        HTTP.get(Routes.api.admin.visitorsIps, { params: { page, pageSize, keyword, startDate, endDate, includePrivate } })
             .then(response => {
                 Utils.handleSuccessResponse(response, () => {
                     const payload = response.data.payload || {};
@@ -44,7 +45,7 @@ const VisitorIps = ({ startDate, endDate, refreshKey }) => {
 
     useEffect(() => {
         load(1);
-    }, [startDate, endDate, refreshKey, keyword]);
+    }, [startDate, endDate, refreshKey, keyword, includePrivate]);
 
     const columns = [
         {
@@ -100,12 +101,20 @@ const VisitorIps = ({ startDate, endDate, refreshKey }) => {
 
     return (
         <React.Fragment>
-            <Input.Search
-                allowClear
-                placeholder="Search IP, location, browser or user agent"
-                onSearch={value => setKeyword(value.trim())}
-                style={{ maxWidth: 420, marginBottom: 16 }}
-            />
+            <Space wrap size={16} style={{ marginBottom: 16 }}>
+                <Input.Search
+                    allowClear
+                    placeholder="Search IP, location, browser or user agent"
+                    onSearch={value => setKeyword(value.trim())}
+                    style={{ width: 360, maxWidth: '100%' }}
+                />
+                <Tooltip title="Private addresses (10.x, 172.16–31.x, 192.168.x) are the server's own proxy, recorded before real visitor IPs were captured.">
+                    <Space size={8}>
+                        <Switch size="small" checked={includePrivate} onChange={setIncludePrivate} />
+                        <Text type="secondary">Show internal addresses</Text>
+                    </Space>
+                </Tooltip>
+            </Space>
             <Table
                 rowKey="ip"
                 size="middle"

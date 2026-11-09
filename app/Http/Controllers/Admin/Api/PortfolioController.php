@@ -162,7 +162,7 @@ class PortfolioController extends Controller
      */
     public function visitorsIps(Request $request)
     {
-        $result = resolve(VisitorInterface::class)->getIpAddresses($request->only(['page', 'pageSize', 'keyword', 'startDate', 'endDate']));
+        $result = resolve(VisitorInterface::class)->getIpAddresses($request->only(['page', 'pageSize', 'keyword', 'startDate', 'endDate', 'includePrivate']));
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }

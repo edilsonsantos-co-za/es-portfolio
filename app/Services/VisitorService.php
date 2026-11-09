@@ -99,7 +99,7 @@ class VisitorService implements VisitorInterface
                 $isNew = false;
             }
 
-            $ip = request()->getClientIp();
+            $ip = $this->clientIp();
             $isDesktop = $agent->isDesktop();
             $browser = $agent->browser();
             $platform = $agent->platform();
@@ -152,6 +152,32 @@ class VisitorService implements VisitorInterface
     }
 
     /**
+     * The visitor's public IP. Behind Docker + the reverse proxy the socket address is always private,
+     * so the forwarding headers are walked right to left and the first public address wins (the one the
+     * outermost proxy saw; anything left of it is client-supplied). Falls back to Laravel's own answer.
+     */
+    private function clientIp(): ?string
+    {
+        $request = request();
+        $chain = array_map('trim', explode(',', (string) $request->headers->get('X-Forwarded-For', '')));
+        $chain[] = trim((string) $request->headers->get('X-Real-IP', ''));
+        $chain[] = trim((string) $request->headers->get('CF-Connecting-IP', ''));
+
+        foreach (array_reverse(array_filter($chain)) as $candidate) {
+            if (self::isPublicIp($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $request->getClientIp();
+    }
+
+    public static function isPublicIp(?string $ip): bool
+    {
+        return (bool) ($ip && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+    }
+
+    /**
      * Resolve an IP to country/region/city, cached for a day so repeat visits skip the API.
      * Private and reserved addresses are never sent out.
      *
@@ -159,7 +185,7 @@ class VisitorService implements VisitorInterface
      */
     private function lookupLocation(?string $ip): array
     {
-        if (!$ip || !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (!self::isPublicIp($ip)) {
             return [];
         }
 
@@ -195,6 +221,17 @@ class VisitorService implements VisitorInterface
             }
             if (!empty($data['endDate'])) {
                 $query->where('created_at', '<=', Carbon::parse($data['endDate'])->format('Y-m-d H:i:s'));
+            }
+            if (empty($data['includePrivate']) || $data['includePrivate'] === 'false') {
+                // Proxy/Docker addresses (10.x, 172.16-31.x, 192.168.x, loopback) from before the IP fix.
+                $query->where(function ($q) {
+                    $q->whereNotNull('ip')
+                        ->where('ip', 'not like', '10.%')
+                        ->where('ip', 'not like', '192.168.%')
+                        ->where('ip', 'not like', '127.%')
+                        ->where('ip', '!=', '::1')
+                        ->whereRaw("ip NOT REGEXP '^172\\\\.(1[6-9]|2[0-9]|3[01])\\\\.'");
+                });
             }
             if (!empty($data['keyword'])) {
                 $keyword = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $data['keyword']) . '%';
