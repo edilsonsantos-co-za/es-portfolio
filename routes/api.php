@@ -59,6 +59,7 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::get('/visitors/stats', ['App\Http\Controllers\Admin\Api\PortfolioController', 'visitorsStats']);
             Route::delete('/visitors/stats', ['App\Http\Controllers\Admin\Api\PortfolioController', 'visitorsStats']);
+            Route::get('/visitors/ips', ['App\Http\Controllers\Admin\Api\PortfolioController', 'visitorsIps']);
 
             Route::get('/skills', ['App\Http\Controllers\Admin\Api\SkillController', 'index']);
             Route::post('/skills', ['App\Http\Controllers\Admin\Api\SkillController', 'store']);

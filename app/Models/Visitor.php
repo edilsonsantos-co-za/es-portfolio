@@ -21,6 +21,9 @@ class Visitor extends Model
         'is_desktop',
         'browser',
         'platform',
-        'location'
+        'location',
+        'city',
+        'region',
+        'user_agent',
     ];
 }

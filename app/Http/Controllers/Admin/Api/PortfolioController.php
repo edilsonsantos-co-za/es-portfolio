@@ -153,4 +153,17 @@ class PortfolioController extends Controller
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
     }
+
+    /**
+     * Visits grouped by IP address
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function visitorsIps(Request $request)
+    {
+        $result = resolve(VisitorInterface::class)->getIpAddresses($request->only(['page', 'pageSize', 'keyword', 'startDate', 'endDate']));
+
+        return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
+    }
 }

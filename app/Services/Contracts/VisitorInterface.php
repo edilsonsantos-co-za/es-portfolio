@@ -65,6 +65,14 @@ interface VisitorInterface
     public function getVisitorsStats($startDate = null, $endEnd = null);
 
     /**
+     * Visits grouped by IP address with location and user agent of the latest visit
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getIpAddresses(array $data);
+
+    /**
      * Delete all entries
      *
      * @return array

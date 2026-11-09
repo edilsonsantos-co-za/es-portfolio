@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Space, Modal, Row, Col, Card, DatePicker, Statistic, Empty, theme } from 'antd';
+import { Button, Space, Modal, Row, Col, Card, DatePicker, Statistic, Empty, Tabs, theme } from 'antd';
 import moment from 'moment';
 import { useIsMounted } from '../../../common/hooks/IsMounted';
 import HTTP from '../../../common/helpers/HTTP';
@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import { Pie, Column, Bar } from '@ant-design/plots';
+import VisitorIps from './VisitorIps';
 
 const { confirm } = Modal;
 
@@ -154,6 +155,7 @@ const Visitors = () => {
     const [browserData, setBrowserData] = useState([]);
     const [platformData, setPlatformData] = useState([]);
     const [dailyData, setDailyData] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         loadData();
@@ -266,6 +268,7 @@ const Visitors = () => {
                         Utils.handleSuccessResponse(response, () => {
                             //visitors
                             resetStatsState();
+                            setRefreshKey(key => key + 1);
 
                             Utils.showNotification(response.data.message, 'success', false);
                         });
@@ -334,73 +337,95 @@ const Visitors = () => {
                     </StyledCol>
                     <StyledCol md={10} sm={24} xs={24} align={'right'}>
                         <Space>
-                            <Button icon={<ReloadOutlined />} onClick={() => loadData()} disabled={loading}>Refresh</Button>
+                            <Button icon={<ReloadOutlined />} onClick={() => { loadData(); setRefreshKey(key => key + 1); }} disabled={loading}>Refresh</Button>
                             <Button danger onClick={showResetConfirm} disabled={loading}>Reset stats</Button>
                         </Space>
                     </StyledCol>
                 </Row>
             </Card>
 
-            <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                {kpis.map(kpi => (
-                    <Col key={kpi.title} xl={6} md={12} xs={24}>
-                        <Card loading={loading} variant="borderless" className="z-shadow" style={{ height: '100%' }}>
-                            <Kpi style={{ '--kpi-muted': token.colorTextSecondary }}>
-                                <Statistic title={kpi.title} value={kpi.value} suffix={kpi.suffix} prefix={kpi.icon} />
-                                <small>{kpi.note}</small>
-                            </Kpi>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+            <Tabs
+                defaultActiveKey="overview"
+                items={[
+                    {
+                        key: 'overview',
+                        label: 'Overview',
+                        children: (
+                            <React.Fragment>
+                        <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+                            {kpis.map(kpi => (
+                                <Col key={kpi.title} xl={6} md={12} xs={24}>
+                                    <Card loading={loading} variant="borderless" className="z-shadow" style={{ height: '100%' }}>
+                                        <Kpi style={{ '--kpi-muted': token.colorTextSecondary }}>
+                                            <Statistic title={kpi.title} value={kpi.value} suffix={kpi.suffix} prefix={kpi.icon} />
+                                            <small>{kpi.note}</small>
+                                        </Kpi>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
 
-            <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col xs={24}>
-                    {card('Visits over time', hasDaily ? (
-                        <Column
-                            data={dailyData}
-                            xField="date"
-                            yField="value"
-                            colorField="type"
-                            stack
-                            theme={chartTheme(ink)}
-                            height={300}
-                            scale={{ color: { range: [token.colorPrimary, '#22c55e'] } }}
-                            axis={{ x: { labelAutoHide: true, labelAutoRotate: false }, y: { title: false, gridLineDash: [4, 4] } }}
-                            legend={{ color: { position: 'top', layout: { justifyContent: 'flex-end' }, itemLabelFill: ink.text } }}
-                            style={{ radiusTopLeft: 4, radiusTopRight: 4, maxWidth: 28 }}
-                            interaction={{ tooltip: { shared: true } }}
-                        />
-                    ) : empty)}
-                </Col>
-            </Row>
+                        <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+                            <Col xs={24}>
+                                {card('Visits over time', hasDaily ? (
+                                    <Column
+                                        data={dailyData}
+                                        xField="date"
+                                        yField="value"
+                                        colorField="type"
+                                        stack
+                                        theme={chartTheme(ink)}
+                                        height={300}
+                                        scale={{ color: { range: [token.colorPrimary, '#22c55e'] } }}
+                                        axis={{ x: { labelAutoHide: true, labelAutoRotate: false }, y: { title: false, gridLineDash: [4, 4] } }}
+                                        legend={{ color: { position: 'top', layout: { justifyContent: 'flex-end' }, itemLabelFill: ink.text } }}
+                                        style={{ radiusTopLeft: 4, radiusTopRight: 4, maxWidth: 28 }}
+                                        interaction={{ tooltip: { shared: true } }}
+                                    />
+                                ) : empty)}
+                            </Col>
+                        </Row>
 
-            <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col xl={12} xs={24}>
-                    {card(`Top locations`, topLocations.length ? (
-                        <Bar
-                            data={topLocations}
-                            xField="name"
-                            yField="value"
-                            height={Math.max(220, topLocations.length * 34)}
-                            theme={chartTheme(ink)}
-                            style={{ fill: token.colorPrimary, radiusTopRight: 4, radiusBottomRight: 4, maxWidth: 22 }}
-                            axis={{ x: { title: false, labelAutoRotate: false, labelAutoHide: false, labelTransform: 'rotate(0)', labelFill: ink.text }, y: { title: false, gridLineDash: [4, 4] } }}
-                            label={{ text: 'value', position: 'right', dx: 6, fill: ink.text }}
-                            tooltip={{ title: 'name', items: [{ field: 'value', name: 'Visits' }] }}
-                        />
-                    ) : empty, locationData.length > TOP_LOCATIONS ? `${locationData.length} countries` : null)}
-                </Col>
-                <Col xl={12} xs={24}>
-                    {card('Device', deviceData.length ? <Pie {...donutConfig(deviceData, palette, ink)} /> : empty)}
-                </Col>
-                <Col xl={12} xs={24}>
-                    {card('Browser', browserData.length ? <Pie {...donutConfig(topWithOther(browserData), palette, ink)} /> : empty)}
-                </Col>
-                <Col xl={12} xs={24}>
-                    {card('Platform', platformData.length ? <Pie {...donutConfig(topWithOther(platformData), palette, ink)} /> : empty)}
-                </Col>
-            </Row>
+                        <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+                            <Col xl={12} xs={24}>
+                                {card(`Top locations`, topLocations.length ? (
+                                    <Bar
+                                        data={topLocations}
+                                        xField="name"
+                                        yField="value"
+                                        height={Math.max(220, topLocations.length * 34)}
+                                        theme={chartTheme(ink)}
+                                        style={{ fill: token.colorPrimary, radiusTopRight: 4, radiusBottomRight: 4, maxWidth: 22 }}
+                                        axis={{ x: { title: false, labelAutoRotate: false, labelAutoHide: false, labelTransform: 'rotate(0)', labelFill: ink.text }, y: { title: false, gridLineDash: [4, 4] } }}
+                                        label={{ text: 'value', position: 'right', dx: 6, fill: ink.text }}
+                                        tooltip={{ title: 'name', items: [{ field: 'value', name: 'Visits' }] }}
+                                    />
+                                ) : empty, locationData.length > TOP_LOCATIONS ? `${locationData.length} countries` : null)}
+                            </Col>
+                            <Col xl={12} xs={24}>
+                                {card('Device', deviceData.length ? <Pie {...donutConfig(deviceData, palette, ink)} /> : empty)}
+                            </Col>
+                            <Col xl={12} xs={24}>
+                                {card('Browser', browserData.length ? <Pie {...donutConfig(topWithOther(browserData), palette, ink)} /> : empty)}
+                            </Col>
+                            <Col xl={12} xs={24}>
+                                {card('Platform', platformData.length ? <Pie {...donutConfig(topWithOther(platformData), palette, ink)} /> : empty)}
+                            </Col>
+                        </Row>
+                            </React.Fragment>
+                        ),
+                    },
+                    {
+                        key: 'ips',
+                        label: 'IP addresses',
+                        children: (
+                            <Card variant="borderless" className="z-shadow">
+                                <VisitorIps startDate={date.startDate} endDate={date.endDate} refreshKey={refreshKey} />
+                            </Card>
+                        ),
+                    },
+                ]}
+            />
         </React.Fragment>
     )
 }

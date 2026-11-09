@@ -8,6 +8,7 @@ use App\Services\Contracts\VisitorInterface;
 use App\Helpers\Utils;
 use Carbon\Carbon;
 use DB;
+use Cache;
 use Log;
 use Validator;
 use Jenssegers\Agent\Agent;
@@ -102,7 +103,7 @@ class VisitorService implements VisitorInterface
             $isDesktop = $agent->isDesktop();
             $browser = $agent->browser();
             $platform = $agent->platform();
-            $locationJson = Location::get($ip);
+            $position = $this->lookupLocation($ip);
 
             $newData['tracking_id'] = $trackingId;
             $newData['is_new'] = $isNew;
@@ -110,7 +111,10 @@ class VisitorService implements VisitorInterface
             $newData['is_desktop'] = $isDesktop;
             $newData['browser'] = $browser;
             $newData['platform'] = $platform;
-            $newData['location'] = $locationJson ? $locationJson->countryName : 'Unknown';
+            $newData['location'] = $position['country'] ?? 'Unknown';
+            $newData['city'] = $position['city'] ?? null;
+            $newData['region'] = $position['region'] ?? null;
+            $newData['user_agent'] = mb_substr((string) request()->userAgent(), 0, 1000) ?: null;
             
             if (isset($data['id'])) {
                 $result = $this->getById($data['id'], ['id']);
@@ -142,6 +146,101 @@ class VisitorService implements VisitorInterface
             return [
                 'message' => 'Something went wrong',
                 'payload' => $th->getMessage(),
+                'status' => CoreConstants::STATUS_CODE_ERROR
+            ];
+        }
+    }
+
+    /**
+     * Resolve an IP to country/region/city, cached for a day so repeat visits skip the API.
+     * Private and reserved addresses are never sent out.
+     *
+     * @return array{country?: string, region?: string|null, city?: string|null}
+     */
+    private function lookupLocation(?string $ip): array
+    {
+        if (!$ip || !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return [];
+        }
+
+        return Cache::remember('visitor-location:' . $ip, now()->addDay(), function () use ($ip) {
+            $position = Location::get($ip);
+
+            if (!$position || empty($position->countryName)) {
+                return [];
+            }
+
+            return [
+                'country' => $position->countryName,
+                'region' => $position->regionName ?: null,
+                'city' => $position->cityName ?: null,
+            ];
+        });
+    }
+
+    /**
+     * Visits grouped by IP address: count, first/last seen and the details of the latest visit.
+     *
+     * @param array $data page, pageSize, keyword, startDate, endDate
+     * @return array
+     */
+    public function getIpAddresses(array $data)
+    {
+        try {
+            $perPage = min(max((int) ($data['pageSize'] ?? 20), 5), 100);
+            $query = $this->model->newQuery();
+
+            if (!empty($data['startDate'])) {
+                $query->where('created_at', '>=', Carbon::parse($data['startDate'])->format('Y-m-d H:i:s'));
+            }
+            if (!empty($data['endDate'])) {
+                $query->where('created_at', '<=', Carbon::parse($data['endDate'])->format('Y-m-d H:i:s'));
+            }
+            if (!empty($data['keyword'])) {
+                $keyword = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $data['keyword']) . '%';
+                $query->where(function ($q) use ($keyword) {
+                    foreach (['ip', 'location', 'city', 'region', 'browser', 'platform', 'user_agent'] as $column) {
+                        $q->orWhere($column, 'like', $keyword);
+                    }
+                });
+            }
+
+            $page = $query
+                ->select('ip', DB::raw('count(*) as visits'), DB::raw('min(created_at) as first_seen'), DB::raw('max(created_at) as last_seen'), DB::raw('max(id) as last_id'))
+                ->groupBy('ip')
+                ->orderByDesc('last_seen')
+                ->paginate($perPage);
+
+            $latest = $this->model->whereIn('id', collect($page->items())->pluck('last_id'))->get()->keyBy('id');
+
+            $page->getCollection()->transform(function ($row) use ($latest) {
+                $visit = $latest->get($row->last_id);
+
+                return [
+                    'ip' => $row->ip,
+                    'visits' => (int) $row->visits,
+                    'first_seen' => Carbon::parse($row->first_seen)->toIso8601String(),
+                    'last_seen' => Carbon::parse($row->last_seen)->toIso8601String(),
+                    'country' => $visit->location ?? null,
+                    'region' => $visit->region ?? null,
+                    'city' => $visit->city ?? null,
+                    'browser' => $visit->browser ?? null,
+                    'platform' => $visit->platform ?? null,
+                    'is_desktop' => $visit ? (bool) $visit->is_desktop : null,
+                    'user_agent' => $visit->user_agent ?? null,
+                ];
+            });
+
+            return [
+                'message' => 'Data is fetched successfully',
+                'payload' => $page,
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return [
+                'message' => 'Something went wrong',
+                'payload' => null,
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }
