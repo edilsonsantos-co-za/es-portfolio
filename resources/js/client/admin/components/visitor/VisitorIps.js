@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Table, Input, Tag, Tooltip, Typography, theme } from 'antd';
 import { DesktopOutlined, MobileOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -125,6 +126,12 @@ const VisitorIps = ({ startDate, endDate, refreshKey }) => {
             />
         </React.Fragment>
     );
+};
+
+VisitorIps.propTypes = {
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+    refreshKey: PropTypes.number,
 };
 
 export default VisitorIps;
