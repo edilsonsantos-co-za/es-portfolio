@@ -414,7 +414,7 @@
                     @foreach ($projects as $project)
                         @php $categories = $projectCategories[$loop->index]; @endphp
                         <a class="tile work" data-reveal data-categories="{{ json_encode($categories) }}" href="{{ $projectUrl($project) }}">
-                            @if ($project->thumbnail)<img src="{{ media_url($project->thumbnail) }}" alt="" loading="lazy" width="640" height="400">@endif
+                            @if ($project->thumbnail)<img src="{{ media_thumb($project->thumbnail, 960) }}" alt="" loading="lazy" decoding="async" width="640" height="400">@endif
                             <div class="body">
                                 @foreach ($categories as $category)<span class="pill">{{ $category }}</span>@endforeach
                                 <h3>{{ $project->title }}</h3>
@@ -443,7 +443,7 @@
                     @if ($gallery->count())
                         <div class="shots">
                             @foreach ($gallery as $image)
-                                <figure class="tile"><img src="{{ media_url($image) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first) loading="lazy" @endif width="1280" height="800"></figure>
+                                <figure class="tile"><img src="{{ media_thumb($image, 1600) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first) loading="lazy" @endif decoding="async" width="1280" height="800"></figure>
                             @endforeach
                         </div>
                     @endif

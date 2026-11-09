@@ -30,3 +30,17 @@ if (!function_exists('media_url')) {
         return MediaStorage::url($path);
     }
 }
+
+if (!function_exists('media_thumb')) {
+    /**
+     * A resized WebP copy of a stored image, at most $width px wide (the original if it can't be resized).
+     *
+     * @param string|null $path
+     * @param int $width
+     * @return string
+     */
+    function media_thumb($path, int $width = 960)
+    {
+        return MediaStorage::thumbnailUrl($path, $width);
+    }
+}

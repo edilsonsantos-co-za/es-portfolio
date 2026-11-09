@@ -19,3 +19,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Browser caching. Uploads have unique names, thumbs and bundled assets get a new URL when they
+# change (hash in the name or ?v=), and Vite builds are content-hashed, so all of it can be cached long.
+<IfModule mod_headers.c>
+    <FilesMatch "\.(png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+    <If "%{REQUEST_URI} =~ m#^/(build|storage/thumbs)/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+</IfModule>

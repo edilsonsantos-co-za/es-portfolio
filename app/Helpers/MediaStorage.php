@@ -206,4 +206,105 @@ class MediaStorage
 
         return array_values(array_unique($disks));
     }
+
+    /**
+     * URL of a resized WebP copy of an image (max $width px wide, aspect kept), made on first use and
+     * stored under storage/thumbs/. The name hashes path + mtime, so a replaced image gets a new URL and
+     * the copy can be cached forever. Falls back to the original when it can't be resized.
+     */
+    public static function thumbnailUrl($path, int $width = 960)
+    {
+        $original = self::url($path);
+        $source = self::localFile($path);
+
+        if (!$source || !function_exists('imagewebp') || !(imagetypes() & IMG_WEBP)) {
+            return $original;
+        }
+
+        $name = 'thumbs/' . $width . '/' . substr(md5($path . '|' . filemtime($source)), 0, 16) . '.webp';
+        $disk = Storage::disk('public');
+
+        if ($disk->exists($name)) {
+            return self::diskUrl('public', $name);
+        }
+
+        try {
+            $size = @getimagesize($source);
+            // Skip what isn't a raster image, is already small enough, or would exhaust memory (> 40 MP).
+            if (!$size || $size[0] * $size[1] > 40000000 || ($size[0] <= $width && filesize($source) < 150000)) {
+                return $original;
+            }
+
+            $image = @imagecreatefromstring(file_get_contents($source));
+            if (!$image) {
+                return $original;
+            }
+
+            $image = self::resize($image, $width);
+            if (!$image) {
+                return $original;
+            }
+
+            $target = $disk->path($name);
+            @mkdir(dirname($target), 0775, true);
+            $temp = $target . '.' . Str::random(6) . '.tmp';
+            $ok = imagewebp($image, $temp, 80);
+
+            if (!$ok || !@rename($temp, $target)) {
+                @unlink($temp);
+                return $original;
+            }
+
+            return self::diskUrl('public', $name);
+        } catch (\Throwable $th) {
+            Log::warning("MediaStorage: thumbnail for '{$path}' failed: " . $th->getMessage());
+            return $original;
+        }
+    }
+
+    /**
+     * Absolute path of a media reference stored on this server, or null (remote URL, cloud disk, missing).
+     */
+    private static function localFile($path)
+    {
+        if (!$path || filter_var($path, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        if (Str::startsWith($path, 'assets/')) {
+            $file = public_path($path);
+            return is_file($file) ? $file : null;
+        }
+
+        $managed = self::resolveManagedPath($path);
+        if (!$managed || config("filesystems.disks.{$managed['disk']}.driver") !== 'local') {
+            return null;
+        }
+
+        $file = Storage::disk($managed['disk'])->path($managed['path']);
+        return is_file($file) ? $file : null;
+    }
+
+    /**
+     * Copy of $image scaled down to at most $width px wide, as truecolor with alpha kept. Frees $image.
+     */
+    private static function resize($image, int $width)
+    {
+        $w = imagesx($image);
+        $h = imagesy($image);
+        $tw = min($width, $w);
+        $th = max(1, (int) round($h * $tw / $w));
+
+        $out = imagecreatetruecolor($tw, $th);
+        if (!$out) {
+            return null;
+        }
+
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        imagefill($out, 0, 0, imagecolorallocatealpha($out, 0, 0, 0, 127));
+        $ok = imagecopyresampled($out, $image, 0, 0, 0, 0, $tw, $th, $w, $h);
+
+        return $ok ? $out : null;
+    }
 }

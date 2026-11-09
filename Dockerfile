@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
@@ -24,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     default-mysql-client \
     gnupg \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) pdo_mysql mbstring exif pcntl bcmath gd zip \
     && a2enmod rewrite headers \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
