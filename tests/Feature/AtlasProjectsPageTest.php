@@ -87,7 +87,7 @@ class AtlasProjectsPageTest extends TestCase
 
         $html = $this->get('/projects')->assertOk()->getContent();
 
-        $this->assertStringContainsString('href="' . route('frontend.project', '3-project-3') . '"', $html);
+        $this->assertStringContainsString('href="' . route('frontend.project', 'project-3') . '"', $html);
         $this->assertSame(8, substr_count($html, 'View details'));
     }
 
@@ -98,7 +98,7 @@ class AtlasProjectsPageTest extends TestCase
             'images' => json_encode(['projects/shot.png']), 'details' => "First line.\n\nSecond <b>para</b>.", 'link' => 'https://example.invalid/app',
         ]]]);
 
-        $html = $this->get('/projects/3-project-3')->assertOk()->getContent();
+        $html = $this->get('/projects/project-3')->assertOk()->getContent();
 
         $this->assertStringContainsString('<title>Project 3 · Jane Doe</title>', $html);
         $this->assertStringContainsString('<h1>Project 3</h1>', $html);
@@ -110,13 +110,15 @@ class AtlasProjectsPageTest extends TestCase
         $this->assertStringNotContainsString('class="tile work"', $html);
     }
 
-    public function testProjectDetailRedirectsToTheCanonicalSlugAnd404sForUnknownIds(): void
+    public function testOldIdLinksRedirectToTheTitleUrlAndUnknownOnes404(): void
     {
         $this->fakeFrontend();
 
-        $this->get('/projects/3')->assertRedirect(route('frontend.project', '3-project-3'));
-        $this->get('/projects/3-old-name')->assertRedirect(route('frontend.project', '3-project-3'));
+        $this->get('/projects/project-3')->assertOk();
+        $this->get('/projects/3')->assertStatus(301)->assertRedirect(route('frontend.project', 'project-3'));
+        $this->get('/projects/3-old-name')->assertStatus(301)->assertRedirect(route('frontend.project', 'project-3'));
         $this->get('/projects/99-nope')->assertNotFound();
+        $this->get('/projects/no-such-project')->assertNotFound();
     }
 
     public function testProjectsPageRedirectsHomeWhenProjectsAreHidden(): void

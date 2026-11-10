@@ -190,11 +190,20 @@
         .project-head .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
         .project-head .actions { display: flex; flex-wrap: wrap; gap: 8px; }
         .project-detail { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 10px; align-items: start; }
-        .project-detail .shots { display: grid; gap: 10px; }
-        .project-detail .shots figure { margin: 0; padding: 0; overflow: hidden; }
-        .project-detail .shots img { width: 100%; height: auto; }
-        .project-detail .shots .video { aspect-ratio: 16 / 9; }
-        .project-detail .shots .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+        .project-detail .shots { position: relative; padding: 0; overflow: hidden; }
+        .project-detail .shots .track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; overscroll-behavior-x: contain; }
+        .project-detail .shots .track::-webkit-scrollbar { display: none; }
+        .project-detail .shots .track:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+        .project-detail .shots .slide { flex: 0 0 100%; margin: 0; scroll-snap-align: center; aspect-ratio: 16 / 10; display: flex; align-items: center; justify-content: center; background: var(--line); }
+        .project-detail .shots .slide img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+        .project-detail .shots .slide.video iframe { width: 100%; height: 100%; border: 0; display: block; }
+        .project-detail .shots .nav { position: absolute; top: calc(50% - 22px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: color-mix(in srgb, var(--card, #fff) 88%, transparent); color: inherit; font-size: 24px; line-height: 1; cursor: pointer; display: grid; place-items: center; opacity: .9; transition: opacity .2s, transform .2s; }
+        .project-detail .shots .nav:hover { opacity: 1; transform: scale(1.06); }
+        .project-detail .shots .prev { left: 10px; } .project-detail .shots .next { right: 10px; }
+        .project-detail .shots .dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0 12px; }
+        .project-detail .shots .dots button { width: 8px; height: 8px; padding: 0; border-radius: 99px; border: 0; background: var(--line); cursor: pointer; transition: width .25s, background .25s; }
+        .project-detail .shots .dots button[aria-selected="true"] { width: 22px; background: var(--accent); }
+        @media (max-width: 600px) { .project-detail .shots .nav { display: none; } }
         .project-detail .about-project { font-size: 17px; }
         .project-detail .about-project p { margin: 0 0 1em; color: var(--muted); }
         .project-detail .about-project p:last-child { margin-bottom: 0; }
@@ -449,17 +458,28 @@
                     @endif
                 </div>
                 <div class="project-detail">
-                    @if ($gallery->count() || $videoId)
-                        <div class="shots">
-                            @if ($videoId)
-                                <figure class="tile video"><iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?rel=0" title="{{ $detail->title }} video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></figure>
+                    @php $slideCount = $gallery->count() + ($videoId ? 1 : 0); @endphp
+                    @if ($slideCount)
+                        {{-- One slide per video/screenshot, side by side: swipe, arrows or dots; rotates on its own when there are several --}}
+                        <div class="shots tile{{ $slideCount > 1 ? ' carousel' : '' }}" @if ($slideCount > 1) data-carousel role="region" aria-roledescription="carousel" aria-label="{{ $detail->title }} media" @endif>
+                            <div class="track" @if ($slideCount > 1) tabindex="0" @endif>
+                                @if ($videoId)
+                                    <figure class="slide video" @if ($slideCount > 1) role="group" aria-roledescription="slide" aria-label="1 of {{ $slideCount }}" @endif><iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?rel=0" title="{{ $detail->title }} video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></figure>
+                                @endif
+                                @foreach ($gallery as $image)
+                                    <figure class="slide" @if ($slideCount > 1) role="group" aria-roledescription="slide" aria-label="{{ $loop->iteration + ($videoId ? 1 : 0) }} of {{ $slideCount }}" @endif><img src="{{ media_thumb($image, 1600) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first || $videoId) loading="lazy" @endif decoding="async" width="1280" height="800"></figure>
+                                @endforeach
+                            </div>
+                            @if ($slideCount > 1)
+                                <button class="nav prev" type="button" aria-label="Previous">‹</button>
+                                <button class="nav next" type="button" aria-label="Next">›</button>
+                                <div class="dots" role="tablist" aria-label="Choose a slide">
+                                    @for ($i = 0; $i < $slideCount; $i++)<button type="button" role="tab" aria-label="Slide {{ $i + 1 }}"@if ($i === 0) aria-selected="true"@endif></button>@endfor
+                                </div>
                             @endif
-                            @foreach ($gallery as $image)
-                                <figure class="tile"><img src="{{ media_thumb($image, 1600) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first) loading="lazy" @endif decoding="async" width="1280" height="800"></figure>
-                            @endforeach
                         </div>
                     @endif
-                    <div class="tile about-project"@if (!$gallery->count() && !$videoId) style="grid-column: 1 / -1"@endif>
+                    <div class="tile about-project"@if (!$slideCount) style="grid-column: 1 / -1"@endif>
                         <span class="mono">About this project</span>
                         @if ($detail->details)
                             @foreach (preg_split('/\R{2,}/', trim(strip_tags($detail->details))) as $paragraph)<p>{!! nl2br(e($paragraph)) !!}</p>@endforeach
@@ -571,6 +591,29 @@
 
     @include('frontend.theme.partials.scripts')
     <script>
+        // Project media carousel: arrows, dots, swipe; rotates every 5s until the visitor takes over
+        document.querySelectorAll('[data-carousel]').forEach(function (box) {
+            var track = box.querySelector('.track'), slides = track.children, dots = box.querySelectorAll('.dots button');
+            var index = 0, timer = null, stopped = false, hovered = false;
+            var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            function go(i) { index = (i + slides.length) % slides.length; track.scrollTo({ left: slides[index].offsetLeft, behavior: still ? 'auto' : 'smooth' }); }
+            function mark() { dots.forEach(function (d, i) { d.setAttribute('aria-selected', i === index ? 'true' : 'false'); }); }
+            function stop() { stopped = true; clearInterval(timer); }
+            function start() { if (!still && !stopped) { clearInterval(timer); timer = setInterval(function () { if (!hovered && !document.hidden) go(index + 1); }, 5000); } }
+            track.addEventListener('scroll', function () { var i = Math.round(track.scrollLeft / track.clientWidth); if (i !== index) { index = i; } mark(); }, { passive: true });
+            box.querySelector('.prev').addEventListener('click', function () { stop(); go(index - 1); });
+            box.querySelector('.next').addEventListener('click', function () { stop(); go(index + 1); });
+            dots.forEach(function (d, i) { d.addEventListener('click', function () { stop(); go(i); }); });
+            track.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); stop(); go(index + (e.key === 'ArrowRight' ? 1 : -1)); } });
+            track.addEventListener('pointerdown', stop, { passive: true });
+            box.addEventListener('mouseenter', function () { hovered = true; });
+            box.addEventListener('mouseleave', function () { hovered = false; });
+            box.addEventListener('focusin', function () { hovered = true; });
+            box.addEventListener('focusout', function () { hovered = false; });
+            // Clicking into the video (an iframe) blurs the page: stop rotating so it keeps playing
+            window.addEventListener('blur', function () { if (box.contains(document.activeElement) && document.activeElement.tagName === 'IFRAME') stop(); });
+            start();
+        });
         // Project category filter. Cards are re-appended rather than hidden so the bento :first-child/:last-child layout stays intact.
         (function () {
             var list = document.getElementById('works');

@@ -59,25 +59,35 @@ class FrontendController extends Controller
      * One project's detail page (Atlas only; other themes fall back to their #work section).
      *
      * @param Request $request
-     * @param string $project "<id>-<slug>" or just "<id>"
+     * @param string $project the title slug ("owed"); old "<id>-<slug>" links redirect to it
      * @return mixed
      */
     public function project(Request $request, string $project)
     {
-        return $this->render('project', (int) $project, $project);
+        return $this->render('project', null, strtolower($project));
     }
 
     /**
-     * Canonical detail URL for a project: /projects/<id>-<slug>.
+     * Canonical detail URL for a project: /projects/<title-slug>, e.g. /projects/owed.
+     * Built from the title only, so no database ids show in public links.
      *
      * @param object $project
      * @return string
      */
     public static function projectUrl($project): string
     {
+        return route('frontend.project', self::projectSlug($project));
+    }
+
+    /**
+     * @param object $project
+     * @return string
+     */
+    public static function projectSlug($project): string
+    {
         $slug = \Illuminate\Support\Str::slug((string) $project->title);
 
-        return route('frontend.project', $project->id . ($slug !== '' ? '-' . $slug : ''));
+        return $slug !== '' ? $slug : 'project';
     }
 
     /**
@@ -132,13 +142,17 @@ class FrontendController extends Controller
         }
 
         if ($page === 'project') {
-            $project = collect($data['projects'])->first(fn ($p) => (int) $p->id === $projectId);
+            $projects = collect($data['projects']);
+            $project = $projects->first(fn ($p) => self::projectSlug($p) === $projectKey);
             if (!$project) {
-                abort(404);
-            }
-            $canonical = self::projectUrl($project);
-            if ($projectKey !== basename(parse_url($canonical, PHP_URL_PATH))) {
-                return redirect($canonical, 301);
+                // Old links were /projects/<id>-<slug>: send them to the title URL for good
+                $legacy = preg_match('/^(\d+)(?:-|$)/', (string) $projectKey, $m)
+                    ? $projects->first(fn ($p) => (int) $p->id === (int) $m[1]) : null;
+                if (!$legacy) {
+                    abort(404);
+                }
+
+                return redirect(self::projectUrl($legacy), 301);
             }
             $data['project'] = $project;
         }
