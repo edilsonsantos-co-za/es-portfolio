@@ -39,6 +39,13 @@
         if ($gallery->isEmpty() && !$placeholder($detail->thumbnail)) {
             $gallery = collect([$detail->thumbnail]);
         }
+        // Video: a YouTube link becomes a privacy-friendly embed; extra links are [{label, url}]
+        $videoId = null;
+        if (!empty($detail->video_url) && preg_match('~(?:youtu\.be/|youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/))([A-Za-z0-9_-]{11})~', $detail->video_url, $vm)) {
+            $videoId = $vm[1];
+        }
+        $extraLinks = collect(!empty($detail->links) ? (array) safe_json_decode($detail->links, true) : [])
+            ->filter(fn ($l) => is_array($l) && !empty($l['url']) && preg_match('#^https?://#i', $l['url']))->values();
         $prevProject = $projects[($projectIndex - 1 + count($projects)) % count($projects)] ?? null;
         $nextProject = $projects[($projectIndex + 1) % count($projects)] ?? null;
     }
@@ -186,6 +193,8 @@
         .project-detail .shots { display: grid; gap: 10px; }
         .project-detail .shots figure { margin: 0; padding: 0; overflow: hidden; }
         .project-detail .shots img { width: 100%; height: auto; }
+        .project-detail .shots .video { aspect-ratio: 16 / 9; }
+        .project-detail .shots .video iframe { width: 100%; height: 100%; border: 0; display: block; }
         .project-detail .about-project { font-size: 17px; }
         .project-detail .about-project p { margin: 0 0 1em; color: var(--muted); }
         .project-detail .about-project p:last-child { margin-bottom: 0; }
@@ -440,14 +449,17 @@
                     @endif
                 </div>
                 <div class="project-detail">
-                    @if ($gallery->count())
+                    @if ($gallery->count() || $videoId)
                         <div class="shots">
+                            @if ($videoId)
+                                <figure class="tile video"><iframe src="https://www.youtube-nocookie.com/embed/{{ $videoId }}?rel=0" title="{{ $detail->title }} video" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></figure>
+                            @endif
                             @foreach ($gallery as $image)
                                 <figure class="tile"><img src="{{ media_thumb($image, 1600) }}" alt="{{ $detail->title }} screenshot {{ $loop->iteration }}" @if (!$loop->first) loading="lazy" @endif decoding="async" width="1280" height="800"></figure>
                             @endforeach
                         </div>
                     @endif
-                    <div class="tile about-project"@if (!$gallery->count()) style="grid-column: 1 / -1"@endif>
+                    <div class="tile about-project"@if (!$gallery->count() && !$videoId) style="grid-column: 1 / -1"@endif>
                         <span class="mono">About this project</span>
                         @if ($detail->details)
                             @foreach (preg_split('/\R{2,}/', trim(strip_tags($detail->details))) as $paragraph)<p>{!! nl2br(e($paragraph)) !!}</p>@endforeach
@@ -457,6 +469,7 @@
                         <ul class="facts">
                             @if (count($detailCategories))<li><span class="mono">Category</span><br>{{ implode(', ', $detailCategories) }}</li>@endif
                             <li><span class="mono">Status</span><br>{{ $detail->link ? 'Live' : 'Coming soon' }}</li>
+                            @foreach ($extraLinks as $extra)<li><span class="mono">{{ $extra['label'] ?? 'Link' }}</span><br><a href="{{ $extra['url'] }}" target="_blank" rel="noopener">{{ preg_replace('#^https?://(www\.)?|/$#', '', $extra['url']) }}</a></li>@endforeach
                             @if ($detail->link)<li><span class="mono">Link</span><br><a href="{{ $detail->link }}" target="_blank" rel="noopener">{{ preg_replace('#^https?://|/$#', '', $detail->link) }}</a></li>@endif
                         </ul>
                     </div>

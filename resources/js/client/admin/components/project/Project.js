@@ -57,6 +57,8 @@ const Project = (props) => {
             thumbnail: props.itemToEdit ? props.itemToEdit.thumbnail : '',
             details: props.itemToEdit ? props.itemToEdit.details : '',
             link: props.itemToEdit ? props.itemToEdit.link : '',
+            video_url: props.itemToEdit ? (props.itemToEdit.video_url || '') : '',
+            links: props.itemToEdit && props.itemToEdit.links ? JSON.parse(props.itemToEdit.links).map(l => `${l.label} | ${l.url}`).join('\n') : '',
             categories: props.itemToEdit ? JSON.parse(props.itemToEdit.categories) : []
         });
     }, [props.itemToEdit])
@@ -125,6 +127,8 @@ const Project = (props) => {
             values.details && formData.append('details', values.details);
 
             values.link && formData.append('link', values.link);
+            formData.append('video_url', values.video_url || '');
+            formData.append('links', values.links || '');
 
             HTTP.post(Routes.api.admin.projects+(values.id ? `/${values.id}` : '' ), formData)
             .then(response => {
@@ -297,7 +301,7 @@ const Project = (props) => {
                             onPreview={handlePreview}
                             onChange={imageListHandleChange}
                         >
-                            {imageFileList.length >= 4 ? null : uploadButton}
+                            {imageFileList.length >= 8 ? null : uploadButton}
                         </Upload>
                     </Form.Item>
                     <Form.Item
@@ -311,6 +315,21 @@ const Project = (props) => {
                         ]}
                     >
                         <Input placeholder="Enter Link"/>
+                    </Form.Item>
+                    <Form.Item
+                        name="video_url"
+                        label="Video"
+                        extra="A YouTube link, shown above the screenshots."
+                        rules={[{ type: 'url', message: 'Please enter a valid link' }]}
+                    >
+                        <Input placeholder="https://www.youtube.com/watch?v=..."/>
+                    </Form.Item>
+                    <Form.Item
+                        name="links"
+                        label="More links"
+                        extra='One per line: "Label | https://..." (e.g. Source code | https://github.com/...)'
+                    >
+                        <Input.TextArea rows={3} placeholder={'Source code | https://github.com/...\nCase study | https://...'}/>
                     </Form.Item>
                     <Form.Item 
                         name="details" 

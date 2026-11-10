@@ -108,6 +108,19 @@ class ProjectService implements ProjectInterface
             $newData['categories'] = json_encode($data['categories']);
             $newData['link'] = isset($data['link']) ? $data['link'] : null;
             $newData['details'] = isset($data['details']) ? $data['details'] : null;
+            $newData['video_url'] = !empty($data['video_url']) ? trim((string) $data['video_url']) : null;
+            // Extra links come from the admin as one "Label | https://..." per line, stored as [{label, url}]
+            $links = [];
+            foreach (preg_split('/\R/', (string) ($data['links'] ?? '')) as $line) {
+                [$label, $url] = array_pad(array_map('trim', explode('|', $line, 2)), 2, '');
+                if ($url === '' && filter_var($label, FILTER_VALIDATE_URL)) {
+                    [$label, $url] = [parse_url($label, PHP_URL_HOST) ?: $label, $label];
+                }
+                if ($url !== '' && preg_match('#^https?://#i', $url)) {
+                    $links[] = ['label' => $label !== '' ? $label : $url, 'url' => $url];
+                }
+            }
+            $newData['links'] = $links ? json_encode($links) : null;
 
             if (isset($data['seeder_thumbnail']) && isset($data['seeder_images'])) {
                 $newData['thumbnail'] = $data['seeder_thumbnail'];
