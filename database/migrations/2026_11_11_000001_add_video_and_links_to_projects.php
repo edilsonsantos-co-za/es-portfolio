@@ -37,11 +37,11 @@ class AddVideoAndLinksToProjects extends Migration
         ]);
         $row = [
             'images' => $images,
-            'video_url' => $owed->video_url ?? null ?: 'https://www.youtube.com/watch?v=rwOyFtvEFLg',
+            'video_url' => $owed->video_url ?? null ?: 'https://www.youtube.com/watch?v=ZhHI00SAyu8',
             'links' => $owed->links ?? null ?: json_encode([
                 ['label' => 'Devpost submission', 'url' => 'https://devpost.com/software/owed-mi23or'],
                 ['label' => 'Source code (MIT)', 'url' => 'https://github.com/edilsonsantos-co-za/owed'],
-                ['label' => 'Demo video', 'url' => 'https://www.youtube.com/watch?v=rwOyFtvEFLg'],
+                ['label' => 'Demo video', 'url' => 'https://www.youtube.com/watch?v=ZhHI00SAyu8'],
             ]),
             'details' => "My entry to the PayPal AI Hackathon (Oct–Nov 2026).\n\n"
                 . "Owed is an AI collections copilot for freelancers and small studios who bill through PayPal. It reads your PayPal invoices, learns how each client actually pays (average days late, on-time rate, a risk score) and forecasts when the cash will really land. Claude agents write a morning brief and draft the right reminder for each overdue invoice: friendly, firm or final.\n\n"
