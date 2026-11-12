@@ -59,5 +59,13 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        // Public contact form: each message sends mail through useSend, so cap it per visitor.
+        RateLimiter::for('contact', function (Request $request) {
+            return [
+                Limit::perMinute(3)->by('contact-min:' . $request->ip()),
+                Limit::perDay(20)->by('contact-day:' . $request->ip()),
+            ];
+        });
     }
 }
