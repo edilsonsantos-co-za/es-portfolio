@@ -1,0 +1,1 @@
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px;"><tr><td class="btn" style="background:#3B82F6;border-radius:999px;"><a href="{{ $href }}" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:999px;">{{ $label }}</a></td></tr></table>
