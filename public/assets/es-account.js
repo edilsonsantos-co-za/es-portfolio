@@ -4,6 +4,21 @@
  * an expired token is refreshed once, anything else leaves the "Sign in" button as it is.
  */
 (() => {
+    // A tab left open (or restored from the back/forward cache) after signing out in another ES app:
+    // reload when it comes back into view, so the menu shows "Sign in" instead of a stale signed-in state
+    const signedOutSince = () => {
+        const now = (document.cookie.match(/(?:^|; )es-signout=([^;]*)/) || [])[1] || '';
+        let seenNow = null;
+        try { seenNow = localStorage.getItem('esSignoutSeen'); } catch { return false; }
+        return !!now && !!seenNow && seenNow !== now;
+    };
+    const recheck = () => {
+        if (document.visibilityState !== 'visible') return;
+        if (document.querySelector('es-apps[current="portfolio"][signed-in]') && signedOutSince()) window.location.reload();
+    };
+    document.addEventListener('visibilitychange', recheck);
+    window.addEventListener('pageshow', (e) => { if (e.persisted) recheck(); });
+
     let token = null;
     try { token = localStorage.getItem('apiToken'); } catch { return; }
     if (!token || token === 'undefined' || token === 'null') return;
