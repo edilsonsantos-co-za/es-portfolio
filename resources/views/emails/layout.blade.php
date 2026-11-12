@@ -1,0 +1,35 @@
+{{-- Port of ~/workspace/config/email/layout.html (EGNIMAX v2 ULTRA design, ES accent). Inline styles only. --}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>{{ $title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<style>@media (max-width: 600px) { .card { padding: 28px 22px !important; } .h1 { font-size: 22px !important; } }</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F5F0;-webkit-text-size-adjust:100%;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F5F5F0;">{{ $preheader ?? '' }}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F5F0;">
+  <tr><td align="center" style="padding:36px 12px 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      <tr><td style="padding:0 4px 20px;">
+        <a href="https://edilsonsantos.co.za" style="text-decoration:none;"><img src="https://edilsonsantos.co.za/email/edilsonsantos.png" alt="Edilson Santos" height="28" style="display:block;height:28px;width:auto;border:0;outline:none;"></a>
+      </td></tr>
+      <tr><td class="card" style="background:#FFFFFF;border:1px solid #DCDCD5;border-radius:20px;padding:40px 40px 36px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0B0B0F;color:#C9F24D;border-radius:999px;padding:6px 12px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;">{{ $eyebrow }}</td>
+        </tr></table>
+        <h1 class="h1" style="margin:18px 0 14px;font-family:Unbounded,Inter,-apple-system,'Segoe UI',Arial,sans-serif;font-size:26px;line-height:1.25;font-weight:600;letter-spacing:-.02em;color:#0B0B0F;">{{ $title }}</h1>
+        <div style="font-size:16px;line-height:1.6;color:#2E2E36;">@yield('body')</div>
+      </td></tr>
+      <tr><td style="padding:22px 8px 0;font-size:12px;line-height:1.7;color:#9A9AA3;text-align:center;">
+        ES Portfolio · edilsonsantos.co.za
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

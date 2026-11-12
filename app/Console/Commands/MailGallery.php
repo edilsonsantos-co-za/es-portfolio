@@ -20,7 +20,7 @@ class MailGallery extends Command
     {
         $to = (string) $this->option('to');
         Notification::route('mail', $to)->notifyNow(new AdminResetPasswordNotification(str_repeat('0', 64)));
-        $this->line('  Admin password reset       Reset Password Notification');
+        $this->line('  Admin password reset       Reset your ES Portfolio password');
         $this->line('  1 sent (the contact form stores messages and sends no email)');
 
         return self::SUCCESS;

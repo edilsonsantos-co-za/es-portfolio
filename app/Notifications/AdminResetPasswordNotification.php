@@ -43,11 +43,12 @@ class AdminResetPasswordNotification extends ResetPassword
     {
         $link =  url("/admin/reset-password/".$this->token);
         
-        return ( new MailMessage )
-            ->subject('Reset Password Notification' )
-            ->line("You are receiving this email because we received a password reset request for your account.")
-            ->action('Reset Password', $link)
-            ->line("If you did not request a password reset, no further action is required.");
+        return (new MailMessage)
+            ->subject('Reset your ES Portfolio password')
+            ->view(['emails.admin-reset', 'emails.admin-reset-text'], [
+                'link' => $link,
+                'minutes' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60),
+            ]);
     }
 
     /**
