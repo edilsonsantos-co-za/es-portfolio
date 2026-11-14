@@ -150,7 +150,7 @@ class AtlasProjectsPageTest extends TestCase
         $this->assertStringNotContainsString('id="clock"', $html);
 
         $this->get('/services')->assertOk()->assertSee('How I can help');
-        $this->get('/education')->assertOk()->assertSee('Where I studied');
+        $this->get('/education')->assertOk()->assertSee('Learning, then building');
         $this->get('/contact')->assertOk()->assertSee('Got a project or a role?');
     }
 
@@ -160,5 +160,45 @@ class AtlasProjectsPageTest extends TestCase
 
         $this->get('/services')->assertRedirect(url('/') . '#services');
         $this->get('/experience')->assertRedirect(url('/') . '#experience');
+    }
+
+    public function testEducationShowsInlineEvidenceAndSeparatesPlansWithoutAcademicRows(): void
+    {
+        $this->fakeFrontend();
+
+        $this->get('/')->assertOk()->assertSee(route('frontend.education'));
+        $response = $this->get('/education')->assertOk()
+            ->assertSeeInOrder(['AWS Fargate - Overview', 'PHP Namespaces', 'AWS Skill Builder Learner Guide', 'AWS Cloud Practitioner Essentials', 'Getting Started with Amazon Simple Storage Service'])
+            ->assertSee('not professional certification exams')
+            ->assertSee('not qualifications already earned')
+            ->assertSee('AWS Solutions Architect certification')
+            ->assertSee('CompTIA DataSys+ certification')
+            ->assertSee('Symfony certification')
+            ->assertSee('University of the Witwatersrand')
+            ->assertDontSee('Y Combinator');
+
+        $html = $response->getContent();
+        $this->assertSame(5, substr_count($html, '<details class="certificate-viewer">'));
+        $this->assertSame(4, substr_count($html, '<span class="pill">Planned</span>'));
+        $this->assertStringNotContainsString(' download', $html);
+        $this->assertStringNotContainsString('.pdf', $html);
+        $this->assertStringContainsString('https://symfonycasts.com/certificates/4F3A1984EC21', $html);
+        foreach (config('education.certificates') as $certificate) {
+            $path = public_path($certificate['image']);
+            $this->assertFileExists($path);
+            [$width, $height] = getimagesize($path);
+            $this->assertSame([$certificate['width'], $certificate['height']], [$width, $height]);
+        }
+    }
+
+    public function testEducationVisibilityAndEmptyContentStillControlThePage(): void
+    {
+        $this->fakeFrontend(['portfolioConfig' => ['visibility' => ['education' => false]]]);
+        $this->get('/education')->assertRedirect(url('/') . '#education');
+        $this->get('/')->assertDontSee('data-icon="education"', false);
+
+        $this->fakeFrontend();
+        config(['education.certificates' => [], 'education.plans' => []]);
+        $this->get('/education')->assertRedirect(url('/') . '#education');
     }
 }

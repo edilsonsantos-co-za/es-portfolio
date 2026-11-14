@@ -135,7 +135,9 @@ class FrontendController extends Controller
         if ($page !== 'home') {
             // Only Atlas has dedicated pages; other themes, or a hidden/empty section, go to the one-page anchor.
             $key = ['projects' => 'projects', 'project' => 'projects', 'experience' => 'experiences', 'education' => 'education', 'services' => 'services', 'contact' => 'contact'][$page];
-            $visible = !empty($data['portfolioConfig']['visibility'][$key]) && ($page === 'contact' || count($data[$key] ?? []));
+            $hasContent = count($data[$key] ?? [])
+                || ($page === 'education' && (config('education.certificates') || config('education.plans')));
+            $visible = !empty($data['portfolioConfig']['visibility'][$key]) && ($page === 'contact' || $hasContent);
             if ($view !== 'frontend.theme.' . InstalledThemes::DEFAULT || !$visible) {
                 return redirect(url('/') . '#' . (in_array($page, ['projects', 'project'], true) ? 'work' : $page));
             }

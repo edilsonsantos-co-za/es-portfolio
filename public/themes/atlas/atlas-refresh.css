@@ -118,3 +118,27 @@ body { counter-reset: sec; }
 
 /* Buy me a coffee: the Buy Me a Coffee mark (same as the footer) in the button text colour */
 .coffee-icon { flex: none; display: block; }
+
+/* Education: dated evidence first, undated aspirations kept separate. */
+.education-intro { max-width: 76ch; margin: 24px 0 36px; color: var(--muted); line-height: 1.8; }
+#education .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.education-note { color: var(--muted); max-width: 76ch; }
+.education-timeline { list-style: none; margin: 24px 0 40px 8px; padding: 0 0 0 24px; border-left: 1px solid var(--line); display: grid; gap: 16px; }
+.education-timeline > li { position: relative; min-width: 0; }
+.education-timeline > li::before { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; left: -30px; top: 32px; background: var(--accent-2); box-shadow: 0 0 0 5px var(--bg); }
+.education-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.education-plans { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.education-plans > li { border-style: dashed; min-width: 0; }
+.education-timeline p, .education-plans p { line-height: 1.7; }
+.certificate-viewer { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.certificate-viewer summary { cursor: pointer; color: var(--accent-2); font-weight: 700; padding: 8px 0; }
+.certificate-viewer summary:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+.certificate-viewer figure { margin: 16px 0 0; }
+.certificate-viewer img { display: block; width: 100%; height: auto; border-radius: 8px; background: #fff; }
+.certificate-viewer figcaption { margin-top: 10px; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.certificate-verify { display: inline-block; margin-top: 16px; color: var(--accent-2); }
+@media (max-width: 640px) {
+    .education-plans { grid-template-columns: 1fr; }
+    .education-timeline { padding-left: 18px; margin-left: 5px; }
+    .education-timeline > li::before { left: -24px; }
+}

@@ -85,6 +85,20 @@ The shared ES apps account menu and sign-out marker keep account state aligned a
 - Developers navigation/footer link controlled by `ES_DEVELOPERS_URL` (blank hides it)
 - Responsive, mobile-first layouts
 
+### Education and continued learning
+
+Atlas `/education` presents CMS academic records, dated course-completion
+certificates with inline viewers, and separately labelled learning aspirations.
+Curated metadata lives in `config/education.php`; previews live in
+`public/certificates/`. There are no certificate download buttons or new database
+migrations. Publicly displayed previews can still be saved by visitors.
+See [the implementation walkthrough and learning checkpoint](docs/education-and-learning.md)
+for the request flow, tradeoffs, safety and verification.
+
+Claude and Copilot share project guidance in `AGENTS.md`; `CLAUDE.md` is only an
+entry point. In the full workspace, project guidance also references the shared
+workspace `../../AGENTS.md` learning contract.
+
 ### ES personal-project catalogue
 
 ```bash

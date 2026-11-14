@@ -7,6 +7,7 @@
     $latest = collect($experiences)->sortByDesc('id')->first();
     $companies = collect($experiences)->sortByDesc('id')->pluck('company')->filter()->unique()->values();
     $education = $education ?? [];
+    $hasEducation = count($education) || config('education.certificates') || config('education.plans');
     $logoUrl = \App\Helpers\Utils::getLogo();
     $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
     // 'home' is the overview; every nav item is its own page: /projects, /experience, /education, /services, /contact.
@@ -284,7 +285,7 @@
             </a>
             <ul class="nav" id="menu">
                 @if ($visibility['experiences'] && count($experiences))<li><a href="{{ $pageUrl('experience') }}"{!! $here('experience') !!}>Experience</a></li>@endif
-                @if ($visibility['education'] && count($education))<li><a href="{{ $pageUrl('education') }}"{!! $here('education') !!}>Education</a></li>@endif
+                @if ($visibility['education'] && $hasEducation)<li><a href="{{ $pageUrl('education') }}"{!! $here('education') !!}>Education</a></li>@endif
                 @if ($visibility['projects'] && count($projects))<li><a href="{{ $projectsUrl }}"{!! $here('projects') !!}>Projects</a></li>@endif
                 @if ($visibility['services'] && count($services))<li><a href="{{ $pageUrl('services') }}"{!! $here('services') !!}>Services</a></li>@endif
                 @if ($visibility['contact'])<li><a href="{{ $pageUrl('contact') }}"{!! $here('contact') !!}>Contact</a></li>@endif
@@ -303,7 +304,7 @@
         @if ($visibility['projects'] && count($projects))<a href="{{ $projectsUrl }}" data-icon="projects"{!! $here('projects') !!}>Projects</a>@endif
         @if ($visibility['experiences'] && count($experiences))<a href="{{ $pageUrl('experience') }}" data-icon="experience"{!! $here('experience') !!}>Experience</a>@endif
         @if ($visibility['contact'])<a href="{{ $pageUrl('contact') }}" data-icon="contact"{!! $here('contact') !!}>Contact</a>@endif
-        @if ($visibility['education'] && count($education))<a href="{{ $pageUrl('education') }}" data-icon="education"{!! $here('education') !!}>Education</a>@endif
+        @if ($visibility['education'] && $hasEducation)<a href="{{ $pageUrl('education') }}" data-icon="education"{!! $here('education') !!}>Education</a>@endif
         @if ($visibility['services'] && count($services))<a href="{{ $pageUrl('services') }}" data-icon="services"{!! $here('services') !!}>Services</a>@endif
     </es-tabbar>
 
@@ -398,20 +399,9 @@
             </section>
         @endif
 
-        @if ($shows('education') && $visibility['education'] && count($education))
+        @if ($shows('education') && $visibility['education'] && $hasEducation)
             <section class="block page" id="education">
-                <div class="head"><div><span class="mono">Education</span><h1>Where I studied</h1></div></div>
-                <div class="bento-list wide-lead jobs">
-                    @foreach (collect($education)->sortByDesc('id') as $study)
-                        <article class="tile job" data-reveal>
-                            @if ($study->period)<span class="pill">{{ $study->period }}</span>@endif
-                            <h3>{{ $study->institution }}</h3>
-                            <p class="pos">{{ $study->degree }}@if ($study->department) · {{ $study->department }}@endif</p>
-                            @if ($study->cgpa)<p>Grade: {{ $study->cgpa }}</p>@endif
-                            @if ($study->thesis)<p>{{ $study->thesis }}</p>@endif
-                        </article>
-                    @endforeach
-                </div>
+                @include('frontend.theme.partials.education-timeline')
             </section>
         @endif
 
