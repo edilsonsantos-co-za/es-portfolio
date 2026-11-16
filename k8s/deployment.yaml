@@ -1,0 +1,64 @@
+# One copy of ES Portfolio. Sign-in sessions and the cache are files inside the container, and the
+# start script takes a database backup and runs migrations, so two copies would disagree: a deploy
+# stops the old copy, then starts the new one (a pause of about a minute, as with Docker Compose).
+#
+# The disks are the same folders the Docker container used (hostPath), so moving to the cluster
+# copies no data, the nightly backups keep covering them, and going back to Docker is one command.
+# They tie the app to this server; they become S3 or real cluster volumes when the apps move to AWS.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-portfolio
+  labels: {app: es-portfolio}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: es-portfolio}
+  template:
+    metadata:
+      labels: {app: es-portfolio}
+    spec:
+      containers:
+        - name: web
+          image: es-portfolio           # tag set per deploy (kustomize `images`)
+          imagePullPolicy: IfNotPresent # on k3s the image is imported, not pulled
+          ports: [{name: http, containerPort: 80}]
+          envFrom:
+            - secretRef: {name: es-portfolio-env}   # made from the server's .env.prod by deploy-k3s.sh
+          # Start-up behaviour, the same values docker-compose.prod.yml sets.
+          env:
+            - {name: SKIP_ASSET_BUILD, value: "true"}
+            - {name: FORCE_FRESH_DB, value: "false"}
+            - {name: CREATE_DB_BACKUP, value: "true"}
+            - {name: REQUIRE_DB_ON_BOOT, value: "true"}
+          volumeMounts:
+            - {name: backups, mountPath: /var/www/html/storage/app/backups}
+            - {name: storage, mountPath: /var/www/html/storage/app/public}
+            - {name: themes, mountPath: /var/www/html/storage/app/themes}
+          # bin/start-apache.sh backs up the database and runs migrations before Apache starts.
+          # /ready answers only when the database and storage work.
+          startupProbe:
+            httpGet: {path: /ready, port: http}
+            periodSeconds: 5
+            failureThreshold: 72
+          readinessProbe:
+            httpGet: {path: /ready, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 1Gi}
+      volumes:
+        - name: backups
+          hostPath: {path: /var/lib/docker/volumes/edfolio_prod_backups/_data, type: Directory}
+        - name: storage
+          hostPath: {path: /var/lib/docker/volumes/edfolio_edfolio_storage/_data, type: Directory}
+        - name: themes
+          hostPath: {path: /var/lib/docker/volumes/edfolio_edfolio_themes/_data, type: Directory}

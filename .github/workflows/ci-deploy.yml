@@ -41,6 +41,7 @@ jobs:
         run: bash ./bin/validate.sh
 
   # Every push to main goes live. Ships the committed files straight to the VPS and builds them there: no image registry.
+  # docker-compose.prod.yml is kept for going back to Docker and for other servers (DEPLOYMENT.md).
   # Same layout as `console vps:deploy` (linux-workspace): files land in APP_DIR with a
   # .deploy-manifest, and server-only .env files are never shipped or overwritten.
   # Secrets (environment "production"): DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_PRIVATE_KEY,
@@ -52,7 +53,6 @@ jobs:
     environment: production
     env:
       APP_DIR: /workspace/edilsonsantos-co-za/es-portfolio
-      COMPOSE_FILE: docker-compose.prod.yml
       REQUIRED_ENV_FILES: ".env.prod"
 
     steps:
@@ -154,19 +154,23 @@ jobs:
           fi
           REMOTE
 
-      - name: Build and start on the VPS
+      # Kubernetes (k3s on the VPS) since 17 Nov 2026: build the image, refresh the Secret from the
+      # server's .env.prod, replace the single copy, check /ready through the cluster, and go back to
+      # the previous version on failure. The script comes from the workspace config repo
+      # (kubernetes/scripts/deploy-k3s.sh). One copy only: sessions and the cache are files in the container.
+      - name: Build and roll out on the cluster
         run: |
-          ssh vps "$REMOTE_SUDO env APP_DIR='$APP_DIR' COMPOSE_FILE='$COMPOSE_FILE' bash -s" <<'REMOTE'
+          ssh vps "$REMOTE_SUDO env APP_DIR='$APP_DIR' TAG='${GITHUB_SHA::12}' bash -s" <<'REMOTE'
           set -euo pipefail
           cd "$APP_DIR"
-          if ! docker compose -f "$COMPOSE_FILE" up -d --build --remove-orphans --wait --wait-timeout 300; then
-            docker compose -f "$COMPOSE_FILE" ps
-            docker compose -f "$COMPOSE_FILE" logs --tail 80
-            exit 1
-          fi
-          docker compose -f "$COMPOSE_FILE" ps
-          docker image prune -f >/dev/null
+          bash /usr/local/lib/workspace/deploy-k3s.sh es-portfolio "$TAG" --host edilsonsantos.co.za \
+            --env-file .env.prod --check-path /ready < /dev/null
           REMOTE
+
+      - name: Check the public site
+        run: |
+          curl --fail --silent --show-error --output /dev/null --retry 5 --retry-delay 3 --retry-all-errors \
+            --max-time 20 https://edilsonsantos.co.za/ready
 
   notify-google-chat:
     needs:
