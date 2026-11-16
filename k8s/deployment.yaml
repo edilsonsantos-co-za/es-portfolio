@@ -1,6 +1,8 @@
-# One copy of ES Portfolio. Sign-in sessions and the cache are files inside the container, and the
-# start script takes a database backup and runs migrations, so two copies would disagree: a deploy
-# stops the old copy, then starts the new one (a pause of about a minute, as with Docker Compose).
+# One copy of ES Portfolio. Sign-in sessions and the cache are files inside the container, so two
+# copies must not share the traffic for long. On a deploy the new copy starts first (database backup,
+# migrations), and only when it answers /ready is the old one stopped: no pause for visitors. For those
+# few seconds either copy may answer; a form opened on the old copy can ask for a reload (page expired).
+# Stopping the old copy first (strategy Recreate) was measured on 17 Nov 2026: about 40 seconds of 503.
 #
 # The disks are the same folders the Docker container used (hostPath), so moving to the cluster
 # copies no data, the nightly backups keep covering them, and going back to Docker is one command.
@@ -13,13 +15,17 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: 3
-  strategy: {type: Recreate}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
   selector:
     matchLabels: {app: es-portfolio}
   template:
     metadata:
       labels: {app: es-portfolio}
     spec:
+      # The start script does not pass the stop signal on to Apache, so do not wait the default 30 seconds.
+      terminationGracePeriodSeconds: 15
       containers:
         - name: web
           image: es-portfolio           # tag set per deploy (kustomize `images`)
@@ -37,6 +43,11 @@ spec:
             - {name: backups, mountPath: /var/www/html/storage/app/backups}
             - {name: storage, mountPath: /var/www/html/storage/app/public}
             - {name: themes, mountPath: /var/www/html/storage/app/themes}
+          # Keep serving for a few seconds after Kubernetes decides to stop this copy: Traefik needs a
+          # moment to learn it is gone, and without the pause a request can land on a closed pod.
+          lifecycle:
+            preStop:
+              exec: {command: ["sleep", "8"]}
           # bin/start-apache.sh backs up the database and runs migrations before Apache starts.
           # /ready answers only when the database and storage work.
           startupProbe:

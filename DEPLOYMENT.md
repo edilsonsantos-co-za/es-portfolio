@@ -21,7 +21,7 @@ The site runs as one pod on the k3s cluster on the VPS. Nginx Proxy Manager stil
 | What | Value |
 | --- | --- |
 | Manifests | `k8s/` (`deployment.yaml`, `service.yaml`, `ingress.yaml`), namespace `apps` |
-| Copies | One, replaced on each deploy (`strategy: Recreate`): a pause of under a minute |
+| Copies | One. A deploy starts the new copy first and stops the old one when the new one answers `/ready` |
 | Settings | Secret `es-portfolio-env`, rebuilt from the server's `.env.prod` on every deploy |
 | Health checks | `/ready` (start-up and readiness: needs the database), `/health` (liveness) |
 | Uploads (`MEDIA_DISK=public`) | Docker volume `edfolio_edfolio_storage`, mounted at `storage/app/public` |
@@ -31,7 +31,9 @@ The site runs as one pod on the k3s cluster on the VPS. Nginx Proxy Manager stil
 **Why one copy.** Sign-in sessions and the cache are files inside the container, and `bin/start-apache.sh` takes a
 database backup and runs migrations when it starts. Two copies would each have their own sessions and would both
 migrate. The alternative, moving sessions and cache to the database and running two copies as ES Blog does, removes
-the pause on deploy but is a code change; it is the next step if the pause matters.
+that limit but is a code change. A deploy therefore overlaps the two copies for a few seconds instead of stopping
+the old one first, which was measured at about 40 seconds of `503` on 17 Nov 2026; the price is that a form
+opened on the old copy can answer "page expired" once.
 
 **Why the same folders.** The pod mounts the folders the Docker container used (`hostPath` to the three Docker
 volumes). No data was copied, the nightly backups cover them as before, and going back to Docker is one command.
@@ -43,8 +45,8 @@ The cost: the app is tied to this server until uploads move to S3 (below).
 
 **Failure modes.**
 
-- A build that never answers `/ready` within six minutes: the script rolls back and the deploy fails. Because the
-  old copy was stopped first, the site is down until the previous version is back up.
+- A build that never answers `/ready` within five minutes: the script rolls back and the deploy fails. Visitors
+  stay on the old copy the whole time.
 - A migration that fails: `start-apache.sh` logs it and continues, so check the pod log after a schema change.
 - `${NAME}` in `.env.prod` is replaced with that key's value from the same file, as Docker Compose does
   (`MAIL_FROM_NAME="${APP_NAME}"`). A literal `$` in a double-quoted value must be written `\$`.
