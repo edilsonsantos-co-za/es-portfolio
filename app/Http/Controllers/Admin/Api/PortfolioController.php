@@ -95,7 +95,7 @@ class PortfolioController extends Controller
         if ($request->isMethod('post')) {
             $result = $this->about->processUpdateAvatarRequest($request->all());
         } elseif ($request->isMethod('delete')) {
-            $result = $this->about->processDeleteAvatarRequest($request->file);
+            $result = $this->about->processDeleteAvatarRequest();
         }
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
@@ -112,7 +112,7 @@ class PortfolioController extends Controller
         if ($request->isMethod('post')) {
             $result = $this->about->processUpdateCVRequest($request->all());
         } elseif ($request->isMethod('delete')) {
-            $result = $this->about->processDeleteCVRequest($request->file);
+            $result = $this->about->processDeleteCVRequest();
         }
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
@@ -129,7 +129,7 @@ class PortfolioController extends Controller
         if ($request->isMethod('post')) {
             $result = $this->about->processUpdateCoverRequest($request->all());
         } elseif ($request->isMethod('delete')) {
-            $result = $this->about->processDeleteCoverRequest($request->file);
+            $result = $this->about->processDeleteCoverRequest();
         }
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);

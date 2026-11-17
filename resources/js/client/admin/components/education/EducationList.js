@@ -8,6 +8,7 @@ import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
 import Education from './Education';
+import LearningItems from './LearningItems';
 
 const { confirm } = Modal;
 
@@ -211,6 +212,7 @@ const EducationList = () => {
                             search: true,
                         }}
                     />
+                    <LearningItems />
                 </PageHeader>
             </PageWrapper>
             {

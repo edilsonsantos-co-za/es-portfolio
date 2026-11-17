@@ -60,6 +60,15 @@ class FrontendService implements FrontendInterface
                 $data['education'] = $result['payload'];
             }
 
+            // courses completed and learning plans (Admin > Portfolio > Education)
+            try {
+                $data['certificates'] = \App\Models\LearningItem::certificates()->get();
+                $data['plans'] = \App\Models\LearningItem::plans()->get();
+            } catch (\Throwable $th) {
+                $data['certificates'] = collect();
+                $data['plans'] = collect();
+            }
+
             //experiences
             $result = resolve(ExperienceInterface::class)->getAll();
             if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {

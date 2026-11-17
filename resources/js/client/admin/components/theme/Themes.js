@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Card, Checkbox, Col, Empty, Popconfirm, Row, Space, Spin, Tag, Typography, Upload } from 'antd';
 import { CloudDownloadOutlined, UploadOutlined } from '@ant-design/icons';
-import PageWrapper from '../layout/PageWrapper';
-import PageHeader from '../PageHeader';
 import HTTP from '../../../common/helpers/HTTP';
 import Routes from '../../../common/helpers/Routes';
 import Utils from '../../../common/helpers/Utils';
@@ -70,13 +68,8 @@ const Themes = () => {
     const active = data ? data.active : 'atlas';
 
     return (
-        <PageWrapper>
-            <PageHeader
-                title="Themes"
-                subTitle="Change how your portfolio looks without touching its content."
-                extra={data ? [<a key="store" href={data.storeUrl} target="_blank" rel="noreferrer">Open the ES Marketplace ↗</a>] : []}
-            />
-            <Spin spinning={loading && !data}>
+        // Three cards straight on the page background, like the other admin pages: no outer card or title.
+        <Spin spinning={loading && !data}>
                 <Card title="Installed" style={{ marginBottom: 16 }}>
                     <Row gutter={[16, 16]}>
                         {installed.map(theme => (
@@ -123,7 +116,11 @@ const Themes = () => {
                     </Row>
                 </Card>
 
-                <Card title="ES Marketplace" style={{ marginBottom: 16 }}>
+                <Card
+                    title="ES Marketplace"
+                    style={{ marginBottom: 16 }}
+                    extra={data ? <a href={data.storeUrl} target="_blank" rel="noreferrer">Open the ES Marketplace ↗</a> : null}
+                >
                     {data && data.storeError && <Alert type="warning" showIcon message={data.storeError}/>}
                     {data && !data.storeError && data.store.length === 0 && <Empty description="The store has no portfolio themes to install right now."/>}
                     <Row gutter={[16, 16]}>
@@ -176,8 +173,7 @@ const Themes = () => {
                         <Checkbox checked={activateUpload} onChange={e => setActivateUpload(e.target.checked)}>Activate after installing</Checkbox>
                     </Space>
                 </Card>
-            </Spin>
-        </PageWrapper>
+        </Spin>
     );
 };
 

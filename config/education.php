@@ -1,5 +1,8 @@
 <?php
 
+// The courses and plans the Education page started with. Since 17 Nov 2026 they live in the
+// learning_items table and are managed in Admin > Portfolio > Education; the migration that created the
+// table copied these entries in once. Editing this file no longer changes the site.
 return [
     'certificates' => [
         [

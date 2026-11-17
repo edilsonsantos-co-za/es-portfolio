@@ -61,7 +61,7 @@ class SettingController extends Controller
         if ($request->isMethod('post')) {
             $result = $this->setting->processUpdateLogoRequest($request->all());
         } elseif ($request->isMethod('delete')) {
-            $result = $this->setting->processDeleteLogoRequest($request->file);
+            $result = $this->setting->processDeleteLogoRequest();
         }
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);
@@ -78,7 +78,7 @@ class SettingController extends Controller
         if ($request->isMethod('post')) {
             $result = $this->setting->processUpdateFaviconRequest($request->all());
         } elseif ($request->isMethod('delete')) {
-            $result = $this->setting->processDeleteFaviconRequest($request->file);
+            $result = $this->setting->processDeleteFaviconRequest();
         }
 
         return response()->json($result, !empty($result['status']) ? $result['status'] : CoreConstants::STATUS_CODE_SUCCESS);

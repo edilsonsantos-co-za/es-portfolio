@@ -78,8 +78,14 @@ const Dashboard = () => {
     const [projectData, setProjectData] = useState({ total: 0 });
     const [servicesData, setServicesData] = useState({ total: 0 });
 
+    const [daily, setDaily] = useState(null);
+
     useEffect(() => {
         loadData();
+        // The day's picture and quote: optional, so a failure just leaves the plain tile.
+        HTTP.get(Routes.api.admin.daily)
+        .then(response => setDaily(response.data.payload))
+        .catch(() => {});
     }, []);
 
     const loadData = (_loading = true) => {
@@ -202,10 +208,30 @@ const Dashboard = () => {
             </header>
 
             <section className="atlas-bento" aria-label="Overview">
-                <article className="atlas-tile atlas-welcome">
-                    <p className="atlas-kicker">{siteName || 'ES Portfolio'}</p>
-                    <h2>{greeting}.</h2>
-                    <p className="atlas-muted">Your portfolio runs on Atlas, the design shared by the portfolio, the blog and their admins. Install other looks from Themes.</p>
+                <article
+                    className={'atlas-tile atlas-welcome' + (daily && daily.picture ? ' has-picture' : '')}
+                    style={daily && daily.picture ? { backgroundImage: `url("${daily.picture.url}")` } : undefined}
+                >
+                    <div>
+                        <p className="atlas-kicker">{siteName || 'ES Portfolio'}</p>
+                        <h2>{greeting}.</h2>
+                    </div>
+                    {daily && daily.quote ? (
+                        <figure className="atlas-quote">
+                            <blockquote>{daily.quote.text}</blockquote>
+                            <figcaption>{daily.quote.author}</figcaption>
+                        </figure>
+                    ) : (
+                        <p className="atlas-muted">Your portfolio runs on Atlas, the design shared by the portfolio, the blog and their admins.</p>
+                    )}
+                    {daily && daily.picture && (
+                        <p className="atlas-credit">
+                            <a href={daily.picture.page} target="_blank" rel="noreferrer" title={daily.picture.title}>Picture of the day</a>
+                            {daily.picture.artist && <> · {daily.picture.artist}</>}
+                            {daily.picture.license && <> · {daily.picture.licenseUrl ? <a href={daily.picture.licenseUrl} target="_blank" rel="noreferrer">{daily.picture.license}</a> : daily.picture.license}</>}
+                            {' · Wikimedia Commons'}
+                        </p>
+                    )}
                 </article>
 
                 <article className="atlas-tile atlas-activity atlas-span-2">

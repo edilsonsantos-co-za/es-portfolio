@@ -19,6 +19,22 @@ const StyledListItem = styled(Item)`
 padding: 16px 0px !important;
 `;
 
+// What the public site shows while no custom image is uploaded (see Utils::getFavicon() and the Atlas
+// masthead): the ES brand icon, not the stock images stored as the setting's default value.
+const BUILT_IN = {
+    logo: 'assets/brand/es-icon-180.png',
+    favicon: 'assets/brand/es-icon-32.png',
+};
+const isStockDefault = (path) => !path || /\/(logo|favicon)\/default\.png$/.test(path);
+
+const BuiltIn = styled.div`
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 10px;
+img { width: 40px; height: 40px; border-radius: 10px; }
+`;
+
 const General = (props) => {
     const [loginCredentialVisible, setLoginCredentialVisible] = useState(false);
     const [siteName, setSiteName] = useState(props.globalState.siteName);
@@ -92,10 +108,19 @@ const General = (props) => {
         }, 2000);
     }
 
+    const inUse = (kind) => isStockDefault(props.globalState[kind]) ? (
+        <BuiltIn>
+            <img src={Utils.mediaUrl(BUILT_IN[kind])} alt="" />
+            <span>In use: the built-in ES icon. Upload an image below to replace it.</span>
+        </BuiltIn>
+    ) : (
+        <BuiltIn><span>In use: your uploaded image. Remove it to go back to the built-in ES icon.</span></BuiltIn>
+    );
+
     const changeLogo = (
         <FileUploader
             allowRevert={false}
-            previewFile={Utils.mediaUrl(props.globalState.logo)}
+            previewFile={isStockDefault(props.globalState.logo) ? null : Utils.mediaUrl(props.globalState.logo)}
             acceptedFileTypes={"image/*"}
             allowMultiple={false}
             name={'file'}
@@ -103,13 +128,15 @@ const General = (props) => {
             labelIdle={'Drag & Drop your logo or <span class="filepond--label-action">Browse</span>'}
             afterUploadCallback={logoUploadCallback}
             afterRevertCallback={logoUploadCallback}
+            removeFromServer={true}
+            afterRemoveCallback={(file) => props.setGlobalState({ logo: file })}
         />
     )
 
     const changeFavicon = (
         <FileUploader
             allowRevert={false}
-            previewFile={Utils.mediaUrl(props.globalState.favicon)}
+            previewFile={isStockDefault(props.globalState.favicon) ? null : Utils.mediaUrl(props.globalState.favicon)}
             acceptedFileTypes={"image/*"}
             allowMultiple={false}
             name={'file'}
@@ -117,6 +144,8 @@ const General = (props) => {
             labelIdle={'Drag & Drop your favicon or <span class="filepond--label-action">Browse</span>'}
             afterUploadCallback={faviconUploadCallback}
             afterRevertCallback={faviconUploadCallback}
+            removeFromServer={true}
+            afterRemoveCallback={(file) => props.setGlobalState({ favicon: file })}
             imagePreviewMaxHeight={75}
         />
     )
@@ -161,10 +190,10 @@ const General = (props) => {
                         </StyledListItem>
                     </Spin>
                     <StyledListItem style={{padding: '16px 0px'}}>
-                        <Item.Meta title={'App Logo'} description={changeLogo}/>
+                        <Item.Meta title={'App Logo'} description={<>{inUse('logo')}{changeLogo}</>}/>
                     </StyledListItem>
                     <StyledListItem style={{padding: '16px 0px'}}>
-                        <Item.Meta title={'Favicon'} description={changeFavicon}/>
+                        <Item.Meta title={'Favicon'} description={<>{inUse('favicon')}{changeFavicon}</>}/>
                     </StyledListItem>
                 </List>
             </PageHeader>

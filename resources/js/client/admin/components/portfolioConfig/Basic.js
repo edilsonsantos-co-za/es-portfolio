@@ -1,6 +1,6 @@
 import PageHeader from '../PageHeader';
 import React, { useEffect, useState } from 'react';
-import { Spin, List, Typography, Switch, Select } from 'antd';
+import { Spin, List, Typography, Switch } from 'antd';
 import Utils from '../../../common/helpers/Utils';
 import styled from 'styled-components';
 import HTTP from '../../../common/helpers/HTTP';
@@ -11,7 +11,6 @@ import ColorPickerPopup from '../ColorPickerPopup';
 import { CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import SeoPopup from '../SeoPopup';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 
 const { Item } = List;
 const { Paragraph, Text } = Typography;
@@ -22,7 +21,6 @@ padding: 16px 0px !important;
 
 const Basic = (props) => {
     const [accentColor, setAccentColor] = useState(null);
-    const [template, setTemplate] = useState('atlas');
     const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -39,7 +37,6 @@ const Basic = (props) => {
     useEffect(() => {
         if (props.config) {
             setAccentColor(props.config.accentColor);
-            setTemplate(props.config.template || 'atlas');
             setGoogleAnalyticsId(props.config.googleAnalyticsId);
             setSeo(props.config.seo);
             setMaintenanceMode((parseInt(props.config.maintenanceMode) == 1) ? true : false);  
@@ -136,20 +133,6 @@ const Basic = (props) => {
         }
     }
 
-    const more = (
-        <Link to={Routes.web.admin.portfolioThemes}>Portfolio → Themes</Link>
-    )
-
-    const theme = Utils.templates.length > 1 ? (
-        <Text type="secondary">Installed themes. Install more under {more}</Text>
-    ) : (
-        <Text type="secondary">Atlas, the built-in theme. Install more under {more}</Text>
-    )
-
-    const templateOnChange = (value) => {
-        submitData(CoreConstants.portfolioConfig.TEMPLATE, value, () => setTemplate(value));
-    }
-
     return (
         <React.Fragment>
             <PageHeader
@@ -159,19 +142,6 @@ const Basic = (props) => {
                     itemLayout="horizontal"
                     size="large"
                 >
-                    <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.portfolioConfig.TEMPLATE}>
-                        <StyledListItem actions={Utils.templates.length > 1 ? [
-                            <Select
-                                key="template-change"
-                                value={template}
-                                style={{ minWidth: 140 }}
-                                onChange={templateOnChange}
-                                options={Utils.templates.map(t => ({ value: t.id, label: t.title }))}
-                            />
-                        ] : []}>
-                            <Item.Meta title={'Theme'} description={theme}/>
-                        </StyledListItem>
-                    </Spin>
                     <Spin delay={500} size="small" spinning={loading && currentSettingToChange === CoreConstants.portfolioConfig.ACCENT_COLOR}>
                         <StyledListItem actions={
                             [

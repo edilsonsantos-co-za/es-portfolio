@@ -159,7 +159,6 @@ const App = () => {
             colorLink: palette.accent,
             colorBgLayout: palette.bg,
             colorBgContainer: palette.card,
-            colorBgElevated: palette.card,
             colorBorder: palette.line,
             colorBorderSecondary: palette.line,
             colorText: palette.text,
@@ -168,6 +167,36 @@ const App = () => {
             fontFamilyCode: "'JetBrains Mono', ui-monospace, monospace",
             borderRadius: 12,
             borderRadiusLG: 24,
+            // Menus that float above the page (selects, option menus, table settings, date pickers) use
+            // the lighter card colour so they stand out from the cards they open over.
+            colorBgElevated: palette.card2,
+            boxShadowSecondary: '0 14px 40px rgba(0, 0, 0, .55), 0 0 0 1px ' + palette.line,
+        },
+        // One size for every dropdown in the admin: 15px text and 40px rows, so options are easy to read
+        // and click, and a select looks the same on every page.
+        components: {
+            Select: {
+                fontSize: 15,
+                controlHeight: 40,
+                optionFontSize: 15,
+                optionHeight: 40,
+                optionPadding: '9px 14px',
+                optionSelectedBg: palette.accentSoft,
+                optionActiveBg: palette.line,
+            },
+            Dropdown: {
+                fontSize: 15,
+                controlHeight: 40,
+                paddingBlock: 9,
+                controlPaddingHorizontal: 14,
+                controlItemBgHover: palette.line,
+            },
+            DatePicker: {
+                fontSize: 15,
+                controlHeight: 40,
+                cellHeight: 30,
+                cellWidth: 40,
+            },
         },
     };
 

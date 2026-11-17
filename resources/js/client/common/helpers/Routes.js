@@ -48,6 +48,8 @@ const api = {
         cv: Utils.backend+'/api/'+Utils.apiVersion+'/admin/cv',
         cover: Utils.backend+'/api/'+Utils.apiVersion+'/admin/cover',
         education: Utils.backend+'/api/'+Utils.apiVersion+'/admin/education',
+        learning: Utils.backend+'/api/'+Utils.apiVersion+'/admin/learning',
+        daily: Utils.backend+'/api/'+Utils.apiVersion+'/admin/daily',
         skills: Utils.backend+'/api/'+Utils.apiVersion+'/admin/skills',
         experiences: Utils.backend+'/api/'+Utils.apiVersion+'/admin/experiences',
         projects: Utils.backend+'/api/'+Utils.apiVersion+'/admin/projects',

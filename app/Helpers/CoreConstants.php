@@ -61,6 +61,8 @@ class CoreConstants
     const SETTING__FAVICON = 5;
     const SETTING__COVER = 6;
     const SETTING__MENU_LAYOUT = 7;
+    const SETTING__MAIL_FROM_NAME = 20; // 8 and 9 hold legacy theme rows ("light") in older databases
+    const SETTING__MAIL_FROM_ADDRESS = 21;
 
     #endregion
 }

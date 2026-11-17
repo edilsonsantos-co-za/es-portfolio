@@ -104,5 +104,8 @@ class AppServiceProvider extends ServiceProvider
         view()->share('appVersion', $applicationVersion->version());
         view()->share('appReleaseTag', $applicationVersion->releaseTag());
 
+        // Sender name and address saved in Admin > Settings > Mail override the server's values.
+        \App\Services\SettingService::applyMailSender();
+
     }
 }

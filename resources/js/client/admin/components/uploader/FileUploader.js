@@ -89,6 +89,8 @@ const AvatarWrapper = styled.div`
  * serverUrl: string server url
  * afterUploadCallback: function Callback function after successful upload
  * afterRevertCallback: function|null Callback function after successful revert
+ * removeFromServer: boolean|null Removing the saved file (the X on a preview) deletes it on the server too
+ * afterRemoveCallback: function|null Callback function after the server removed the saved file
  * 
  * @param {*} props 
  */
@@ -211,6 +213,26 @@ const FileUploader = (props) => {
                                 }
                             };
                         },
+                        // FilePond calls `remove` (not `revert`) when the X is pressed on a file that was already
+                        // saved before the page loaded. Without it the preview disappears but the server keeps the
+                        // file, so it comes back on the next visit. The server clears whatever it has stored for
+                        // this field, so no path is sent.
+                        ...(props.removeFromServer && {
+                            remove: (source, load, error) => {
+                                HTTP.delete(props.serverUrl)
+                                .then((response) => {
+                                    Utils.handleSuccessResponse(response, () => {
+                                        if (props.afterRemoveCallback) {
+                                            props.afterRemoveCallback(response.data.payload.file);
+                                        }
+                                        load();
+                                    });
+                                }).catch((e) => {
+                                    error('Something went wrong');
+                                    Utils.handleException(e);
+                                });
+                            },
+                        }),
                         revert: (file, load, error) => {
                             HTTP.delete(props.serverUrl, {
                                 params: {
@@ -257,6 +279,8 @@ FileUploader.propTypes = {
     labelIdle: PropTypes.string,
     afterUploadCallback: PropTypes.func,
     afterRevertCallback: PropTypes.func,
+    afterRemoveCallback: PropTypes.func,
+    removeFromServer: PropTypes.bool,
     serverUrl: PropTypes.string.isRequired,
     previewFile: PropTypes.string,
     previewAvatar: PropTypes.string,

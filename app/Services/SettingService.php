@@ -208,15 +208,18 @@ class SettingService implements SettingInterface
                 $data['avatar'] = 'assets/common/img/avatar/default.png';
             }
 
-            //get mail setting
-            $data['mailSettings']['MAIL_MAILER'] = env('MAIL_MAILER');
-            $data['mailSettings']['MAIL_HOST'] = env('MAIL_HOST');
-            $data['mailSettings']['MAIL_PORT'] = env('MAIL_PORT');
-            $data['mailSettings']['MAIL_USERNAME'] = env('MAIL_USERNAME');
-            $data['mailSettings']['MAIL_PASSWORD'] = env('MAIL_PASSWORD');
-            $data['mailSettings']['MAIL_ENCRYPTION'] = env('MAIL_ENCRYPTION');
-            $data['mailSettings']['MAIL_FROM_ADDRESS'] = env('MAIL_FROM_ADDRESS');
-            $data['mailSettings']['MAIL_FROM_NAME'] = env('MAIL_FROM_NAME');
+            // Mail: the connection comes from the server's settings and is shown read-only (never the
+            // password, which is the mail platform's API key). The sender is editable and stored here.
+            $mailer = config('mail.default');
+            $data['mailSettings'] = [
+                'MAIL_MAILER' => $mailer,
+                'MAIL_HOST' => config("mail.mailers.$mailer.host"),
+                'MAIL_PORT' => config("mail.mailers.$mailer.port"),
+                'MAIL_USERNAME' => config("mail.mailers.$mailer.username"),
+                'MAIL_FROM_ADDRESS' => config('mail.from.address'),
+                'MAIL_FROM_NAME' => config('mail.from.name'),
+                'MAIL_FROM_DOMAIN' => self::senderDomain(),
+            ];
 
             //get demo mode
             $data['demoMode'] = Config::get('custom.demo_mode');
@@ -389,50 +392,9 @@ class SettingService implements SettingInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteLogoRequest(string $file)
+    public function processDeleteLogoRequest(string $file = '')
     {
-        try {
-            if (!MediaStorage::exists($file)) {
-                return [
-                    'message' => 'The file can\'t be found',
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
-            }
-            if (MediaStorage::delete($file)) {
-                $defaultLogo = 'assets/common/img/logo/default.png';
-
-                $result  = $this->setSettingData([
-                    'setting_key' => CoreConstants::SETTING__LOGO,
-                    'setting_value' => $defaultLogo,
-                ]);
-
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    return [
-                        'message' => 'Logo is deleted successfully',
-                        'payload' => [
-                            'file' => $defaultLogo
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return $result;
-                }
-            } else {
-                return [
-                    'message' => 'Logo could not be deleted',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return [
-                'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
-                'status' => CoreConstants::STATUS_CODE_ERROR
-            ];
-        }
+        return $this->clearImageSetting(CoreConstants::SETTING__LOGO, 'assets/common/img/logo/default.png', 'Logo');
     }
 
     /**
@@ -511,49 +473,9 @@ class SettingService implements SettingInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteFaviconRequest(string $file)
+    public function processDeleteFaviconRequest(string $file = '')
     {
-        try {
-            if (!MediaStorage::exists($file)) {
-                return [
-                    'message' => 'The file can\'t be found',
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
-            }
-            if (MediaStorage::delete($file)) {
-                $defaultFavicon = 'assets/common/img/favicon/default.png';
-                $result  = $this->setSettingData([
-                    'setting_key' => CoreConstants::SETTING__FAVICON,
-                    'setting_value' => $defaultFavicon,
-                ]);
-
-                if ($result['status'] === CoreConstants::STATUS_CODE_SUCCESS) {
-                    return [
-                        'message' => 'File is deleted successfully',
-                        'payload' => [
-                            'file' => $defaultFavicon
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return $result;
-                }
-            } else {
-                return [
-                    'message' => 'File could not be deleted',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return [
-                'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
-                'status' => CoreConstants::STATUS_CODE_ERROR
-            ];
-        }
+        return $this->clearImageSetting(CoreConstants::SETTING__FAVICON, 'assets/common/img/favicon/default.png', 'Favicon');
     }
 
     /**
@@ -565,53 +487,116 @@ class SettingService implements SettingInterface
     public function storeMailSettings(array $data)
     {
         try {
+            $domain = self::senderDomain();
             $validate = Validator::make($data, [
-                'MAIL_MAILER' => 'required',
-                'MAIL_HOST' => 'required',
-                'MAIL_PORT' => 'required',
-                'MAIL_USERNAME' => 'required',
-                'MAIL_PASSWORD' => 'required',
-                'MAIL_ENCRYPTION' => 'required',
+                'MAIL_FROM_NAME' => 'required|string|max:80',
+                'MAIL_FROM_ADDRESS' => ['required', 'email', function ($attribute, $value, $fail) use ($domain) {
+                    // Amazon SES only sends for domains verified on the mail platform.
+                    if ($domain && strtolower(substr(strrchr($value, '@'), 1)) !== $domain) {
+                        $fail("The sender address must end in @{$domain}.");
+                    }
+                }],
             ]);
 
             if ($validate->fails()) {
                 return [
-                    'message' => 'Bad Request',
+                    'message' => $validate->errors()->first(),
                     'payload' => $validate->errors(),
                     'status' => CoreConstants::STATUS_CODE_BAD_REQUEST
                 ];
             }
-            
-            // TODO: Replace DotenvEditor with custom env file management
-            // $file = DotenvEditor::setKey('MAIL_MAILER', $data['MAIL_MAILER']);
-            // $file = DotenvEditor::setKey('MAIL_HOST', $data['MAIL_HOST']);
-            // $file = DotenvEditor::setKey('MAIL_PORT', $data['MAIL_PORT']);
-            // $file = DotenvEditor::setKey('MAIL_USERNAME', $data['MAIL_USERNAME']);
-            // $file = DotenvEditor::setKey('MAIL_PASSWORD', $data['MAIL_PASSWORD']);
-            // $file = DotenvEditor::setKey('MAIL_ENCRYPTION', $data['MAIL_ENCRYPTION']);
-            // $file = DotenvEditor::setKey('MAIL_FROM_ADDRESS', !empty($data['MAIL_FROM_ADDRESS']) ? $data['MAIL_FROM_ADDRESS'] : '');
-            // $file = DotenvEditor::setKey('MAIL_FROM_NAME', !empty($data['MAIL_FROM_NAME']) ? $data['MAIL_FROM_NAME'] : '');
-            // $file = DotenvEditor::save();
-            $file = true; // TODO: Temporary fix
 
-            if ($file) {
-                return [
-                    'message' => 'Mail setting is successfully updated',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_SUCCESS
-                ];
-            } else {
-                return [
-                    'message' => 'Something went wrong',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
+            $this->insertOrUpdate(['setting_key' => CoreConstants::SETTING__MAIL_FROM_NAME, 'setting_value' => trim($data['MAIL_FROM_NAME'])]);
+            $this->insertOrUpdate(['setting_key' => CoreConstants::SETTING__MAIL_FROM_ADDRESS, 'setting_value' => strtolower(trim($data['MAIL_FROM_ADDRESS']))]);
+            self::applyMailSender();
+
+            return [
+                'message' => 'Sender saved. New emails use it from now on.',
+                'payload' => ['MAIL_FROM_NAME' => config('mail.from.name'), 'MAIL_FROM_ADDRESS' => config('mail.from.address')],
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
                 'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
+                'payload' => null,
+                'status' => CoreConstants::STATUS_CODE_ERROR
+            ];
+        }
+    }
+
+    /**
+     * Domain the server's own sender address uses (MAIL_FROM_ADDRESS in the environment): the one the
+     * mail platform is verified to send for. Read before any saved override is applied.
+     */
+    public static function senderDomain(): ?string
+    {
+        $address = config('mail.from_server.address', config('mail.from.address'));
+        $at = $address ? strrchr($address, '@') : false;
+
+        return $at ? strtolower(substr($at, 1)) : null;
+    }
+
+    /**
+     * Use the sender saved in Settings > Mail, if any, for every email this request sends. Called once at
+     * boot (AppServiceProvider) and after saving. Without a database (install, tests) the server's
+     * values stay in place.
+     */
+    public static function applyMailSender(): void
+    {
+        if (!config()->has('mail.from_server')) {
+            config(['mail.from_server' => config('mail.from')]);
+        }
+
+        try {
+            $saved = Setting::whereIn('setting_key', [CoreConstants::SETTING__MAIL_FROM_NAME, CoreConstants::SETTING__MAIL_FROM_ADDRESS])
+                ->pluck('setting_value', 'setting_key');
+        } catch (\Throwable $th) {
+            return;
+        }
+
+        if (!empty($saved[CoreConstants::SETTING__MAIL_FROM_NAME])) {
+            config(['mail.from.name' => $saved[CoreConstants::SETTING__MAIL_FROM_NAME]]);
+        }
+        // Only a valid address is applied: a bad row must never stop every email from sending.
+        if (filter_var($saved[CoreConstants::SETTING__MAIL_FROM_ADDRESS] ?? null, FILTER_VALIDATE_EMAIL)) {
+            config(['mail.from.address' => $saved[CoreConstants::SETTING__MAIL_FROM_ADDRESS]]);
+        }
+    }
+
+    /**
+     * Remove an uploaded logo or favicon and put the setting back to its default. The file deleted is the
+     * one recorded in the database, never a path sent by the browser.
+     *
+     * @param string $key setting key
+     * @param string $default value the setting takes afterwards
+     * @param string $label for the message
+     * @return array
+     */
+    private function clearImageSetting(string $key, string $default, string $label)
+    {
+        try {
+            $current = $this->getSettingByKey($key, ['setting_value']);
+            $path = $current['status'] === CoreConstants::STATUS_CODE_SUCCESS ? $current['payload']->setting_value : null;
+            if ($path && $path !== $default && MediaStorage::exists($path)) {
+                MediaStorage::delete($path);
+            }
+
+            $result = $this->setSettingData(['setting_key' => $key, 'setting_value' => $default]);
+            if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
+                return $result;
+            }
+
+            return [
+                'message' => $label.' is deleted successfully',
+                'payload' => ['file' => $default],
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+            return [
+                'message' => 'Something went wrong',
+                'payload' => null,
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }

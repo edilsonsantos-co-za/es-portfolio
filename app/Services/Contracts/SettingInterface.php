@@ -57,7 +57,7 @@ interface SettingInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteLogoRequest(string $file);
+    public function processDeleteLogoRequest(string $file = '');
 
     /**
      * Process the update favicon request
@@ -73,7 +73,7 @@ interface SettingInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteFaviconRequest(string $file);
+    public function processDeleteFaviconRequest(string $file = '');
 
     /**
      * store mail settings

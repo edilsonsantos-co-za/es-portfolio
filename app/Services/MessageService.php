@@ -73,10 +73,17 @@ class MessageService implements MessageInterface
     {
         try {
             $validate = Validator::make($data, [
-                'name' => 'required|string',
-                'email' => 'required|email',
-                'subject' => 'required|string',
-                'body' => 'required|string',
+                'name' => 'required|string|max:80',
+                'email' => 'required|email|max:191',
+                'subject' => 'required|string|max:150',
+                'body' => 'required|string|max:5000',
+            ], [
+                'name.required' => 'Please enter your name.',
+                'email.required' => 'Please enter your email address.',
+                'email.email' => 'Please enter a valid email address.',
+                'subject.required' => 'Please enter a subject.',
+                'body.required' => 'Please write a message.',
+                'body.max' => 'Please keep the message under 5000 characters.',
             ]);
 
             if ($validate->fails()) {

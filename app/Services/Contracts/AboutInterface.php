@@ -34,7 +34,7 @@ interface AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteAvatarRequest(string $file);
+    public function processDeleteAvatarRequest(string $file = '');
 
     /**
      * Process the update cover request
@@ -50,7 +50,7 @@ interface AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteCoverRequest(string $file);
+    public function processDeleteCoverRequest(string $file = '');
 
     /**
      * Process the update CV request
@@ -66,5 +66,5 @@ interface AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteCVRequest(string $file);
+    public function processDeleteCVRequest(string $file = '');
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\LearningItem;
 use App\Services\Contracts\FrontendInterface;
 use CoreConstants;
 use Tests\TestCase;
@@ -39,7 +40,19 @@ class AtlasProjectsPageTest extends TestCase
             'experiences' => [],
             'projects' => $projects,
             'services' => [],
+            // The courses and plans the site shipped with (copied into learning_items by its migration).
+            'certificates' => collect(config('education.certificates'))->sortBy('date')->map(fn ($c) => new LearningItem([
+                'kind' => 'certificate', 'title' => $c['title'], 'issuer' => $c['issuer'], 'completed_on' => $c['date'],
+                'summary' => $c['summary'], 'image' => $c['image'], 'image_width' => $c['width'], 'image_height' => $c['height'],
+                'verification_url' => $c['verification_url'] ?? null,
+            ]))->values()->all(),
+            'plans' => collect(config('education.plans'))->map(fn ($p) => new LearningItem(['kind' => 'plan'] + $p))->all(),
         ], $overrides);
+        foreach (['certificates', 'plans'] as $list) {
+            if (array_key_exists($list, $overrides)) {
+                $payload[$list] = $overrides[$list];
+            }
+        }
 
         $this->app->instance(FrontendInterface::class, new class ($payload) implements FrontendInterface {
             public function __construct(private array $payload) {}
@@ -197,8 +210,7 @@ class AtlasProjectsPageTest extends TestCase
         $this->get('/education')->assertRedirect(url('/') . '#education');
         $this->get('/')->assertDontSee('data-icon="education"', false);
 
-        $this->fakeFrontend();
-        config(['education.certificates' => [], 'education.plans' => []]);
+        $this->fakeFrontend(['certificates' => [], 'plans' => []]);
         $this->get('/education')->assertRedirect(url('/') . '#education');
     }
 }

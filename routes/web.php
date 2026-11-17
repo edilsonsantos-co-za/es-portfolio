@@ -72,6 +72,8 @@ foreach (['experience', 'education', 'services', 'contact'] as $section) {
     Route::get('/' . $section, ['App\Http\Controllers\Frontend\FrontendController', 'section'])
         ->defaults('section', $section)->name('frontend.' . $section);
 }
+// The CV as a PDF, generated from the portfolio content on each request
+Route::get('/cv', ['App\Http\Controllers\Frontend\CvController', 'show'])->middleware('throttle:20,1')->name('frontend.cv');
 // Stable portrait link for the other ES apps
 Route::get('/avatar', ['App\Http\Controllers\Frontend\FrontendController', 'avatar'])->name('frontend.avatar');
 Route::get('/pixel-tracker', ['App\Http\Controllers\Frontend\FrontendController', 'pixelTracker'])->name('pixel-tracker');

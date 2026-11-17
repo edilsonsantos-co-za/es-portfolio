@@ -1,0 +1,37 @@
+<?php
+
+// Short, positive quotes for the admin dashboard: one a day, the same one all day, in this order.
+// Add or remove lines freely; the day of the year picks the entry.
+return [
+    ['The secret of getting ahead is getting started.', 'Mark Twain'],
+    ['It always seems impossible until it is done.', 'Nelson Mandela'],
+    ['Act as if what you do makes a difference. It does.', 'William James'],
+    ['Well done is better than well said.', 'Benjamin Franklin'],
+    ['What we think, we become.', 'The Buddha'],
+    ['Simplicity is the ultimate sophistication.', 'Leonardo da Vinci'],
+    ['The best way out is always through.', 'Robert Frost'],
+    ['Little by little, one travels far.', 'J. R. R. Tolkien'],
+    ['Quality is not an act, it is a habit.', 'Will Durant'],
+    ['You miss one hundred percent of the shots you do not take.', 'Wayne Gretzky'],
+    ['Do what you can, with what you have, where you are.', 'Theodore Roosevelt'],
+    ['Believe you can and you are halfway there.', 'Theodore Roosevelt'],
+    ['Make each day your masterpiece.', 'John Wooden'],
+    ['First, solve the problem. Then, write the code.', 'John Johnson'],
+    ['Energy and persistence conquer all things.', 'Benjamin Franklin'],
+    ['If you are going through hell, keep going.', 'Winston Churchill'],
+    ['Start where you are. Use what you have. Do what you can.', 'Arthur Ashe'],
+    ['Education is the most powerful weapon which you can use to change the world.', 'Nelson Mandela'],
+    ['Done is better than perfect.', 'Sheryl Sandberg'],
+    ['The future depends on what you do today.', 'Mahatma Gandhi'],
+    ['Dream big and dare to fail.', 'Norman Vaughan'],
+    ['Happiness is not something ready made. It comes from your own actions.', 'Dalai Lama'],
+    ['Nothing will work unless you do.', 'Maya Angelou'],
+    ['Courage is grace under pressure.', 'Ernest Hemingway'],
+    ['Stay hungry, stay foolish.', 'Stewart Brand'],
+    ['Whatever you are, be a good one.', 'Abraham Lincoln'],
+    ['Strive for progress, not perfection.', 'Unknown'],
+    ['Every accomplishment starts with the decision to try.', 'John F. Kennedy'],
+    ['The only way to do great work is to love what you do.', 'Steve Jobs'],
+    ['A smooth sea never made a skilled sailor.', 'Franklin D. Roosevelt'],
+    ['Keep your face always toward the sunshine.', 'Walt Whitman'],
+];

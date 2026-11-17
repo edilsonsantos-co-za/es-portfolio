@@ -14,13 +14,23 @@
 4. `resources/views/frontend/theme/atlas.blade.php` renders the page and includes
    `partials/education-timeline.blade.php`. The partial shows academic records,
    courses ordered by completion date, then a clearly separate set of plans.
-5. `config/education.php` holds the curated public certificate metadata and
-   aspirations. `public/certificates/` holds WebP previews rendered from the
-   supplied PDFs. Laravel's `asset()` builds their public URLs; the web server
-   serves the images directly. No new API, upload endpoint or database query is
-   needed for certificate viewing.
+5. Courses completed and learning plans live in the `learning_items` table
+   (model `App\Models\LearningItem`) and are managed in Admin > Portfolio >
+   Education, below the academic records. `FrontendService::getAllData()` adds
+   them as `$certificates` and `$plans`. The images that shipped with the site
+   stay in `public/certificates/`; new uploads go to the media disk.
+   `config/education.php` is now only the seed: the migration
+   `2026_11_17_000002_create_learning_items_table` copied its entries in once.
 
 ## Why this design
+
+Update 17 Nov 2026: certificates moved from versioned config to the CMS, because
+the owner wants to add and remove them at will. The admin API
+(`LearningController`) validates every upload: JPG, PNG or WebP only, at most
+5 MB, and links must be https. A plan cannot have a date, an image or a
+verification link, so it can never read as a qualification already earned.
+The original reasoning for the config file follows.
+
 
 The existing CMS remains responsible for academic records. A small versioned
 configuration is sufficient for five verified course certificates and four

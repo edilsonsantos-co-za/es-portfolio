@@ -244,61 +244,9 @@ class AboutService implements AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteAvatarRequest(string $file)
+    public function processDeleteAvatarRequest(string $file = '')
     {
-        try {
-            if (!MediaStorage::exists($file)) {
-                return [
-                    'message' => 'The file can\'t be found',
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
-            }
-
-            if (MediaStorage::delete($file)) {
-                $defaultAvatar = 'assets/common/img/avatar/default.png';
-                $result = $this->getAll();
-
-                if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
-                    return $result;
-                } else {
-                    $result = $result['payload'];
-                }
-
-                $updateResponse = $result->update([
-                    'avatar' => $defaultAvatar
-                ]);
-
-                if ($updateResponse) {
-                    return [
-                        'message' => 'File is deleted successfully',
-                        'payload' => [
-                            'file' => $defaultAvatar
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return [
-                        'message' => 'Something went wrong',
-                        'payload' => null,
-                        'status' => CoreConstants::STATUS_CODE_ERROR
-                    ];
-                }
-            } else {
-                return [
-                    'message' => 'File could not be deleted',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return [
-                'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
-                'status' => CoreConstants::STATUS_CODE_ERROR
-            ];
-        }
+        return $this->clearMedia('avatar', 'assets/common/img/avatar/default.png');
     }
 
     /**
@@ -383,61 +331,9 @@ class AboutService implements AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteCoverRequest(string $file)
+    public function processDeleteCoverRequest(string $file = '')
     {
-        try {
-            if (!MediaStorage::exists($file)) {
-                return [
-                    'message' => 'The file can\'t be found',
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
-            }
-
-            if (MediaStorage::delete($file)) {
-                $defaultCover = 'assets/common/img/cover/default.png';
-                $result = $this->getAll();
-
-                if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
-                    return $result;
-                } else {
-                    $result = $result['payload'];
-                }
-
-                $updateResponse = $result->update([
-                    'cover' => $defaultCover
-                ]);
-
-                if ($updateResponse) {
-                    return [
-                        'message' => 'File is deleted successfully',
-                        'payload' => [
-                            'file' => $defaultCover
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return [
-                        'message' => 'Something went wrong',
-                        'payload' => null,
-                        'status' => CoreConstants::STATUS_CODE_ERROR
-                    ];
-                }
-            } else {
-                return [
-                    'message' => 'File could not be deleted',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return [
-                'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
-                'status' => CoreConstants::STATUS_CODE_ERROR
-            ];
-        }
+        return $this->clearMedia('cover', 'assets/common/img/cover/default.png');
     }
 
     /**
@@ -521,56 +417,48 @@ class AboutService implements AboutInterface
      * @param string $file
      * @return array
      */
-    public function processDeleteCVRequest(string $file)
+    public function processDeleteCVRequest(string $file = '')
+    {
+        return $this->clearMedia('cv', null);
+    }
+
+    /**
+     * Remove the stored file of one media field and put the field back to its default.
+     *
+     * The file to delete is the one recorded in the database, never a path sent by the browser: the admin
+     * page cannot name some other file, and a record whose file is already gone can still be cleared.
+     * Default assets under assets/ are never deleted.
+     *
+     * @param string $field avatar, cover or cv
+     * @param string|null $default value the field takes afterwards
+     * @return array
+     */
+    private function clearMedia(string $field, ?string $default)
     {
         try {
-            if (!MediaStorage::exists($file)) {
-                return [
-                    'message' => 'The file can\'t be found',
-                    'payload' => $file,
-                    'status' => CoreConstants::STATUS_CODE_NOT_FOUND
-                ];
+            $result = $this->getAll();
+            if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
+                return $result;
+            }
+            $about = $result['payload'];
+            $current = $about->{$field};
+
+            if ($current && $current !== $default && MediaStorage::exists($current)) {
+                MediaStorage::delete($current);
             }
 
-            if (MediaStorage::delete($file)) {
-                $result = $this->getAll();
-                if ($result['status'] !== CoreConstants::STATUS_CODE_SUCCESS) {
-                    return $result;
-                } else {
-                    $result = $result['payload'];
-                }
+            $about->update([$field => $default]);
 
-                $updateResponse = $result->update([
-                    'cv' => null
-                ]);
-
-                if ($updateResponse) {
-                    return [
-                        'message' => 'File is deleted successfully',
-                        'payload' => [
-                            'file' => null
-                        ],
-                        'status' => CoreConstants::STATUS_CODE_SUCCESS
-                    ];
-                } else {
-                    return [
-                        'message'  => 'Something went wrong',
-                        'payload' => null,
-                        'status'  => CoreConstants::STATUS_CODE_ERROR
-                    ];
-                }
-            } else {
-                return [
-                    'message'  => 'File could not be deleted',
-                    'payload' => null,
-                    'status' => CoreConstants::STATUS_CODE_ERROR
-                ];
-            }
+            return [
+                'message' => 'File is deleted successfully',
+                'payload' => ['file' => $default],
+                'status' => CoreConstants::STATUS_CODE_SUCCESS
+            ];
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
             return [
                 'message' => 'Something went wrong',
-                'payload' => $th->getMessage(),
+                'payload' => null,
                 'status' => CoreConstants::STATUS_CODE_ERROR
             ];
         }

@@ -25,6 +25,7 @@ const Messages = () => {
     const actionRef = useRef();
     const [modalVisible, setModalVisible] = useState(false);
     const [itemToShow, setItemToShow] = useState(null);
+    const [replyMode, setReplyMode] = useState(false);
 
     const repliedOnChangeHandler = (checked, item) => {
         HTTP.put(Routes.api.admin.messages+'/'+item.id, {
@@ -162,7 +163,9 @@ const Messages = () => {
                 icon: <SendOutlined />,
                 label: 'Reply',
                 onClick: () => {
-                    window.open(`mailto:${row.email}`, '_blank');
+                    setItemToShow(row);
+                    setReplyMode(true);
+                    setModalVisible(true);
                 },
             },
             {
@@ -171,6 +174,7 @@ const Messages = () => {
                 label: 'View',
                 onClick: () => {
                     setItemToShow(row);
+                    setReplyMode(false);
                     setModalVisible(true);
                 },
             },
@@ -263,8 +267,9 @@ const Messages = () => {
             {
                 modalVisible && (
                     <Message
-                        title={'Message Details'}
+                        title={replyMode ? 'Reply' : 'Message Details'}
                         data={itemToShow}
+                        replyMode={replyMode}
                         visible={modalVisible}
                         handleCancel={
                             () => {
@@ -274,9 +279,8 @@ const Messages = () => {
                         }
                         submitCallback={
                             () => {
-                                setItemToShow(null);
-                                actionRef.current?.reloadAndRest();
-                                setModalVisible(false);
+                                // Keep the drawer open to show the sent reply; refresh the Replied column.
+                                actionRef.current?.reload();
                             }
                         }
                     />

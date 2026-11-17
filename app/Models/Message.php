@@ -21,4 +21,9 @@ class Message extends Model
         'body',
         'replied'
     ];
+
+    public function replies()
+    {
+        return $this->hasMany(MessageReply::class)->orderBy('id');
+    }
 }

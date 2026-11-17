@@ -7,7 +7,7 @@
     $latest = collect($experiences)->sortByDesc('id')->first();
     $companies = collect($experiences)->sortByDesc('id')->pluck('company')->filter()->unique()->values();
     $education = $education ?? [];
-    $hasEducation = count($education) || config('education.certificates') || config('education.plans');
+    $hasEducation = count($education) || count($certificates ?? []) || count($plans ?? []);
     $logoUrl = \App\Helpers\Utils::getLogo();
     $hasLogo = $logoUrl && !\Illuminate\Support\Str::contains($logoUrl, 'logo/default.png');
     // 'home' is the overview; every nav item is its own page: /projects, /experience, /education, /services, /contact.
@@ -319,7 +319,7 @@
                 </div>
                 <div class="actions">
                     @if ($visibility['contact'])<a class="btn primary" href="{{ $pageUrl('contact') }}">Hire me →</a>@endif
-                    @if ($visibility['cv'] && $about->cv)<a class="btn" href="{{ media_url($about->cv) }}" download>CV</a>@endif
+                    @if ($visibility['cv'])<a class="btn" href="{{ route('frontend.cv') }}" target="_blank" rel="noopener">CV</a>@endif
                     @foreach ($socials as $social)<a class="btn" href="{{ $social->link }}" target="_blank" rel="noopener">{{ \App\Helpers\ThemeContext::socialLabel($social->title) }}</a>@endforeach
                 </div>
             </div>

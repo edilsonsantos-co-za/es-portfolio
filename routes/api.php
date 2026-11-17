@@ -73,6 +73,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::put('/education/{id}', ['App\Http\Controllers\Admin\Api\EducationController', 'update']);
             Route::delete('/education', ['App\Http\Controllers\Admin\Api\EducationController', 'destroy']);
 
+            Route::get('/daily', ['App\Http\Controllers\Admin\Api\DailyController', 'show']);
+            Route::get('/learning', ['App\Http\Controllers\Admin\Api\LearningController', 'index']);
+            Route::post('/learning', ['App\Http\Controllers\Admin\Api\LearningController', 'store']);
+            Route::post('/learning/{id}', ['App\Http\Controllers\Admin\Api\LearningController', 'update'])->whereNumber('id');
+            Route::delete('/learning/{id}', ['App\Http\Controllers\Admin\Api\LearningController', 'destroy'])->whereNumber('id');
+
             Route::get('/experiences', ['App\Http\Controllers\Admin\Api\ExperienceController', 'index']);
             Route::post('/experiences', ['App\Http\Controllers\Admin\Api\ExperienceController', 'store']);
             Route::get('/experiences/{id}', ['App\Http\Controllers\Admin\Api\ExperienceController', 'show']);
@@ -96,6 +102,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/messages/{id}', ['App\Http\Controllers\Admin\Api\MessageController', 'show']);
             Route::put('/messages/{id}', ['App\Http\Controllers\Admin\Api\MessageController', 'update']);
             Route::delete('/messages', ['App\Http\Controllers\Admin\Api\MessageController', 'destroy']);
+            Route::post('/messages/{id}/reply', ['App\Http\Controllers\Admin\Api\MessageController', 'reply'])->whereNumber('id');
         });
     });
 

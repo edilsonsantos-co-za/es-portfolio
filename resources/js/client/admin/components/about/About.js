@@ -98,7 +98,6 @@ const About = () => {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [description, setDescription] = useState('');
-    const [cv, setCv] = useState(null);
     const [cover, setCover] = useState(null);
     const [taglines, setTagLines] = useState([]);
     const [socialLinks, setSocialLinks] = useState([]);
@@ -178,7 +177,6 @@ const About = () => {
                 setPhone(response.data.payload.phone);
                 setAddress(response.data.payload.address);
                 setDescription(response.data.payload.description);
-                setCv(response.data.payload.cv);
                 setCover(response.data.payload.cover);
                 setTagLines(response.data.payload.taglines ? JSON.parse(response.data.payload.taglines) : []);
                 setSocialLinks(response.data.payload.social_links ? JSON.parse(response.data.payload.social_links) : []);
@@ -300,12 +298,6 @@ const About = () => {
         }
     }
 
-    const cvUploadCallback = (file) => {
-        setTimeout(() => {
-            setCv(file);
-        }, 2000);
-    }
-    
     const coverUploadCallback = (file) => {
         setTimeout(() => {
             setCover(file);
@@ -445,17 +437,16 @@ const About = () => {
                                         CV
                                     </React.Fragment>
                                 } description={
-                                    <FileUploader
-                                        allowRevert={false}
-                                        previewFile={cv !== null ? Utils.mediaUrl(cv) : null}
-                                        acceptedFileTypes={['text/plain', 'application/pdf', 'application/doc', 'application/rtf']}
-                                        allowMultiple={false}
-                                        name={'file'}
-                                        serverUrl={Routes.api.admin.cv}
-                                        labelIdle={'Drag & Drop your CV or <span class="filepond--label-action">Browse</span>'}
-                                        afterUploadCallback={cvUploadCallback}
-                                        afterRevertCallback={cvUploadCallback}
-                                    />
+                                    // Generated from this page, Experience, Education, Skills and Projects on every download.
+                                    <Space direction="vertical" size={8}>
+                                        <Text type="secondary">
+                                            Built automatically from your About, Experience, Education, courses, Skills and Projects.
+                                            Change that content and the CV follows. Hide it under Portfolio → Config → Visibility.
+                                        </Text>
+                                        <a href={Utils.backend + '/cv'} target="_blank" rel="noreferrer">
+                                            <Button icon={<DownloadOutlined />}>Open the CV (PDF)</Button>
+                                        </a>
+                                    </Space>
                                 }/>
                             </Item>
                             <Item>
@@ -466,7 +457,7 @@ const About = () => {
                                 } description={
                                     <FileUploader
                                         allowRevert={false}
-                                        previewFile={cover !== null ? Utils.mediaUrl(cover) : null}
+                                        previewFile={cover && !cover.startsWith('assets/') ? Utils.mediaUrl(cover) : null}
                                         acceptedFileTypes={"image/*"}
                                         allowMultiple={false}
                                         name={'file'}
@@ -474,6 +465,8 @@ const About = () => {
                                         labelIdle={'Drag & Drop your cover or <span class="filepond--label-action">Browse</span>'}
                                         afterUploadCallback={coverUploadCallback}
                                         afterRevertCallback={coverUploadCallback}
+                                        removeFromServer={true}
+                                        afterRemoveCallback={(file) => setCover(file)}
                                         imagePreviewMaxHeight={195}
                                     />
                                 }/>
@@ -653,15 +646,11 @@ const About = () => {
                                     </Text>
                                 }
                             >
-                                {
-                                    cv ? (
-                                        <a href={Utils.mediaUrl(cv)} download target="_blank" rel="noreferrer">
-                                            <Button type="default" icon={<DownloadOutlined />}>
-                                                Download
-                                            </Button>
-                                        </a>
-                                    ) : ''
-                                }
+                                <a href={Utils.backend + '/cv'} target="_blank" rel="noreferrer">
+                                    <Button type="default" icon={<DownloadOutlined />}>
+                                        Open the generated CV
+                                    </Button>
+                                </a>
                             </Form.Item>
                             <Form.Item
                                 style={{
